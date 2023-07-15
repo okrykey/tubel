@@ -50,7 +50,11 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    todo          Todo[]
+
+    post          Post[]
+    comment       Comment[]
+    likes       Like[]
+    favorites   Favorite[]
 }
 
 model VerificationToken {
@@ -61,12 +65,49 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
-model Todo {
+
+model Post {
      id          String   @id @default(cuid())
      createdAt   DateTime @default(now())
      updatedAt   DateTime @updatedAt
-     text        String
-     isCompleted Boolean  @default(false)
+     title       String
+     content     String
      user        User     @relation(fields: [userId], references: [id])
      userId      String
+     comment     Comment[]
+     likes       Like[]
+     favorites   Favorite[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+
+  @@unique([userId, postId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+
+  @@unique([userId, postId])
 }
