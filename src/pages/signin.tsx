@@ -1,6 +1,15 @@
 import type { InferGetServerSidePropsType } from "next";
 import { getProviders, signIn } from "next-auth/react";
-import Image from "next/image";
+import {
+  Anchor,
+  Paper,
+  Title,
+  Text,
+  Container,
+  Button,
+  Image,
+} from "@mantine/core";
+import Link from "next/link";
 
 export async function getServerSideProps() {
   const providers = await getProviders();
@@ -11,40 +20,60 @@ export async function getServerSideProps() {
 }
 
 export default function SignIn({
-  // ここで providers の 型を定義しています
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
-      <div className="bg-olive-one selection:bg-green-two min-h-screen p-0 md:px-8 md:py-24">
-        <div className="flex flex-col items-center space-y-20 pt-40">
-          <Image
-            src="/images/github-icon.png"
-            width={170}
-            height={170}
-            alt="github-icon"
-          />
-          <div className="text-center">
-            <div className="mx-auto max-w-3xl">
-              <div className="flexjustify-center"></div>
-              {Object.values(providers).map((provider) => (
-                <div key={provider.name}>
-                  <button
-                    className="hover:text-green-five inline-flex w-full cursor-pointer items-center justify-center rounded-md p-4 text-xl font-bold"
-                    onClick={() =>
-                      void signIn(provider.id, {
-                        callbackUrl: "/",
-                      })
-                    }
-                  >
-                    Sign in with {provider.name}
-                  </button>
-                </div>
-              ))}
-            </div>
+      <Container size={420} my={60}>
+        <Title
+          align="center"
+          sx={(theme) => ({
+            fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+            fontWeight: 900,
+          })}
+        >
+          Welcome back!
+        </Title>
+        <Text color="dimmed" size="sm" align="center" mt={5}>
+          Do not have an account yet?{" "}
+          <Link href="/">
+            <Anchor size="sm" component="button">
+              Return to top page
+            </Anchor>
+          </Link>
+        </Text>
+
+        <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+          <div className="mx-auto max-w-3xl">
+            <div className="flexjustify-center"></div>
+            <Image
+              maw={240}
+              mx="auto"
+              radius="md"
+              src="/images/signin-icon.png"
+              alt="Random image"
+            />
+            {Object.values(providers).map((provider) => (
+              <div key={provider.name}>
+                <Button
+                  variant="outline"
+                  color="indigo"
+                  size="md"
+                  fullWidth
+                  mt="xl"
+                  onClick={() =>
+                    void signIn(provider.id, {
+                      callbackUrl: "/",
+                    })
+                  }
+                >
+                  Sign in with {provider.name}
+                </Button>
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
+        </Paper>
+      </Container>
     </>
   );
 }
