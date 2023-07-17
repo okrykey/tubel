@@ -9,7 +9,7 @@ export const updatePostInput = z.object({
   content: z
     .string()
     .min(1, "must be at least 1 letter")
-    .max(140, "must be 140 letters or less"),
+    .max(300, "must be 300 letters or less"),
 });
 
 export const createPostInput = z.object({

@@ -1,27 +1,85 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { createPostInput, updatePostInput } from "~/server/types";
+import slugify from "slugify";
+
+const LIMIT = 10;
 
 export const postRouter = createTRPCRouter({
-  all: protectedProcedure.query(async ({ ctx }) => {
-    const posts = await ctx.prisma.post.findMany({
-      where: {
-        userId: ctx.session.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return posts.map(({ id, title, content }) => ({
-      id,
-      title,
-      content,
-    }));
-  }),
+  all: publicProcedure
+    .input(
+      z.object({
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.prisma.post.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          featuredImage: true,
+          user: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+          bookmarks: ctx.session?.user?.id
+            ? {
+                where: {
+                  userId: ctx.session?.user?.id,
+                },
+              }
+            : false,
+          tags: {
+            select: {
+              name: true,
+              id: true,
+              slug: true,
+            },
+          },
+        },
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+        take: LIMIT + 1,
+      });
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+
+      if (posts.length > LIMIT) {
+        const nextItem = posts.pop();
+        if (nextItem) nextCursor = nextItem.id;
+      }
+
+      return { posts, nextCursor };
+    }),
+
   get: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const post = await ctx.prisma.post.findUnique({
       where: {
         id: input,
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        content: true,
+        likes: ctx.session?.user?.id
+          ? {
+              where: {
+                userId: ctx.session?.user?.id,
+              },
+            }
+          : false,
       },
     });
 
@@ -29,8 +87,8 @@ export const postRouter = createTRPCRouter({
       throw new Error("記事が見つかりませんでした。");
     }
 
-    const { id, title, content } = post;
-    return { id, title, content };
+    const { id, title, content, likes } = post;
+    return { id, title, content, likes };
   }),
   create: protectedProcedure
     .input(createPostInput)
@@ -39,6 +97,7 @@ export const postRouter = createTRPCRouter({
         data: {
           title: input.title,
           content: input.content,
+          slug: slugify(input.title),
           user: {
             connect: {
               id: ctx.session.user.id,
@@ -68,4 +127,65 @@ export const postRouter = createTRPCRouter({
       },
     });
   }),
+  likePost: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input: { postId } }) => {
+      await ctx.prisma.like.create({
+        data: {
+          userId: ctx.session.user.id,
+          postId,
+        },
+      });
+    }),
+  dislikePost: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input: { postId } }) => {
+      await ctx.prisma.like.delete({
+        where: {
+          userId_postId: {
+            postId: postId,
+            userId: ctx.session.user.id,
+          },
+        },
+      });
+    }),
+
+  bookmarkPost: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input: { postId } }) => {
+      await ctx.prisma.bookmark.create({
+        data: {
+          userId: ctx.session.user.id,
+          postId,
+        },
+      });
+    }),
+  removebookmark: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input: { postId } }) => {
+      await ctx.prisma.bookmark.delete({
+        where: {
+          userId_postId: {
+            postId: postId,
+            userId: ctx.session.user.id,
+          },
+        },
+      });
+    }),
 });

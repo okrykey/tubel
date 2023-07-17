@@ -3,20 +3,35 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createCommentInput, updateCommentInput } from "~/server/types";
 
 export const commentRouter = createTRPCRouter({
-  all: protectedProcedure.query(async ({ ctx }) => {
-    const posts = await ctx.prisma.comment.findMany({
-      where: {
-        userId: ctx.session.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return posts.map(({ id, content }) => ({
-      id,
-      content,
-    }));
-  }),
+  all: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const comments = await ctx.prisma.comment.findMany({
+        where: {
+          postId: input.postId,
+        },
+        select: {
+          id: true,
+          content: true,
+          user: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return comments;
+    }),
   create: protectedProcedure
     .input(createCommentInput)
     .mutation(({ ctx, input }) => {
