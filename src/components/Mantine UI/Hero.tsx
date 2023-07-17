@@ -34,7 +34,7 @@ const useStyles = createStyles((theme) => ({
   title: {
     color: theme.colorScheme === "dark" ? theme.white : theme.black,
     fontSize: rem(60),
-    fontWeight: 900,
+    fontWeight: 800,
     lineHeight: 1.1,
 
     [theme.fn.smallerThan("sm")]: {
@@ -82,14 +82,9 @@ export const Hero = () => {
       <Container>
         <div className={classes.inner}>
           <div className={classes.content}>
-            <Title className={classes.title}>
-              <span className={classes.highlight}>Next.js</span> React <br />{" "}
-              Typescript
-            </Title>
+            <Title className={classes.title}>学びを共有しよう</Title>
             <Text color="dimmed" mt="md">
-              Build fully functional accessible web applications faster than
-              ever – Mantine includes more than 120 customizable components and
-              hooks to cover you in any situation
+              学びを共有し、知識を広げるための無料のSNSプラットフォームへようこそ。私たちのサイトは、誰もが自由に学び、教え、つながることができる場所です。独自の学習体験を通じて、あなたの知識を深め、コミュニティとのつながりを強化しましょう。
             </Text>
 
             <List
@@ -103,16 +98,16 @@ export const Hero = () => {
               }
             >
               <List.Item>
-                <b>TypeScript based</b> – build type safe applications, all
-                components and hooks export types
+                <b>無料でアクセス可能</b>
+                ：あなたの学びの旅は、費用を心配することなく始めることができます。私たちのコンテンツはすべて無料で、誰でも利用できます。
               </List.Item>
               <List.Item>
-                <b>Free and open source</b> – all packages have MIT license, you
-                can use Mantine in any project
+                <b>わかりやすいコンテンツ</b>
+                ：私たちは、学びを楽しく、簡単にするために、わかりやすい教材を提供しています。専門知識がなくても、あなたの学びをサポートします。
               </List.Item>
               <List.Item>
-                <b>No annoying focus ring</b> – focus ring will appear only when
-                user navigates with keyboard
+                <b>学習の最短経路</b>
+                ：私たちのプラットフォームは、学びを通じて人々をつなげる場所です。あなたの知識を共有し、他の学習者から学び、一緒に成長しましょう。
               </List.Item>
             </List>
 

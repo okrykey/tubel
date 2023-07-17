@@ -8,7 +8,6 @@ import {
   rem,
   ActionIcon,
 } from "@mantine/core";
-import { IconShare } from "@tabler/icons-react";
 import { BiBookmark, BiLike } from "react-icons/bi";
 
 const useStyles = createStyles((theme) => ({
@@ -42,21 +41,21 @@ const useStyles = createStyles((theme) => ({
 
 interface CommentHtmlProps {
   postedAt: string;
-  body: string;
-  author: {
+  content: string;
+  user: {
     name: string;
     image: string;
   };
 }
 
-export function CommentCard({ postedAt, body, author }: CommentHtmlProps) {
+export function CommentCard({ postedAt, content, user }: CommentHtmlProps) {
   const { classes, theme } = useStyles();
   return (
-    <Paper withBorder radius="md" className={classes.comment}>
+    <Paper withBorder radius="lg" p="sm" className={classes.comment}>
       <Group>
-        <Avatar src={author.image} alt={author.name} radius="xl" />
+        <Avatar src={user.image} alt={user.name} radius="xl" />
         <div>
-          <Text fz="sm">{author.name}</Text>
+          <Text fz="sm">{user.name}</Text>
           <Text fz="xs" c="dimmed">
             {postedAt}
           </Text>
@@ -74,7 +73,7 @@ export function CommentCard({ postedAt, body, author }: CommentHtmlProps) {
       <TypographyStylesProvider className={classes.body}>
         <div
           className={classes.content}
-          dangerouslySetInnerHTML={{ __html: body }}
+          dangerouslySetInnerHTML={{ __html: content }}
         />
       </TypographyStylesProvider>
     </Paper>

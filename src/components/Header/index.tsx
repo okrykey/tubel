@@ -1,37 +1,23 @@
 import {
   createStyles,
   Header,
-  HoverCard,
   Group,
   Button,
-  UnstyledButton,
-  Text,
-  SimpleGrid,
-  ThemeIcon,
-  Anchor,
   Divider,
-  Center,
   Box,
   Burger,
   Drawer,
-  Collapse,
   ScrollArea,
   rem,
   useMantineColorScheme,
   ActionIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  IconCode,
-  IconCoin,
-  IconChevronDown,
-  IconSun,
-  IconMoonStars,
-} from "@tabler/icons-react";
+import { IconSun, IconMoonStars } from "@tabler/icons-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import Modal from "../Modal";
+import { useAtom } from "jotai";
+import { modalOpenAtom } from "~/pages/state/Atoms";
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -131,45 +117,14 @@ const ActionToggle = () => {
   );
 };
 
-const mockdata = [
-  {
-    icon: IconCode,
-    title: "Open source",
-    description: "This Pokémon’s cry is very loud and distracting",
-  },
-  {
-    icon: IconCoin,
-    title: "Free for everyone",
-    description: "The fluid of Smeargle’s tail secretions changes",
-  },
-];
-
 export const HeaderTabs = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
-  const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const { classes, theme } = useStyles();
   const { data: sessionData } = useSession();
-  const [isWriteModalOpen, setisWriteModalOpen] = useState(false);
-  const router = useRouter();
 
-  const links = mockdata.map((item) => (
-    <UnstyledButton className={classes.subLink} key={item.title}>
-      <Group noWrap align="flex-start">
-        <ThemeIcon size={34} variant="default" radius="md">
-          <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
-        </ThemeIcon>
-        <div>
-          <Text size="sm" fw={500}>
-            {item.title}
-          </Text>
-          <Text size="xs" color="dimmed">
-            {item.description}
-          </Text>
-        </div>
-      </Group>
-    </UnstyledButton>
-  ));
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useAtom(modalOpenAtom);
 
   return (
     <Box pb={0}>
@@ -179,95 +134,26 @@ export const HeaderTabs = () => {
             sx={{ height: "100%" }}
             spacing={0}
             className={classes.hiddenMobile}
+            position="center"
           >
-            <a href="#" className={classes.link}>
+            <a href="/" className={classes.link}>
               Home
             </a>
-            <HoverCard
-              width={600}
-              position="bottom"
-              radius="md"
-              shadow="md"
-              withinPortal
-            >
-              <HoverCard.Target>
-                <a href="#" className={classes.link}>
-                  <Center inline>
-                    <Box component="span" mr={5}>
-                      Features
-                    </Box>
-                    <IconChevronDown
-                      size={16}
-                      color={theme.fn.primaryColor()}
-                    />
-                  </Center>
-                </a>
-              </HoverCard.Target>
-
-              <HoverCard.Dropdown sx={{ overflow: "hidden" }}>
-                <Group position="apart" px="md">
-                  <Text fw={500}>Features</Text>
-                  <Anchor href="#" fz="xs">
-                    View all
-                  </Anchor>
-                </Group>
-
-                <Divider
-                  my="sm"
-                  mx="-md"
-                  color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
-                />
-
-                <SimpleGrid cols={2} spacing={0}>
-                  {links}
-                </SimpleGrid>
-
-                <div className={classes.dropdownFooter}>
-                  <Group position="apart">
-                    <div>
-                      <Text fw={500} fz="sm">
-                        Get started
-                      </Text>
-                      <Text size="xs" color="dimmed">
-                        Their food sources have decreased, and their numbers
-                      </Text>
-                    </div>
-                    <Button variant="default">Get started</Button>
-                  </Group>
-                </div>
-              </HoverCard.Dropdown>
-            </HoverCard>
-            <a href="#" className={classes.link}>
-              Learn
-            </a>
-            <a href="#" className={classes.link}>
-              Academy
-            </a>
           </Group>
+
           <Group className={classes.hiddenMobile}>
             <ActionToggle />
             <Button
               variant="outline"
               size="xs"
               color="indigo"
-              onClick={() => null}
+              onClick={() =>
+                sessionData ? setIsOpen(true) : router.push("/signin")
+              }
             >
               Post
             </Button>
-            <Button
-              variant="outline"
-              size="xs"
-              color="indigo"
-              onClick={() => {
-                if (sessionData) {
-                  router.push("/posts");
-                } else {
-                  router.back();
-                }
-              }}
-            >
-              {sessionData ? "go to post page" : "back to top page"}
-            </Button>
+
             <Button
               variant="outline"
               size="xs"
@@ -279,8 +165,30 @@ export const HeaderTabs = () => {
           </Group>
 
           <Group className={classes.hiddenDesktop} position="apart">
-            <Burger opened={drawerOpened} onClick={toggleDrawer} />
             <ActionToggle />
+          </Group>
+          <Group className={classes.hiddenDesktop}>
+            {sessionData ? (
+              <Button
+                variant="outline"
+                size="xs"
+                color="indigo"
+                onClick={() => setIsOpen(true)}
+              >
+                投稿
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="xs"
+                color="indigo"
+                onClick={() => router.push("/signin")}
+              >
+                登録
+              </Button>
+            )}
+
+            <Burger opened={drawerOpened} onClick={toggleDrawer} />
           </Group>
         </Group>
       </Header>
@@ -290,7 +198,6 @@ export const HeaderTabs = () => {
         onClose={closeDrawer}
         size="100%"
         padding="md"
-        title="Navigation"
         className={classes.hiddenDesktop}
         zIndex={1000000}
       >
@@ -300,23 +207,18 @@ export const HeaderTabs = () => {
             color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
           />
 
-          <a href="#" className={classes.link}>
-            Home
+          <a href="/" className={classes.link}>
+            ホーム
           </a>
-          <UnstyledButton className={classes.link} onClick={toggleLinks}>
-            <Center inline>
-              <Box component="span" mr={5}>
-                Features
-              </Box>
-              <IconChevronDown size={16} color={theme.fn.primaryColor()} />
-            </Center>
-          </UnstyledButton>
-          <Collapse in={linksOpened}>{links}</Collapse>
+
           <a href="#" className={classes.link}>
-            Learn
+            〇〇とは？
           </a>
           <a href="#" className={classes.link}>
-            Academy
+            プライバシーポリシー
+          </a>
+          <a href="#" className={classes.link}>
+            ご要望・ご質問
           </a>
 
           <Divider
@@ -324,21 +226,7 @@ export const HeaderTabs = () => {
             color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
           />
 
-          <Group position="center" grow pb="xl" px="md">
-            <Button
-              variant="outline"
-              size="md"
-              color="indigo"
-              onClick={() => {
-                if (sessionData) {
-                  router.push("/posts");
-                } else {
-                  router.back();
-                }
-              }}
-            >
-              {sessionData ? "go to post page" : "back to top page"}
-            </Button>
+          <Group position="center" grow pb="xl" px="xl">
             <Button
               variant="outline"
               size="md"
@@ -347,7 +235,6 @@ export const HeaderTabs = () => {
             >
               {sessionData ? "Sign out" : "Sign in"}
             </Button>
-            <ActionToggle />
           </Group>
         </ScrollArea>
       </Drawer>

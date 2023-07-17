@@ -3,7 +3,7 @@ import { Button, Input } from "@mantine/core";
 import { useState } from "react";
 import YouTube from "react-youtube";
 
-export const SubmitButton = () => {
+export const PutUrl = () => {
   const [showInput, setShowInput] = useState(true);
   const [newUrl, setNewUrl] = useState("");
   const [videoId, setVideoId] = useState("");
@@ -38,27 +38,20 @@ export const SubmitButton = () => {
           Post your favorite YouTube video
         </Button>
       ) : (
-        <div className="flex w-full items-center justify-center">
+        <div className="spaxe-y-4 flex w-full flex-col items-center justify-center">
           <Input
             value={newUrl}
             type="text"
             placeholder="https://www.youtube.com/xxxxxxxx"
             name="new-title"
             id="new-title"
-            className="m-4 w-1/3"
+            className="m-4 w-full"
             onChange={handleChange}
           />
+
           <Button
             className="m-4"
-            type="submit"
-            variant="outline"
-            color="indigo"
-            onClick={handleAdd}
-          >
-            反映
-          </Button>
-          <Button
-            className="m-4"
+            size="xs"
             type="submit"
             variant="outline"
             color="indigo"
@@ -66,6 +59,7 @@ export const SubmitButton = () => {
           >
             Cancel
           </Button>
+
           {videoId && <YouTube videoId={videoId} />}
         </div>
       )}
