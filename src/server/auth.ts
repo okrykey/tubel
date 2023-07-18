@@ -9,10 +9,18 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { generateUsername } from "~/utils/generateUsername";
 
 type ClientType = {
   clientId: string;
   clientSecret: string;
+  profile: (profile: any) => {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+    username: string;
+  };
 };
 
 /**
@@ -56,11 +64,29 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          username: generateUsername(profile.name),
+        };
+      },
     } as ClientType),
 
     GitHubProvider({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
+      profile(profile) {
+        return {
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          image: profile.image,
+          username: generateUsername(profile.name),
+        };
+      },
     } as ClientType),
 
     /**

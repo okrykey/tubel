@@ -28,10 +28,12 @@ export const postRouter = createTRPCRouter({
           content: true,
           createdAt: true,
           featuredImage: true,
+
           user: {
             select: {
               name: true,
               image: true,
+              username: true,
             },
           },
           bookmarks: ctx.session?.user?.id
