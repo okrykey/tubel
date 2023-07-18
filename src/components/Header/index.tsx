@@ -11,9 +11,11 @@ import {
   rem,
   useMantineColorScheme,
   ActionIcon,
+  Avatar,
+  Menu,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconSun, IconMoonStars } from "@tabler/icons-react";
+import { IconSun, IconMoonStars, IconSearch } from "@tabler/icons-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useAtom } from "jotai";
@@ -124,6 +126,7 @@ export const HeaderTabs = () => {
   const { data: sessionData } = useSession();
 
   const router = useRouter();
+
   const [isOpen, setIsOpen] = useAtom(modalOpenAtom);
 
   return (
@@ -143,6 +146,17 @@ export const HeaderTabs = () => {
 
           <Group className={classes.hiddenMobile}>
             <ActionToggle />
+            <Menu position="bottom-end" offset={6}>
+              <Menu.Target>
+                <Avatar src="" size={40} radius={80} mx="auto" />
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item icon={<IconSearch size={rem(14)} />} disabled>
+                  Search
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+
             <Button
               variant="outline"
               size="xs"

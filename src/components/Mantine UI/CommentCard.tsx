@@ -8,7 +8,7 @@ import {
   rem,
   ActionIcon,
 } from "@mantine/core";
-import { BiBookmark, BiLike } from "react-icons/bi";
+import { BiBookmark, BiHeart, BiLike } from "react-icons/bi";
 
 const useStyles = createStyles((theme) => ({
   comment: {
@@ -60,15 +60,6 @@ export function CommentCard({ postedAt, content, user }: CommentHtmlProps) {
             {postedAt}
           </Text>
         </div>
-
-        <Group spacing={4} mr={0}>
-          <ActionIcon className={classes.action}>
-            <BiLike size="1rem" color={theme.colors.blue[6]} />
-          </ActionIcon>
-          <ActionIcon className={classes.action}>
-            <BiBookmark size="1rem" color={theme.colors.yellow[7]} />
-          </ActionIcon>
-        </Group>
       </Group>
       <TypographyStylesProvider className={classes.body}>
         <div

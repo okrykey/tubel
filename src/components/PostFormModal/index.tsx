@@ -1,6 +1,6 @@
 import Modal from "../Modal";
 import { useAtom } from "jotai";
-import { modalOpenAtom } from "~/pages/state/Atoms";
+import { IdSetAtom, modalOpenAtom, UrlSetAtom } from "~/pages/state/Atoms";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,6 +23,8 @@ const PostFormScheme = z.object({
 
 const PostFormModal = () => {
   const [isOpen, setIsOpen] = useAtom(modalOpenAtom);
+  const [videoId, setVideoId] = useAtom(IdSetAtom);
+  const [newUrl, setNewUrl] = useAtom(UrlSetAtom);
 
   const {
     register,
@@ -47,6 +49,11 @@ const PostFormModal = () => {
 
   const onSubmit: SubmitHandler<PostFormType> = (data) => {
     mutate(data);
+  };
+
+  const handleAdd = () => {
+    const id = new URLSearchParams(new URL(newUrl).search).get("v");
+    setVideoId(id || "");
   };
 
   return (

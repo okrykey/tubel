@@ -11,7 +11,11 @@ import {
   rem,
 } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
+import { useAtom } from "jotai";
 import Link from "next/link";
+import { modalOpenAtom } from "~/pages/state/Atoms";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -77,6 +81,10 @@ const useStyles = createStyles((theme) => ({
 
 export const Hero = () => {
   const { classes } = useStyles();
+  const [isOpen, setIsOpen] = useAtom(modalOpenAtom);
+  const { data: sessionData } = useSession();
+
+  const router = useRouter();
   return (
     <div>
       <Container>
@@ -84,7 +92,7 @@ export const Hero = () => {
           <div className={classes.content}>
             <Title className={classes.title}>学びを共有しよう</Title>
             <Text color="dimmed" mt="md">
-              学びを共有し、知識を広げるための無料のSNSプラットフォームへようこそ。私たちのサイトは、誰もが自由に学び、教え、つながることができる場所です。独自の学習体験を通じて、あなたの知識を深め、コミュニティとのつながりを強化しましょう。
+              学びを共有し、知識を広げるための無料のSNSプラットフォームへようこそ。私たちのサイトは、誰もが自由に学び、教え、つながることができる場所です。
             </Text>
 
             <List
@@ -111,16 +119,17 @@ export const Hero = () => {
               </List.Item>
             </List>
 
-            <Link href="/signin">
-              <Button
-                variant="outline"
-                size="xl"
-                radius="xl"
-                className={classes.control}
-              >
-                Get started
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="xl"
+              radius="xl"
+              className={classes.control}
+              onClick={() =>
+                sessionData ? setIsOpen(true) : router.push("/signin")
+              }
+            >
+              {sessionData ? "投稿する" : "登録する"}
+            </Button>
           </div>
           <Image src="images/signin-icon.png" className={classes.image} />
         </div>

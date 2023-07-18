@@ -1,21 +1,17 @@
 import { IconBrandYoutube } from "@tabler/icons-react";
 import { Button, Input } from "@mantine/core";
 import { useState } from "react";
-import YouTube from "react-youtube";
+import { useAtom } from "jotai";
+import { IdSetAtom, UrlSetAtom } from "~/pages/state/Atoms";
 
 export const PutUrl = () => {
   const [showInput, setShowInput] = useState(true);
-  const [newUrl, setNewUrl] = useState("");
-  const [videoId, setVideoId] = useState("");
+  const [newUrl, setNewUrl] = useAtom(UrlSetAtom);
+  const [videoId, setVideoId] = useAtom(IdSetAtom);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setNewUrl(e.target.value);
-  };
-
-  const handleAdd = () => {
-    const id = new URLSearchParams(new URL(newUrl).search).get("v");
-    setVideoId(id || "");
   };
 
   const handleCancel = () => {
@@ -59,8 +55,6 @@ export const PutUrl = () => {
           >
             Cancel
           </Button>
-
-          {videoId && <YouTube videoId={videoId} />}
         </div>
       )}
     </>
