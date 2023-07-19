@@ -45,8 +45,8 @@ export const postRouter = createTRPCRouter({
             : false,
           tags: {
             select: {
-              name: true,
-              id: true,
+              value: true,
+              label: true,
               slug: true,
             },
           },
