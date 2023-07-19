@@ -21,6 +21,12 @@ export const commentRouter = createTRPCRouter({
             select: {
               name: true,
               image: true,
+              _count: {
+                select: {
+                  post: true,
+                  comment: true,
+                },
+              },
             },
           },
           createdAt: true,

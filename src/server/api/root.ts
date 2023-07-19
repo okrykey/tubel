@@ -3,6 +3,7 @@ import { commentRouter } from "./routers/comment";
 import { favoriteRouter } from "./routers/favorite";
 import { likeRouter } from "./routers/like";
 import { postRouter } from "./routers/post";
+import { tagRouter } from "./routers/tag";
 import { userRouter } from "./routers/user";
 
 /**
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   likes: likeRouter,
   favorite: favoriteRouter,
   user: userRouter,
+  tag: tagRouter,
 });
 
 // export type definition of API
