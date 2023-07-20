@@ -1,7 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
+import { categoryRouter } from "./routers/category";
 import { commentRouter } from "./routers/comment";
-import { favoriteRouter } from "./routers/favorite";
-import { likeRouter } from "./routers/like";
 import { postRouter } from "./routers/post";
 import { tagRouter } from "./routers/tag";
 import { userRouter } from "./routers/user";
@@ -14,10 +13,9 @@ import { userRouter } from "./routers/user";
 export const appRouter = createTRPCRouter({
   post: postRouter,
   comment: commentRouter,
-  likes: likeRouter,
-  favorite: favoriteRouter,
   user: userRouter,
   tag: tagRouter,
+  category: categoryRouter,
 });
 
 // export type definition of API

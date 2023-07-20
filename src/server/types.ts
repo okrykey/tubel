@@ -13,14 +13,11 @@ export const updatePostInput = z.object({
 });
 
 export const createPostInput = z.object({
-  title: z
-    .string()
-    .min(1, "must be at least 1 letter")
-    .max(50, "must be 50 letters or less"),
-  content: z
-    .string()
-    .min(1, "must be at least 1 letter")
-    .max(140, "must be 140 letters or less"),
+  title: z.string(),
+  content: z.string(),
+  videoId: z.string(),
+  category: z.string(),
+  tags: z.array(z.string()),
 });
 
 export const createCommentInput = z.object({

@@ -7,8 +7,6 @@ import {
 import { createPostInput, updatePostInput } from "~/server/types";
 import slugify from "slugify";
 
-const LIMIT = 10;
-
 export const postRouter = createTRPCRouter({
   all: publicProcedure
     .input(
@@ -16,7 +14,7 @@ export const postRouter = createTRPCRouter({
         cursor: z.string().nullish(),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx }) => {
       const posts = await ctx.prisma.post.findMany({
         orderBy: {
           createdAt: "desc",
@@ -27,8 +25,7 @@ export const postRouter = createTRPCRouter({
           title: true,
           content: true,
           createdAt: true,
-          featuredImage: true,
-
+          videoId: true,
           user: {
             select: {
               name: true,
@@ -45,24 +42,15 @@ export const postRouter = createTRPCRouter({
             : false,
           tags: {
             select: {
-              value: true,
-              label: true,
+              id: true,
+              name: true,
               slug: true,
             },
           },
         },
-        cursor: input.cursor ? { id: input.cursor } : undefined,
-        take: LIMIT + 1,
       });
 
-      let nextCursor: typeof input.cursor | undefined = undefined;
-
-      if (posts.length > LIMIT) {
-        const nextItem = posts.pop();
-        if (nextItem) nextCursor = nextItem.id;
-      }
-
-      return { posts, nextCursor };
+      return { posts };
     }),
 
   get: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -75,6 +63,7 @@ export const postRouter = createTRPCRouter({
         slug: true,
         title: true,
         content: true,
+        videoId: true,
         likes: ctx.session?.user?.id
           ? {
               where: {
@@ -89,25 +78,57 @@ export const postRouter = createTRPCRouter({
       throw new Error("記事が見つかりませんでした。");
     }
 
-    const { id, title, content, likes } = post;
-    return { id, title, content, likes };
+    const { id, title, content, likes, videoId } = post;
+    return { id, title, content, likes, videoId };
   }),
   create: protectedProcedure
     .input(createPostInput)
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.post.create({
+    .mutation(async ({ ctx, input }) => {
+      const category = await ctx.prisma.category.create({
+        data: {
+          name: input.category,
+        },
+      });
+      if (!category) {
+        throw new Error("Failed to create category");
+      }
+
+      const tagPromises = input.tags.map((tagName) =>
+        ctx.prisma.tag.create({
+          data: {
+            name: tagName,
+            slug: slugify(tagName),
+          },
+        })
+      );
+      const tags = await Promise.all(tagPromises);
+      if (!tags || tags.length === 0) {
+        throw new Error("Failed to create tags");
+      }
+
+      await ctx.prisma.post.create({
         data: {
           title: input.title,
           content: input.content,
-          slug: slugify(input.title),
+          videoId: input.videoId,
+          slug: slugify(input.videoId),
           user: {
             connect: {
               id: ctx.session.user.id,
             },
           },
+          tags: {
+            connect: tags.map((tag) => ({ id: tag.id })),
+          },
+          category: {
+            connect: {
+              id: category.id,
+            },
+          },
         },
       });
     }),
+
   update: protectedProcedure
     .input(updatePostInput)
     .mutation(({ ctx, input }) => {

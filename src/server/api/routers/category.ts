@@ -3,24 +3,24 @@ import slugify from "slugify";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
-export const tagRouter = createTRPCRouter({
-  createTag: protectedProcedure
+export const categoryRouter = createTRPCRouter({
+  createCategory: protectedProcedure
     .input(
       z.object({
         name: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const tag = await ctx.prisma.tag.findUnique({
+      const category = await ctx.prisma.category.findUnique({
         where: {
           name: input.name,
         },
       });
 
-      if (tag) {
+      if (category) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "tag already exists!",
+          message: "category already exists!",
         });
       }
 
@@ -32,7 +32,7 @@ export const tagRouter = createTRPCRouter({
       });
     }),
 
-  getTags: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.tag.findMany();
+  getCategories: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.category.findMany();
   }),
 });

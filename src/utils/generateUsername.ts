@@ -1,6 +1,5 @@
-import { randomUUID } from "crypto";
-import slugify from "slugify";
-
 export const generateUsername = (name: string) => {
-  return slugify(name) + randomUUID();
+  const slug = name.replace(/\s+/g, "-").toLowerCase();
+  const randomString = Math.random().toString(36).substring(2, 10);
+  return slug + randomString;
 };
