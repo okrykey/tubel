@@ -9,17 +9,18 @@ import {
   Drawer,
   ScrollArea,
   rem,
-  useMantineColorScheme,
-  ActionIcon,
   Avatar,
   Menu,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconSun, IconMoonStars, IconSearch } from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useAtom } from "jotai";
 import { modalOpenAtom } from "~/pages/state/Atoms";
+import { ActionToggle } from "../ActionToggle";
+import Link from "next/link";
+import { api } from "~/utils/api";
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -90,35 +91,6 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const ActionToggle = () => {
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-
-  return (
-    <Group>
-      <ActionIcon
-        onClick={() => toggleColorScheme()}
-        size="lg"
-        sx={(theme) => ({
-          backgroundColor:
-            theme.colorScheme === "dark"
-              ? theme.colors.dark[6]
-              : theme.colors.gray[0],
-          color:
-            theme.colorScheme === "dark"
-              ? theme.colors.yellow[4]
-              : theme.colors.blue[6],
-        })}
-      >
-        {colorScheme === "dark" ? (
-          <IconSun size="1.2rem" />
-        ) : (
-          <IconMoonStars size="1.2rem" />
-        )}
-      </ActionIcon>
-    </Group>
-  );
-};
-
 export const HeaderTabs = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
@@ -128,6 +100,18 @@ export const HeaderTabs = () => {
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useAtom(modalOpenAtom);
+
+  const userId = sessionData?.user?.id;
+  const userAvatarQuery = api.user.getUserAvatar.useQuery(
+    {
+      userId: userId || "",
+    },
+    {
+      enabled: !!userId,
+    }
+  );
+
+  const userImage = userAvatarQuery.data?.image as string;
 
   return (
     <Box pb={0}>
@@ -146,13 +130,27 @@ export const HeaderTabs = () => {
 
           <Group className={classes.hiddenMobile}>
             <ActionToggle />
-            <Menu position="bottom-end" offset={6}>
+            <Menu position="bottom-end" shadow="md" offset={6} width={240}>
               <Menu.Target>
-                <Avatar src="" size={40} radius={80} mx="auto" />
+                <Avatar src={userImage} size={40} radius={80} mx="auto" />
               </Menu.Target>
+
               <Menu.Dropdown>
-                <Menu.Item icon={<IconSearch size={rem(14)} />} disabled>
-                  Search
+                <Menu.Label className="font-bold">ユーザー設定</Menu.Label>
+                <Menu.Item className="text-base font-bold text-gray-600">
+                  プロフィール編集
+                </Menu.Item>
+                <Menu.Item className="text-base font-bold text-gray-600">
+                  ブックマーク
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Label className="font-bold">その他</Menu.Label>
+                <Link href="/about"></Link>
+                <Menu.Item className="text-base font-bold text-gray-600">
+                  〇〇について
+                </Menu.Item>
+                <Menu.Item className="text-base font-bold text-gray-600">
+                  ログアウト
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -174,14 +172,15 @@ export const HeaderTabs = () => {
               color="indigo"
               onClick={sessionData ? () => void signOut() : () => void signIn()}
             >
-              {sessionData ? "Sign out" : "Sign in"}
+              {sessionData ? "ログアウト" : "登録/ログイン"}
             </Button>
           </Group>
 
           <Group className={classes.hiddenDesktop} position="apart">
-            <ActionToggle />
+            <Burger opened={drawerOpened} onClick={toggleDrawer} />
           </Group>
           <Group className={classes.hiddenDesktop}>
+            <ActionToggle />
             {sessionData ? (
               <Button
                 variant="outline"
@@ -201,8 +200,6 @@ export const HeaderTabs = () => {
                 登録
               </Button>
             )}
-
-            <Burger opened={drawerOpened} onClick={toggleDrawer} />
           </Group>
         </Group>
       </Header>

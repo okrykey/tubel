@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
+import Image from "next/image";
 dayjs.extend(relativeTime);
 
 type CommentSidebarProps = {
@@ -69,7 +70,13 @@ const CommentSidebar = ({
             <Dialog.Panel className="relative h-screen w-[200px] bg-white shadow-md sm:w-[400px]">
               <div className=" flex h-full w-full flex-col overflow-scroll px-6">
                 <div className="mb-5 mt-10 flex items-center justify-between  text-xl">
-                  <h2 className=" font-medium">Responses (4)</h2>
+                  <h2 className=" font-medium">
+                    {getComments.data?.reduce(
+                      (_, comment) => comment.user._count.comment,
+                      0
+                    ) ?? 0}{" "}
+                    コメント
+                  </h2>
                   <div>
                     <HiXMark
                       className="cursor-pointer"
@@ -112,7 +119,17 @@ const CommentSidebar = ({
                         key={comment.id}
                       >
                         <div className="flex w-full items-center space-x-2 text-xs">
-                          <div className="relative h-8 w-8 rounded-full bg-gray-400"></div>
+                          <div className="relative h-8 w-8 rounded-full bg-gray-400">
+                            {typeof comment.user.image === "string" && (
+                              <Image
+                                src={comment.user.image}
+                                alt=""
+                                width={40}
+                                height={40}
+                                className="rounded-full"
+                              />
+                            )}
+                          </div>
                           <div>
                             <p className="font-semibold">{comment.user.name}</p>
                             <p>{dayjs(comment.createdAt).fromNow()}</p>

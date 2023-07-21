@@ -128,7 +128,7 @@ export const Hero = () => {
                 sessionData ? setIsOpen(true) : router.push("/signin")
               }
             >
-              {sessionData ? "投稿する" : "登録する"}
+              {sessionData ? "Get Started!" : "登録する"}
             </Button>
           </div>
           <Image src="images/signin-icon.png" className={classes.image} />
