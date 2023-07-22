@@ -1,9 +1,16 @@
 import { atom } from "jotai";
 
+const tags = [
+  { value: "react", label: "React" },
+  { value: "youtube", label: "YouTube" },
+  { value: "twitter", label: "Twitter" },
+  { value: "qiita", label: "Qiita" },
+  { value: "zenn", label: "Zenn" },
+  { value: "web", label: "Web" },
+];
+
 export const modalOpenAtom = atom(false);
 
 export const CommentOpenAtom = atom(false);
 
-export const UrlSetAtom = atom("");
-
-export const IdSetAtom = atom("");
+export const tagsAtom = atom(tags);
