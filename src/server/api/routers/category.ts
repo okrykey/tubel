@@ -7,13 +7,14 @@ export const categoryRouter = createTRPCRouter({
   createCategory: protectedProcedure
     .input(
       z.object({
+        id: z.string(),
         name: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const category = await ctx.prisma.category.findUnique({
         where: {
-          name: input.name,
+          id: input.id,
         },
       });
 

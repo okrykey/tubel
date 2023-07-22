@@ -1,5 +1,4 @@
-export const generateUsername = (name: string) => {
-  const slug = name.replace(/\s+/g, "-").toLowerCase();
-  const randomString = Math.random().toString(36).substring(2, 10);
-  return slug + randomString;
+export const generateUsername = () => {
+  const randomString = Math.random().toString(36).substring(2, 12);
+  return randomString;
 };

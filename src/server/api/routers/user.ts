@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   getUserProfile: publicProcedure
@@ -27,6 +31,23 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
+  getUserAvatar: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.user.findUnique({
+        where: {
+          id: input.userId,
+        },
+        select: {
+          image: true,
+          username: true,
+        },
+      });
+    }),
   getUserPosts: publicProcedure
     .input(
       z.object({
@@ -45,14 +66,27 @@ export const userRouter = createTRPCRouter({
               slug: true,
               title: true,
               content: true,
+              videoId: true,
               createdAt: true,
-              bookmarks: true,
-              tags: true,
               user: {
                 select: {
                   name: true,
                   image: true,
                   username: true,
+                },
+              },
+              bookmarks: ctx.session?.user?.id
+                ? {
+                    where: {
+                      userId: ctx.session?.user?.id,
+                    },
+                  }
+                : false,
+              tags: {
+                select: {
+                  name: true,
+                  id: true,
+                  slug: true,
                 },
               },
             },
