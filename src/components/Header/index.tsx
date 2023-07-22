@@ -13,7 +13,6 @@ import {
   Menu,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconSearch } from "@tabler/icons-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useAtom } from "jotai";
@@ -112,6 +111,7 @@ export const HeaderTabs = () => {
   );
 
   const userImage = userAvatarQuery.data?.image as string;
+  const userName = userAvatarQuery.data?.username as string;
 
   return (
     <Box pb={0}>
@@ -130,42 +130,51 @@ export const HeaderTabs = () => {
 
           <Group className={classes.hiddenMobile}>
             <ActionToggle />
-            <Menu position="bottom-end" shadow="md" offset={6} width={240}>
-              <Menu.Target>
-                <Avatar src={userImage} size={40} radius={80} mx="auto" />
-              </Menu.Target>
 
-              <Menu.Dropdown>
-                <Menu.Label className="font-bold">ユーザー設定</Menu.Label>
-                <Menu.Item className="text-base font-bold text-gray-600">
-                  プロフィール編集
-                </Menu.Item>
-                <Menu.Item className="text-base font-bold text-gray-600">
-                  ブックマーク
-                </Menu.Item>
-                <Menu.Divider />
-                <Menu.Label className="font-bold">その他</Menu.Label>
-                <Link href="/about"></Link>
-                <Menu.Item className="text-base font-bold text-gray-600">
-                  〇〇について
-                </Menu.Item>
-                <Menu.Item className="text-base font-bold text-gray-600">
-                  ログアウト
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+            {sessionData && (
+              <>
+                <Menu position="bottom-end" shadow="md" offset={6} width={240}>
+                  <Menu.Target>
+                    <Avatar src={userImage} size={40} radius={80} mx="auto" />
+                  </Menu.Target>
 
-            <Button
-              variant="outline"
-              size="xs"
-              color="indigo"
-              onClick={() =>
-                sessionData ? setIsOpen(true) : router.push("/signin")
-              }
-            >
-              Post
-            </Button>
-
+                  <Menu.Dropdown>
+                    <Menu.Label className="font-bold">ユーザー設定</Menu.Label>
+                    <Link href={`/user/${userName}`}>
+                      <Menu.Item className="text-base font-bold text-gray-600">
+                        プロフィール
+                      </Menu.Item>
+                    </Link>
+                    <Menu.Item className="text-base font-bold text-gray-600">
+                      ブックマーク
+                    </Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Label className="font-bold">その他</Menu.Label>
+                    <Link href="/about">
+                      <Menu.Item className="text-base font-bold text-gray-600">
+                        〇〇について
+                      </Menu.Item>
+                    </Link>
+                    <Menu.Item
+                      className="text-base font-bold text-gray-600"
+                      onClick={() => void signOut()}
+                    >
+                      ログアウト
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  color="indigo"
+                  onClick={() =>
+                    sessionData ? setIsOpen(true) : router.push("/signin")
+                  }
+                >
+                  Post
+                </Button>
+              </>
+            )}
             <Button
               variant="outline"
               size="xs"
@@ -218,19 +227,19 @@ export const HeaderTabs = () => {
             color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
           />
 
-          <a href="/" className={classes.link}>
+          <Link href="/" className={classes.link}>
             ホーム
-          </a>
+          </Link>
 
-          <a href="#" className={classes.link}>
-            〇〇とは？
-          </a>
-          <a href="#" className={classes.link}>
+          <Link href="/about" className={classes.link}>
+            TubeLearnについて
+          </Link>
+          <Link href="#" className={classes.link}>
             プライバシーポリシー
-          </a>
-          <a href="#" className={classes.link}>
+          </Link>
+          <Link href="#" className={classes.link}>
             ご要望・ご質問
-          </a>
+          </Link>
 
           <Divider
             my="sm"
