@@ -6,27 +6,23 @@ import { BiLike, BiSolidLike } from "react-icons/bi";
 import { BsChat } from "react-icons/bs";
 
 import CommentFormModal from "~/components/CommentFormModal";
-import {
-  AspectRatio,
-  Button,
-  Center,
-  Divider,
-  Paper,
-  Title,
-} from "@mantine/core";
+import { AspectRatio, Button, Divider } from "@mantine/core";
 import { useAtom } from "jotai";
-import { CommentOpenAtom } from "../state/Atoms";
+import { CommentOpenAtom, IdSetAtom, tagsAtom } from "../state/Atoms";
 import MainLayout from "~/layouts/Mainlayout";
 import YouTube from "react-youtube";
-import { Prism } from "@mantine/prism";
+import CommentSidebar from "~/components/CommentSidebar";
 
 const Postpage = () => {
   const [isCommentOpen, setIsCommentOpen] = useAtom(CommentOpenAtom);
+  const [showCommentSidebar, setShowCommentSidebar] = useState(false);
+  const [tags] = useAtom(tagsAtom);
+  const [videoId, setVideoId] = useAtom(IdSetAtom);
 
   const router = useRouter();
-  const { id } = router.query;
+  const { slug } = router.query;
 
-  if (typeof id !== "string") {
+  if (typeof slug !== "string") {
     return null;
   }
   const PostRoute = api.useContext().post;
@@ -58,25 +54,27 @@ const Postpage = () => {
         postId: post.id,
       });
   };
-  const demoCode = `import { Button } from '@mantine/core';
-  function Demo() {
-  return <Button>Hello</Button>
-}`;
 
-  const postGetByIdQuery = api.post.get.useQuery(id);
+  const handleClick = () => {
+    window.innerWidth <= 768
+      ? setIsCommentOpen(true)
+      : setShowCommentSidebar(true);
+  };
 
-  if (postGetByIdQuery.isLoading) {
+  const getPost = api.post.get.useQuery(slug);
+
+  if (getPost.isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (postGetByIdQuery.error) {
+  if (getPost.error) {
     return <div>Error</div>;
   }
 
-  const post = postGetByIdQuery.data;
+  const post = getPost.data;
   return (
     <MainLayout>
-      {postGetByIdQuery.isSuccess && (
+      {getPost.isSuccess && (
         <div className="fixed bottom-10 flex w-full items-center justify-center md:bottom-5">
           <div className="transition-duration-300 group flex items-center justify-center space-x-2 rounded-full border border-gray-400 bg-white px-6 py-3 hover:border-blue-500">
             <div className="transition-duration-300 border-r pr-4 group-hover:border-blue-500">
@@ -95,7 +93,7 @@ const Postpage = () => {
             <div>
               <BsChat
                 className="cursor-pointer text-base"
-                onClick={() => setIsCommentOpen(true)}
+                onClick={handleClick}
               ></BsChat>
             </div>
           </div>
@@ -112,24 +110,35 @@ const Postpage = () => {
           </h1>
 
           <AspectRatio ratio={16 / 9}>
-            <YouTube videoId="" />
+            <YouTube videoId={post.videoId} />
           </AspectRatio>
 
-          <Prism language="tsx">{demoCode}</Prism>
-
           <div className="border-l-4 border-gray-400 pl-6">{post.content}</div>
+          {tags.map((tag, index) => (
+            <span key={index} className="tag">
+              {tag.label}
+            </span>
+          ))}
+
           <Divider my="sm" variant="dotted" />
           <Button
             variant="outline"
             size="sm"
             color="indigo"
-            onClick={() => setIsCommentOpen(true)}
+            onClick={handleClick}
           >
             コメントを書く
           </Button>
-          <CommentFormModal></CommentFormModal>
+          {getPost.data?.id && <CommentFormModal />}
+          {getPost.data?.id && (
+            <CommentSidebar
+              showCommentSidebar={showCommentSidebar}
+              setShowCommentSidebar={setShowCommentSidebar}
+              postId={getPost.data?.id}
+            />
+          )}
 
-          <Comments />
+          <Comments postId={getPost.data?.id} />
         </div>
       </div>
     </MainLayout>

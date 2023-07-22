@@ -79,7 +79,11 @@ const Post = ({ ...post }: PostProps) => {
       <Card withBorder radius="md" className={cx(classes.card)}>
         <Card.Section>
           <Link href={`/posts/${post.id}`}>
-            <Image src={post.featuredImage} height={180} alt={post.title} />
+            <Image
+              src={`https://i.ytimg.com/vi/${post.videoId}/maxresdefault.jpg`}
+              height={180}
+              alt={post.title}
+            />
           </Link>
         </Card.Section>
         <Text className={classes.title} fw={500} component="a">
@@ -87,14 +91,21 @@ const Post = ({ ...post }: PostProps) => {
         </Text>
 
         <Text fz="sm" color="dimmed" lineClamp={4}>
-          {post.content}
+          {post.content.length > 20
+            ? post.content.substring(0, 21) + "..."
+            : post.content}
         </Text>
 
         <Group position="apart" className={classes.footer}>
           <Center>
-            <Avatar src={post.user.image} size={24} radius="xl" mr="xs" />
+            <Link href={`/user/${post.user.username}`}>
+              <Avatar src={post.user.image} size={24} radius="xl" mr="xs" />
+            </Link>
             <Text fz="sm" inline>
               {post.user.name}
+              <span className="mx-1">
+                {dayjs(post.createdAt).format("YYYY/MM/DD")}
+              </span>
             </Text>
           </Center>
 
