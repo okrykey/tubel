@@ -26,6 +26,12 @@ export const postRouter = createTRPCRouter({
           content: true,
           createdAt: true,
           videoId: true,
+          _count: {
+            select: {
+              bookmarks: true,
+              comment: true,
+            },
+          },
           user: {
             select: {
               name: true,
@@ -64,6 +70,7 @@ export const postRouter = createTRPCRouter({
         title: true,
         content: true,
         videoId: true,
+
         likes: ctx.session?.user?.id
           ? {
               where: {
@@ -211,4 +218,15 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
+  getBookmarkList: protectedProcedure.query(async ({ ctx }) => {
+    const allBookmarks = ctx.prisma.bookmark.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return allBookmarks;
+  }),
 });

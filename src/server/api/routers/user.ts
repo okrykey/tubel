@@ -68,6 +68,12 @@ export const userRouter = createTRPCRouter({
               content: true,
               videoId: true,
               createdAt: true,
+              _count: {
+                select: {
+                  bookmarks: true,
+                  comment: true,
+                },
+              },
               user: {
                 select: {
                   name: true,
@@ -91,6 +97,23 @@ export const userRouter = createTRPCRouter({
               },
             },
           },
+        },
+      });
+    }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        name: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.userId,
+        },
+        data: {
+          name: input.name,
         },
       });
     }),
