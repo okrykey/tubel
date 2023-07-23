@@ -12,10 +12,13 @@ import {
   Button,
   rem,
   SimpleGrid,
+  Container,
+  Divider,
 } from "@mantine/core";
 import { BiEdit } from "react-icons/bi";
 import Post from "~/components/Post";
 import { useSession } from "next-auth/react";
+import { HeaderTabs } from "~/components/Header";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -34,7 +37,7 @@ export function UserProfilePage() {
   const { classes, theme } = useStyles();
   const router = useRouter();
 
-  const currentUser = useSession();
+  const cuurentUser = useSession();
 
   const userProfile = api.user.getUserProfile.useQuery(
     {
@@ -57,11 +60,12 @@ export function UserProfilePage() {
   );
 
   return (
-    <MainLayout>
-      <div className="flex h-full w-full items-center justify-center">
-        <div className=" flex h-full w-full max-w-screen-xl flex-col">
+    <>
+      <div className="flex h-screen w-full flex-col">
+        <HeaderTabs />
+        <Container size="lg" py="xl">
           <Card withBorder padding="xl" radius="md" className={classes.card}>
-            <Card.Section sx={{ backgroundImage: "", height: 140 }} />
+            <Card.Section sx={{ height: 140 }} />
 
             {userProfile.data?.image && (
               <Avatar
@@ -100,6 +104,10 @@ export function UserProfilePage() {
               編集する
             </Button>
           </Card>
+          <Text ta="center" fz="lg" fw={500} mt="sm">
+            投稿一覧
+          </Text>
+          <Divider my="sm" />
           <SimpleGrid
             cols={3}
             spacing="xl"
@@ -115,9 +123,13 @@ export function UserProfilePage() {
                 <Post {...post} key={post.id} />
               ))}
           </SimpleGrid>
-        </div>
+          <Text ta="center" fz="lg" fw={500} mt="sm">
+            お気に入り一覧
+          </Text>
+          <Divider my="sm" />
+        </Container>
       </div>
-    </MainLayout>
+    </>
   );
 }
 

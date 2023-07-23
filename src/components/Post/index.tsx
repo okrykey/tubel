@@ -4,7 +4,7 @@ import Link from "next/link";
 import { api } from "~/utils/api";
 import { inferRouterOutputs } from "@trpc/server";
 import { AppRouter } from "~/server/api/root";
-import { createStyles, rem } from "@mantine/core";
+import { createStyles, Flex, rem } from "@mantine/core";
 import {
   Card,
   Text,
@@ -44,8 +44,8 @@ const useStyles = createStyles((theme) => ({
     ...theme.fn.hover({
       backgroundColor:
         theme.colorScheme === "dark"
-          ? theme.colors.dark[5]
-          : theme.colors.gray[1],
+          ? theme.colors.dark[6]
+          : theme.colors.gray[2],
     }),
   },
 
@@ -61,14 +61,21 @@ const Post = ({ ...post }: PostProps) => {
     Boolean(post.bookmarks?.length)
   );
 
+  const trpc = api.useContext();
   const bookmarkPost = api.post.bookmarkPost.useMutation({
     onSuccess: () => {
       setIsBookmarked((prev) => !prev);
+    },
+    onSettled: async () => {
+      await trpc.post.all.invalidate();
     },
   });
   const removeBookmark = api.post.removebookmark.useMutation({
     onSuccess: () => {
       setIsBookmarked((prev) => !prev);
+    },
+    onSettled: async () => {
+      await trpc.post.all.invalidate();
     },
   });
 
@@ -101,20 +108,16 @@ const Post = ({ ...post }: PostProps) => {
             <Link href={`/user/${post.user.username}`}>
               <Avatar src={post.user.image} size={24} radius="xl" mr="xs" />
             </Link>
-            <Text fz="sm" inline>
+            <Text fz="xs" inline className="text-gray-600">
               {post.user.name}
-              <span className="mx-1">
-                {dayjs(post.createdAt).format("YYYY/MM/DD")}
-              </span>
             </Text>
           </Center>
-
-          <Group spacing={8} mr={0}>
-            <ActionIcon className={classes.action}>
+          <Group spacing="0">
+            <ActionIcon className={classes.action} title="お気に入り追加">
               {isBookmarked ? (
                 <CiBookmarkCheck
                   onClick={() => removeBookmark.mutate({ postId: post.id })}
-                  className="cursor-pointer text-3xl text-purple-800"
+                  className="cursor-pointer text-3xl text-purple-600"
                 />
               ) : (
                 <CiBookmarkPlus
@@ -127,6 +130,9 @@ const Post = ({ ...post }: PostProps) => {
                 />
               )}
             </ActionIcon>
+            <p className="ml-1 w-[10px] text-gray-700">
+              {post._count.bookmarks}
+            </p>
           </Group>
         </Group>
       </Card>
