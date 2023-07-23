@@ -14,6 +14,7 @@ import {
   SimpleGrid,
   Container,
   Divider,
+  Center,
 } from "@mantine/core";
 import { BiEdit } from "react-icons/bi";
 import Post from "~/components/Post";
@@ -92,17 +93,18 @@ export function UserProfilePage() {
                 {userProfile.data?._count.comment ?? 0} コメント
               </Text>
             </Group>
-            <Button
-              leftIcon={<BiEdit />}
-              fullWidth
-              radius="md"
-              mt="xl"
-              size="md"
-              color={theme.colorScheme === "dark" ? undefined : "dark"}
-              variant="outline"
-            >
-              編集する
-            </Button>
+            <Center>
+              <Button
+                leftIcon={<BiEdit />}
+                radius="md"
+                mt="md"
+                size="md"
+                color={theme.colorScheme === "dark" ? undefined : "dark"}
+                variant="outline"
+              >
+                編集する
+              </Button>
+            </Center>
           </Card>
           <Text ta="center" fz="lg" fw={500} mt="sm">
             投稿一覧
