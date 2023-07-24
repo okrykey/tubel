@@ -8,7 +8,7 @@ import { BsChat } from "react-icons/bs";
 import CommentFormModal from "~/components/CommentFormModal";
 import { AspectRatio, Button, Divider } from "@mantine/core";
 import { useAtom } from "jotai";
-import { CommentOpenAtom, IdSetAtom, tagsAtom } from "../state/Atoms";
+import { CommentOpenAtom, tagsAtom } from "../state/Atoms";
 import MainLayout from "~/layouts/Mainlayout";
 import YouTube from "react-youtube";
 import CommentSidebar from "~/components/CommentSidebar";
@@ -17,7 +17,6 @@ const Postpage = () => {
   const [isCommentOpen, setIsCommentOpen] = useAtom(CommentOpenAtom);
   const [showCommentSidebar, setShowCommentSidebar] = useState(false);
   const [tags] = useAtom(tagsAtom);
-  const [videoId, setVideoId] = useAtom(IdSetAtom);
 
   const router = useRouter();
   const { slug } = router.query;
