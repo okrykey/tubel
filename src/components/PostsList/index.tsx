@@ -11,31 +11,26 @@ type Post = {
   content: string;
 };
 
-type Category = {
-  id: string;
-  name: string;
-  posts: Post[];
-};
-
 export const PostsList = () => {
   const [currentTab, setCurrentTab] = useState<string | null>(null);
   const postGetAll = api.post.all.useInfiniteQuery({});
-  const getPostsByCategory = api.post.getByCategory.useInfiniteQuery({});
-
-  const getPostsForCategory = (categoryName: string) => {
-    return getPostsByCategory.data?.pages
-      .flatMap((page) => page.categories)
-      .filter((category: Category) => category.name === categoryName);
+  const getPostsByCategory = (categoryName: string) => {
+    return api.post.getByCategory.useInfiniteQuery({
+      categoryName: categoryName,
+    });
   };
 
   const renderPosts = (categoryName: string) => {
-    const categoryPosts = getPostsForCategory(categoryName);
-    return getPostsByCategory.isSuccess &&
-      categoryPosts &&
-      categoryPosts.length > 0 ? (
-      categoryPosts.map((category) =>
-        category.posts.map((post) => <Post {...post} key={post.id} />)
-      )
+    const categoryPostsQuery = getPostsByCategory(categoryName);
+
+    return categoryPostsQuery.isSuccess ? (
+      categoryPostsQuery.data?.pages.flatMap((page) =>
+        page.CategorizedPosts
+          ? page.CategorizedPosts.map((post) => (
+              <Post {...post} key={post.id} />
+            ))
+          : []
+      ) ?? <p>現在このカテゴリの記事は存在しません。</p>
     ) : (
       <p>現在このカテゴリの記事は存在しません。</p>
     );
@@ -50,35 +45,18 @@ export const PostsList = () => {
         onTabChange={setCurrentTab}
       >
         <Tabs.List>
-          <Tabs.Tab value="1">すべて</Tabs.Tab>
-          <Tabs.Tab icon={<IconBrandYoutube size="0.8rem" />} value="2">
+          <Tabs.Tab icon={<IconBrandYoutube size="0.8rem" />} value="1">
             プログラミング
           </Tabs.Tab>
-          <Tabs.Tab icon={<BiBookOpen size="0.8rem" />} value="3" color="blue">
+          <Tabs.Tab icon={<BiBookOpen size="0.8rem" />} value="2" color="blue">
             英語
           </Tabs.Tab>
-          <Tabs.Tab value="4" color="grape">
+          <Tabs.Tab value="3" color="grape">
             カルチャー
           </Tabs.Tab>
         </Tabs.List>
+
         <Tabs.Panel value="1" pt="xs">
-          <SimpleGrid
-            cols={3}
-            spacing="xl"
-            verticalSpacing="xl"
-            mt={50}
-            breakpoints={[
-              { maxWidth: "sm", cols: 1 },
-              { maxWidth: "md", cols: 2 },
-            ]}
-          >
-            {postGetAll.isSuccess &&
-              postGetAll.data?.pages
-                .flatMap((page) => page.posts)
-                .map((post) => <Post {...post} key={post.id} />)}
-          </SimpleGrid>
-        </Tabs.Panel>
-        <Tabs.Panel value="2" pt="xs">
           <SimpleGrid
             cols={3}
             spacing="xl"
@@ -93,7 +71,7 @@ export const PostsList = () => {
           </SimpleGrid>
         </Tabs.Panel>
 
-        <Tabs.Panel value="3" pt="xs">
+        <Tabs.Panel value="2" pt="xs">
           <SimpleGrid
             cols={3}
             spacing="xl"
@@ -107,7 +85,7 @@ export const PostsList = () => {
             {renderPosts("English")}
           </SimpleGrid>
         </Tabs.Panel>
-        <Tabs.Panel value="4" pt="xs">
+        <Tabs.Panel value="3" pt="xs">
           <SimpleGrid
             cols={3}
             spacing="xl"
