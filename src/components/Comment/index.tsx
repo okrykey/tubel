@@ -1,7 +1,7 @@
 import { api } from "~/utils/api";
 import React from "react";
 import { Button, SimpleGrid } from "@mantine/core";
-import { CommentCard } from "~/components/Mantine UI/CommentCard";
+import { CommentCard } from "~/components/CommentCard";
 import dayjs from "dayjs";
 
 const Comments = ({ postId }: { postId: string }) => {

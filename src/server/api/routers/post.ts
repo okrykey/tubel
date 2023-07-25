@@ -285,4 +285,68 @@ export const postRouter = createTRPCRouter({
 
       return { CategorizedPosts };
     }),
+  search: publicProcedure
+    .input(
+      z.object({
+        query: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const SearchedPosts = await ctx.prisma.post.findMany({
+        where: {
+          OR: [
+            {
+              title: {
+                contains: input.query,
+              },
+            },
+            {
+              content: {
+                contains: input.query,
+              },
+            },
+          ],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          videoId: true,
+          _count: {
+            select: {
+              bookmarks: true,
+              comment: true,
+            },
+          },
+          user: {
+            select: {
+              name: true,
+              image: true,
+              username: true,
+            },
+          },
+          bookmarks: ctx.session?.user?.id
+            ? {
+                where: {
+                  userId: ctx.session?.user?.id,
+                },
+              }
+            : false,
+          tags: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      });
+
+      return { SearchedPosts };
+    }),
 });

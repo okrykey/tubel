@@ -27,15 +27,14 @@ export type TAG = { value: string; label: string };
 const categories = [
   { value: "Programming", label: "Programming" },
   { value: "English", label: "English" },
-  { value: "Science", label: "Science" },
-  { value: "Web", label: "Web" },
+  { value: "Culture", label: "Culture" },
 ];
 
 const tags = [
-  { value: "youtube", label: "YouTube" },
-  { value: "twitter", label: "Twitter" },
-  { value: "qiita", label: "Qiita" },
-  { value: "zenn", label: "Zenn" },
+  { value: "youtube", label: "youTube" },
+  { value: "motivation", label: "motivation" },
+  { value: "cs", label: "cs" },
+  { value: "science", label: "science" },
 ];
 
 const PostFormModal = () => {
@@ -73,6 +72,7 @@ const PostFormModal = () => {
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
+      await trpc.post.getByCategory.invalidate();
     },
   });
 

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import dayjs from "dayjs";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { inferRouterOutputs } from "@trpc/server";
@@ -68,6 +67,7 @@ const Post = ({ ...post }: PostProps) => {
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
+      await trpc.post.getByCategory.invalidate();
     },
   });
   const removeBookmark = api.post.removebookmark.useMutation({
@@ -76,6 +76,7 @@ const Post = ({ ...post }: PostProps) => {
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
+      await trpc.post.getByCategory.invalidate();
     },
   });
 
