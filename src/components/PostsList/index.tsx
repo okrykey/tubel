@@ -22,17 +22,24 @@ export const PostsList = () => {
   const postGetAll = api.post.all.useInfiniteQuery({});
   const getPostsByCategory = api.post.getByCategory.useInfiniteQuery({});
 
-  const ProgrammingCategory = getPostsByCategory.data?.pages
-    .flatMap((page) => page.categories)
-    .filter((category: Category) => category.name === "Programming");
+  const getPostsForCategory = (categoryName: string) => {
+    return getPostsByCategory.data?.pages
+      .flatMap((page) => page.categories)
+      .filter((category: Category) => category.name === categoryName);
+  };
 
-  const EnglishCategory = getPostsByCategory.data?.pages
-    .flatMap((page) => page.categories)
-    .filter((category: Category) => category.name === "English");
-
-  const CultureCategory = getPostsByCategory.data?.pages
-    .flatMap((page) => page.categories)
-    .filter((category: Category) => category.name === "Culture");
+  const renderPosts = (categoryName: string) => {
+    const categoryPosts = getPostsForCategory(categoryName);
+    return getPostsByCategory.isSuccess &&
+      categoryPosts &&
+      categoryPosts.length > 0 ? (
+      categoryPosts.map((category) =>
+        category.posts.map((post) => <Post {...post} key={post.id} />)
+      )
+    ) : (
+      <p>現在このカテゴリの記事は存在しません。</p>
+    );
+  };
 
   return (
     <>
@@ -82,15 +89,7 @@ export const PostsList = () => {
               { maxWidth: "md", cols: 2 },
             ]}
           >
-            {getPostsByCategory.isSuccess &&
-            ProgrammingCategory &&
-            ProgrammingCategory.length > 0 ? (
-              ProgrammingCategory.map((category) =>
-                category.posts.map((post) => <Post {...post} key={post.id} />)
-              )
-            ) : (
-              <p>現在このカテゴリの記事は存在しません。</p>
-            )}
+            {renderPosts("Programming")}
           </SimpleGrid>
         </Tabs.Panel>
 
@@ -105,15 +104,7 @@ export const PostsList = () => {
               { maxWidth: "md", cols: 2 },
             ]}
           >
-            {getPostsByCategory.isSuccess &&
-            EnglishCategory &&
-            EnglishCategory.length > 0 ? (
-              EnglishCategory.map((category) =>
-                category.posts.map((post) => <Post {...post} key={post.id} />)
-              )
-            ) : (
-              <p>現在このカテゴリの記事は存在しません。</p>
-            )}
+            {renderPosts("English")}
           </SimpleGrid>
         </Tabs.Panel>
         <Tabs.Panel value="4" pt="xs">
@@ -127,15 +118,7 @@ export const PostsList = () => {
               { maxWidth: "md", cols: 2 },
             ]}
           >
-            {getPostsByCategory.isSuccess &&
-            CultureCategory &&
-            CultureCategory.length > 0 ? (
-              CultureCategory.map((category) =>
-                category.posts.map((post) => <Post {...post} key={post.id} />)
-              )
-            ) : (
-              <p>現在このカテゴリの記事は存在しません。</p>
-            )}
+            {renderPosts("Culture")}
           </SimpleGrid>
         </Tabs.Panel>
       </Tabs>
