@@ -10,7 +10,4 @@ const tags = [
 ];
 
 export const modalOpenAtom = atom(false);
-
-export const CommentOpenAtom = atom(false);
-
 export const tagsAtom = atom(tags);
