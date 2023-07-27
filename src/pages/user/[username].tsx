@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React from "react";
-import MainLayout from "~/layouts/Mainlayout";
 import { api } from "~/utils/api";
 import {
   createStyles,
@@ -11,15 +10,14 @@ import {
   Group,
   Button,
   rem,
-  SimpleGrid,
   Container,
   Divider,
   Center,
 } from "@mantine/core";
 import { BiEdit } from "react-icons/bi";
-import Post from "~/components/Post";
 import { useSession } from "next-auth/react";
 import { HeaderTabs } from "~/components/Header";
+import { PostsStack } from "~/components/PostStack";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -49,8 +47,6 @@ export function UserProfilePage() {
     }
   );
 
-  const stats = [{ label: "aaa" }, { value: "bbb" }];
-
   const userPosts = api.user.getUserPosts.useQuery(
     {
       username: router.query.username as string,
@@ -64,8 +60,8 @@ export function UserProfilePage() {
     <>
       <div className="flex h-screen w-full flex-col">
         <HeaderTabs />
-        <Container size="lg" py="xl">
-          <Card withBorder padding="xl" radius="md" className={classes.card}>
+        <Container className="flex  w-full flex-col">
+          <Card withBorder radius="md" className={classes.card}>
             <Card.Section sx={{ height: 140 }} />
 
             {userProfile.data?.image && (
@@ -101,34 +97,17 @@ export function UserProfilePage() {
                 size="md"
                 color={theme.colorScheme === "dark" ? undefined : "dark"}
                 variant="outline"
+                onClick={() => router.push("/settings/profile")}
               >
-                編集する
+                プロフィール編集する
               </Button>
             </Center>
+            <Divider className="my-8" />
+
+            {userPosts.isSuccess && userPosts.data?.post && (
+              <PostsStack posts={userPosts.data?.post} />
+            )}
           </Card>
-          <Text ta="center" fz="lg" fw={500} mt="sm">
-            投稿一覧
-          </Text>
-          <Divider my="sm" />
-          <SimpleGrid
-            cols={3}
-            spacing="xl"
-            verticalSpacing="xl"
-            mt={50}
-            breakpoints={[
-              { maxWidth: "sm", cols: 1 },
-              { maxWidth: "md", cols: 2 },
-            ]}
-          >
-            {userPosts.isSuccess &&
-              userPosts.data?.post.map((post) => (
-                <Post {...post} key={post.id} />
-              ))}
-          </SimpleGrid>
-          <Text ta="center" fz="lg" fw={500} mt="sm">
-            お気に入り一覧
-          </Text>
-          <Divider my="sm" />
         </Container>
       </div>
     </>
