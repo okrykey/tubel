@@ -78,6 +78,13 @@ export const postRouter = createTRPCRouter({
               },
             }
           : false,
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
     });
 
@@ -85,8 +92,8 @@ export const postRouter = createTRPCRouter({
       throw new Error("記事が見つかりませんでした。");
     }
 
-    const { id, title, content, likes, videoId } = post;
-    return { id, title, content, likes, videoId };
+    const { id, title, content, likes, videoId, tags } = post;
+    return { id, title, content, likes, videoId, tags };
   }),
   create: protectedProcedure
     .input(createPostInput)
