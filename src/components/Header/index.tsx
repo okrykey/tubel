@@ -11,6 +11,7 @@ import {
   rem,
   Avatar,
   Menu,
+  ActionIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -20,6 +21,7 @@ import { modalOpenAtom } from "~/pages/state/Atoms";
 import { ActionToggle } from "../ActionToggle";
 import Link from "next/link";
 import { api } from "~/utils/api";
+import { IconSearch } from "@tabler/icons-react";
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -126,9 +128,17 @@ export const HeaderTabs = () => {
             <a href="/" className={classes.link}>
               Home
             </a>
+            <a href="/about" className={classes.link}>
+              About
+            </a>
           </Group>
 
           <Group className={classes.hiddenMobile}>
+            <Link href="/search">
+              <ActionIcon>
+                <IconSearch size="1.5rem" stroke={1.5} />
+              </ActionIcon>
+            </Link>
             <ActionToggle />
 
             {sessionData && (
@@ -163,16 +173,6 @@ export const HeaderTabs = () => {
                     </Menu.Item>
                   </Menu.Dropdown>
                 </Menu>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  color="indigo"
-                  onClick={() =>
-                    sessionData ? setIsOpen(true) : router.push("/signin")
-                  }
-                >
-                  Post
-                </Button>
               </>
             )}
             <Button
@@ -187,9 +187,15 @@ export const HeaderTabs = () => {
 
           <Group className={classes.hiddenDesktop} position="apart">
             <Burger opened={drawerOpened} onClick={toggleDrawer} />
+            <ActionToggle />
           </Group>
           <Group className={classes.hiddenDesktop}>
-            <ActionToggle />
+            <Link href="/search">
+              <ActionIcon>
+                <IconSearch size="1.5rem" stroke={1.5} />
+              </ActionIcon>
+            </Link>
+
             {sessionData ? (
               <Button
                 variant="outline"
