@@ -34,6 +34,7 @@ export const postRouter = createTRPCRouter({
           },
           user: {
             select: {
+              id: true,
               name: true,
               image: true,
               username: true,
@@ -59,7 +60,7 @@ export const postRouter = createTRPCRouter({
       return { posts };
     }),
 
-  get: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
+  get: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const post = await ctx.prisma.post.findUnique({
       where: {
         id: input,
@@ -70,8 +71,19 @@ export const postRouter = createTRPCRouter({
         title: true,
         content: true,
         videoId: true,
-
+        category: {
+          select: {
+            name: true,
+          },
+        },
         likes: ctx.session?.user?.id
+          ? {
+              where: {
+                userId: ctx.session?.user?.id,
+              },
+            }
+          : false,
+        bookmarks: ctx.session?.user?.id
           ? {
               where: {
                 userId: ctx.session?.user?.id,
@@ -80,9 +92,7 @@ export const postRouter = createTRPCRouter({
           : false,
         tags: {
           select: {
-            id: true,
             name: true,
-            slug: true,
           },
         },
       },
@@ -92,32 +102,53 @@ export const postRouter = createTRPCRouter({
       throw new Error("記事が見つかりませんでした。");
     }
 
-    const { id, title, content, likes, videoId, tags } = post;
-    return { id, title, content, likes, videoId, tags };
+    const tags = post.tags.map((tag) => tag.name);
+    const category = post.category ? post.category.name : "";
+
+    const { id, title, content, likes, bookmarks, videoId } = post;
+    return { id, title, content, likes, bookmarks, videoId, tags, category };
   }),
+
   create: protectedProcedure
     .input(createPostInput)
     .mutation(async ({ ctx, input }) => {
-      const category = await ctx.prisma.category.create({
-        data: {
+      let category = await ctx.prisma.category.findUnique({
+        where: {
           name: input.category,
         },
       });
+
       if (!category) {
-        throw new Error("Failed to create category");
+        category = await ctx.prisma.category.create({
+          data: {
+            name: input.category,
+          },
+        });
       }
 
-      const tagPromises = input.tags.map((tagName) =>
-        ctx.prisma.tag.create({
-          data: {
+      const tagPromises = input.tags.map(async (tagName) => {
+        let tag = await ctx.prisma.tag.findUnique({
+          where: {
             name: tagName,
-            slug: slugify(tagName),
           },
-        })
-      );
+        });
+
+        if (!tag) {
+          tag = await ctx.prisma.tag.create({
+            data: {
+              name: tagName,
+              slug: slugify(tagName),
+            },
+          });
+        }
+
+        return tag;
+      });
+
       const tags = await Promise.all(tagPromises);
+
       if (!tags || tags.length === 0) {
-        throw new Error("Failed to create tags");
+        throw new Error("タグの作成に失敗しました。");
       }
 
       await ctx.prisma.post.create({
@@ -145,15 +176,45 @@ export const postRouter = createTRPCRouter({
 
   update: protectedProcedure
     .input(updatePostInput)
-    .mutation(({ ctx, input }) => {
-      const { id, content, title } = input;
-      return ctx.prisma.post.update({
-        where: {
-          id,
+    .mutation(async ({ ctx, input }) => {
+      const { id, content, title, videoId, tags, category } = input;
+
+      const post = await ctx.prisma.post.findUnique({
+        where: { id },
+        include: { tags: true },
+      });
+
+      if (!post) {
+        throw new Error("Post not found");
+      }
+
+      await ctx.prisma.post.update({
+        where: { id },
+        data: {
+          tags: {
+            disconnect: post.tags.map((tag) => ({ id: tag.id })),
+          },
         },
+      });
+
+      return ctx.prisma.post.update({
+        where: { id },
         data: {
           title,
           content,
+          videoId,
+          tags: {
+            connectOrCreate: tags.map((tag) => ({
+              where: { name: tag },
+              create: { name: tag, slug: tag },
+            })),
+          },
+          category: {
+            connectOrCreate: {
+              where: { name: category },
+              create: { name: category },
+            },
+          },
         },
       });
     }),
@@ -268,6 +329,7 @@ export const postRouter = createTRPCRouter({
           },
           user: {
             select: {
+              id: true,
               name: true,
               image: true,
               username: true,
@@ -292,6 +354,67 @@ export const postRouter = createTRPCRouter({
 
       return { CategorizedPosts };
     }),
+
+  getByTag: publicProcedure
+    .input(
+      z.object({
+        cursor: z.string().nullish(),
+        tagName: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const TaggedPosts = await ctx.prisma.post.findMany({
+        where: {
+          tags: {
+            some: {
+              name: input.tagName,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          videoId: true,
+          _count: {
+            select: {
+              bookmarks: true,
+              comment: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              username: true,
+            },
+          },
+          bookmarks: ctx.session?.user?.id
+            ? {
+                where: {
+                  userId: ctx.session?.user?.id,
+                },
+              }
+            : false,
+          tags: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      });
+
+      return { TaggedPosts };
+    }),
+
   search: publicProcedure
     .input(
       z.object({
@@ -332,6 +455,7 @@ export const postRouter = createTRPCRouter({
           },
           user: {
             select: {
+              id: true,
               name: true,
               image: true,
               username: true,
