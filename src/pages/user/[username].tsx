@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
 import React from "react";
 import { api } from "~/utils/api";
@@ -35,8 +34,7 @@ const useStyles = createStyles((theme) => ({
 export function UserProfilePage() {
   const { classes, theme } = useStyles();
   const router = useRouter();
-
-  const cuurentUser = useSession();
+  const { data: session } = useSession();
 
   const userProfile = api.user.getUserProfile.useQuery(
     {
@@ -56,11 +54,13 @@ export function UserProfilePage() {
     }
   );
 
+  const isUserMatch = session && session.user?.id === userProfile.data?.id;
+
   return (
     <>
       <div className="flex h-screen w-full flex-col">
         <HeaderTabs />
-        <Container className="flex  w-full flex-col">
+        <Container className="flex  w-full flex-col py-10">
           <Card withBorder radius="md" className={classes.card}>
             <Card.Section sx={{ height: 140 }} />
 
@@ -75,7 +75,7 @@ export function UserProfilePage() {
               />
             )}
 
-            <Text ta="center" fz="lg" fw={500} mt="sm">
+            <Text ta="center" fz="xl" fw={600} m="sm" className="">
               {userProfile.data?.name}
             </Text>
             <Text ta="center" fz="sm" c="dimmed">
@@ -89,23 +89,33 @@ export function UserProfilePage() {
                 {userProfile.data?._count.comment ?? 0} コメント
               </Text>
             </Group>
-            <Center>
-              <Button
-                leftIcon={<BiEdit />}
-                radius="md"
-                mt="md"
-                size="md"
-                color={theme.colorScheme === "dark" ? undefined : "dark"}
-                variant="outline"
-                onClick={() => router.push("/settings/profile")}
-              >
-                プロフィール編集する
-              </Button>
-            </Center>
+            {isUserMatch && (
+              <Center>
+                <Button
+                  leftIcon={<BiEdit />}
+                  radius="md"
+                  mt="lg"
+                  size="md"
+                  color={theme.colorScheme === "dark" ? undefined : "dark"}
+                  variant="outline"
+                  onClick={() => router.push("/settings/profile")}
+                >
+                  プロフィール編集する
+                </Button>
+              </Center>
+            )}
             <Divider className="my-8" />
 
-            {userPosts.isSuccess && userPosts.data?.post && (
-              <PostsStack posts={userPosts.data?.post} />
+            {userPosts.isSuccess &&
+            userPosts.data &&
+            userPosts.data.post?.length > 0 ? (
+              <PostsStack posts={userPosts.data.post} />
+            ) : (
+              <Center>
+                <Text ta="center" fz="lg" fw={500}>
+                  まだ投稿はありません
+                </Text>
+              </Center>
             )}
           </Card>
         </Container>
