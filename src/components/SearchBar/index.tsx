@@ -5,13 +5,13 @@ import {
   ActionIcon,
   useMantineTheme,
   SimpleGrid,
-  Title,
 } from "@mantine/core";
 import { IconSearch, IconArrowRight, IconArrowLeft } from "@tabler/icons-react";
 import { api } from "~/utils/api";
 import { debounce } from "lodash";
 import Post from "~/components/Post";
-import { NotFoundImage } from "../NotFoundImage";
+import { NotFoundImage } from "../ResultImage/NotFoundImage";
+import { NotFoundContent } from "../ResultImage/NotFoundContent";
 
 export const SearchBar = (props: TextInputProps) => {
   const theme = useMantineTheme();
@@ -57,26 +57,38 @@ export const SearchBar = (props: TextInputProps) => {
         {...props}
       />
       {debouncedQuery && (
-        <h1 className="pt-8 text-xl font-bold text-gray-700 sm:text-2xl md:text-3xl lg:text-4xl ">
+        <h1 className="pt-8 text-sm font-bold text-gray-700 sm:text-lg md:text-xl lg:text-xl">
           「{debouncedQuery}」の検索結果
         </h1>
       )}
 
-      {query ? (
-        <SimpleGrid
-          cols={3}
-          spacing="xl"
-          verticalSpacing="xl"
-          mt={50}
-          breakpoints={[
-            { maxWidth: "sm", cols: 1 },
-            { maxWidth: "md", cols: 2 },
-          ]}
-        >
-          {searchResult.data?.SearchedPosts.map((post) => (
-            <Post {...post} searchKeyword={debouncedQuery} key={post.id} />
-          ))}
-        </SimpleGrid>
+      {debouncedQuery ? (
+        (searchResult?.data?.SearchedPosts?.length ?? 0) > 0 ? (
+          <>
+            <p>
+              {searchResult?.data?.SearchedPosts?.length}
+              件の記事がヒットしました
+            </p>
+            <SimpleGrid
+              cols={3}
+              spacing="xl"
+              verticalSpacing="xl"
+              mt={50}
+              breakpoints={[
+                { maxWidth: "sm", cols: 1 },
+                { maxWidth: "md", cols: 2 },
+              ]}
+            >
+              {searchResult?.data?.SearchedPosts?.map((post) => (
+                <Post {...post} searchKeyword={debouncedQuery} key={post?.id} />
+              ))}
+            </SimpleGrid>
+          </>
+        ) : (
+          <>
+            <NotFoundContent />
+          </>
+        )
       ) : (
         <NotFoundImage />
       )}
