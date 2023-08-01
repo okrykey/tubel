@@ -31,7 +31,7 @@ const categories = [
 ];
 
 const tags = [
-  { value: "youtube", label: "youTube" },
+  { value: "youtube", label: "YouTube" },
   { value: "motivation", label: "motivation" },
   { value: "cs", label: "cs" },
   { value: "science", label: "science" },
@@ -72,7 +72,7 @@ const PostFormModal = () => {
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
-      await trpc.post.getByCategory.invalidate();
+      await trpc.post.getByCategories.invalidate();
     },
   });
 
@@ -81,19 +81,6 @@ const PostFormModal = () => {
       <form
         className="flex flex-col items-center justify-center space-y-4"
         onSubmit={form.onSubmit((data: PostFormType) => {
-          if (data.videoId) {
-            try {
-              const id = new URLSearchParams(new URL(data.videoId).search).get(
-                "v"
-              );
-              data.videoId = id ?? "";
-            } catch (error) {
-              form.setFieldError("videoId", "URLが正しくありません");
-            }
-          } else {
-            form.setFieldError("videoId", "URLを正しく入力してください");
-          }
-
           mutate(data);
         })}
       >
