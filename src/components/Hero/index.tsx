@@ -90,9 +90,14 @@ export const Hero = () => {
       <Container>
         <div className={classes.inner}>
           <div className={classes.content}>
-            <Title className={classes.title}>学びを共有しよう</Title>
+            <Title className={classes.title}>
+              <Text component="span" inherit className="text-purple-500">
+                YouTube
+              </Text>
+              で学びを共有
+            </Title>
             <Text color="dimmed" mt="md">
-              学びを共有し、知識を広げるための無料のSNSプラットフォームへようこそ。私たちのサイトは、誰もが自由に学び、教え、つながることができる場所です。
+              有益な動画を共有し、新たな学びを発見しよう。学習に役立つ動画を見つけ、効率的に学習を深めよう。
             </Text>
 
             <List
@@ -107,20 +112,17 @@ export const Hero = () => {
             >
               <List.Item>
                 <b>無料でアクセス可能</b>
-                ：あなたの学びの旅は、費用を心配することなく始めることができます。私たちのコンテンツはすべて無料で、誰でも利用できます。
+                ：コンテンツはすべて無料で、誰でも楽しめる。
               </List.Item>
               <List.Item>
-                <b>わかりやすいコンテンツ</b>
-                ：私たちは、学びを楽しく、簡単にするために、わかりやすい教材を提供しています。専門知識がなくても、あなたの学びをサポートします。
-              </List.Item>
-              <List.Item>
-                <b>学習の最短経路</b>
-                ：私たちのプラットフォームは、学びを通じて人々をつなげる場所です。あなたの知識を共有し、他の学習者から学び、一緒に成長しましょう。
+                <b>学びとつながりの場</b>
+                ：学びと人をつなげることで、最短経路での学びを実現。
               </List.Item>
             </List>
 
             <Button
               variant="outline"
+              color="violet"
               size="xl"
               radius="xl"
               className={classes.control}
@@ -128,7 +130,7 @@ export const Hero = () => {
                 sessionData ? setIsOpen(true) : router.push("/signin")
               }
             >
-              {sessionData ? "Get Started!" : "登録する"}
+              {sessionData ? "投稿する" : "登録する"}
             </Button>
           </div>
           <Image src="images/signin-icon.png" className={classes.image} />
