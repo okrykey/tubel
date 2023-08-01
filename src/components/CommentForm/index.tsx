@@ -6,18 +6,12 @@ import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  Center,
-  Divider,
-  Input,
-  Text,
-} from "@mantine/core";
+import { Box, Button, Center, Divider, Input, Text } from "@mantine/core";
 import { BiChat } from "react-icons/bi";
 import { CommentCard } from "../CommentCard";
+import { useSession } from "next-auth/react";
+import { LoginModalAtom } from "~/pages/state/Atoms";
+import { useAtom } from "jotai";
 dayjs.extend(relativeTime);
 
 type CommentFormType = { content: string };
@@ -36,6 +30,9 @@ const CommentForm = ({ postId }: { postId: string }) => {
     resolver: zodResolver(commentFormSchema),
   });
 
+  const { data: session } = useSession();
+  const [isOpen, setIsOpen] = useAtom(LoginModalAtom);
+
   const postRoute = api.useContext().comment;
   const submitComment = api.comment.create.useMutation({
     onSuccess: () => {
@@ -52,17 +49,33 @@ const CommentForm = ({ postId }: { postId: string }) => {
     postId,
   });
 
+  const handleComment = (data: CommentFormType) => {
+    if (session) {
+      submitComment.mutate({
+        ...data,
+        postId,
+      });
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    if (!session) {
+      event.preventDefault();
+      setIsOpen(true);
+    }
+  };
+
   return (
     <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          submitComment.mutate({
-            ...data,
-            postId,
-          });
-        })}
-      >
-        <div className="flex items-center">
+      <Divider
+        className="pb-4"
+        labelPosition="center"
+        label={<Box ml={5}>{getComments.data?.length ?? 0} コメント</Box>}
+      ></Divider>
+      <form onSubmit={handleSubmit(handleComment)}>
+        <div className="flex items-center" onClick={handleClick}>
           <Input
             icon={<BiChat />}
             variant="filled"
@@ -70,6 +83,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
             className="mx-2 flex-grow"
             id="comment"
             {...register("content")}
+            disabled={!session}
           />
         </div>
         <Center className="pt-4">
@@ -90,23 +104,18 @@ const CommentForm = ({ postId }: { postId: string }) => {
 
       {getComments.data && getComments.data?.length > 0 ? (
         getComments.data?.map((comment) => (
-          <>
-            <Divider
-              className="pb-2"
-              labelPosition="center"
-              label={<Box ml={5}>{getComments.data?.length ?? 0} コメント</Box>}
-            ></Divider>
-            <div key={comment.id}>
-              <CommentCard
-                postedAt={dayjs(comment.createdAt).fromNow()}
-                content={comment.content}
-                user={{
-                  name: `${comment.user.name}`,
-                  image: `${comment.user.image}`,
-                }}
-              />
-            </div>
-          </>
+          <div key={comment.id} className="pb-8">
+            <CommentCard
+              postedAt={dayjs(comment.createdAt).fromNow()}
+              content={comment.content}
+              id={comment.id}
+              user={{
+                id: comment.user.id,
+                name: `${comment.user.name}`,
+                image: `${comment.user.image}`,
+              }}
+            />
+          </div>
         ))
       ) : (
         <Center>
