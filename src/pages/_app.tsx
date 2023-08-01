@@ -13,6 +13,7 @@ import { Toaster } from "react-hot-toast";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { Session } from "next-auth";
+import { LoginModal } from "~/components/LoginModal";
 
 function MyApp(
   props: AppProps & { colorScheme: ColorScheme; session: Session | null }
@@ -53,6 +54,8 @@ function MyApp(
           >
             <Toaster />
             <Component {...pageProps} />
+            <LoginModal />
+
             <Notifications />
           </MantineProvider>
         </ColorSchemeProvider>

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { inferRouterOutputs } from "@trpc/server";
 import { AppRouter } from "~/server/api/root";
-import { createStyles, Flex, rem } from "@mantine/core";
+import { Button, createStyles, Highlight, Modal, rem } from "@mantine/core";
 import {
   Card,
   Text,
@@ -14,6 +14,10 @@ import {
   ActionIcon,
 } from "@mantine/core";
 import { CiBookmarkCheck, CiBookmarkPlus } from "react-icons/ci";
+import { useSession } from "next-auth/react";
+import { LoginModal } from "../LoginModal";
+import { isBookmarkedAtomFamily, LoginModalAtom } from "~/pages/state/Atoms";
+import { useAtom } from "jotai";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -35,29 +39,22 @@ const useStyles = createStyles((theme) => ({
     marginBottom: rem(5),
   },
 
-  action: {
-    backgroundColor:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[6]
-        : theme.colors.gray[3],
-    ...theme.fn.hover({
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[6]
-          : theme.colors.gray[2],
-    }),
-  },
-
   footer: {
     marginTop: theme.spacing.md,
   },
 }));
 
-type PostProps = inferRouterOutputs<AppRouter>["post"]["all"]["posts"][number];
+export type PostProps =
+  inferRouterOutputs<AppRouter>["post"]["all"]["posts"][number] & {
+    searchKeyword?: string;
+  };
 
-const Post = ({ ...post }: PostProps) => {
-  const [isBookmarked, setIsBookmarked] = useState(
-    Boolean(post.bookmarks?.length)
+const Post = ({ searchKeyword, ...post }: PostProps) => {
+  const { classes, cx } = useStyles();
+  const { data: session } = useSession();
+  const [isOpen, setIsOpen] = useAtom(LoginModalAtom);
+  const [isBookmarked, setIsBookmarked] = useAtom(
+    isBookmarkedAtomFamily(post.id)
   );
 
   const trpc = api.useContext();
@@ -67,7 +64,9 @@ const Post = ({ ...post }: PostProps) => {
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
-      await trpc.post.getByCategory.invalidate();
+      await trpc.post.getByCategories.invalidate();
+      await trpc.post.getByTag.invalidate();
+      await trpc.post.search.invalidate();
     },
   });
   const removeBookmark = api.post.removebookmark.useMutation({
@@ -76,68 +75,91 @@ const Post = ({ ...post }: PostProps) => {
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
-      await trpc.post.getByCategory.invalidate();
+      await trpc.post.getByCategories.invalidate();
+      await trpc.post.getByTag.invalidate();
     },
   });
 
-  const { classes, cx } = useStyles();
+  const YouTubeVideoId = new URLSearchParams(new URL(post.videoId).search).get(
+    "v"
+  );
 
   return (
-    <div key={post.id}>
-      <Card withBorder radius="md" className={cx(classes.card)}>
-        <Card.Section>
-          <Link href={`/posts/${post.id}`}>
-            <Image
-              src={`https://i.ytimg.com/vi/${post.videoId}/maxresdefault.jpg`}
-              height={180}
-              alt={post.title}
-            />
-          </Link>
-        </Card.Section>
-        <Text className={classes.title} fw={500} component="a">
-          {post.title}
-        </Text>
-
-        <Text fz="sm" color="dimmed" lineClamp={4}>
-          {post.content.length > 20
-            ? post.content.substring(0, 21) + "..."
-            : post.content}
-        </Text>
-
-        <Group position="apart" className={classes.footer}>
-          <Center>
-            <Link href={`/user/${post.user.username}`}>
-              <Avatar src={post.user.image} size={24} radius="xl" mr="xs" />
+    <>
+      <div key={post.id}>
+        <Card withBorder radius="md" className={cx(classes.card)}>
+          <Card.Section>
+            <Link href={`/posts/${post.id}`}>
+              <Image
+                src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
+                height={180}
+                alt={post.title}
+              />
             </Link>
-            <Text fz="xs" inline className="text-gray-600">
-              {post.user.name}
-            </Text>
-          </Center>
-          <Group spacing="0">
-            <ActionIcon className={classes.action} title="お気に入り追加">
-              {isBookmarked ? (
-                <CiBookmarkCheck
-                  onClick={() => removeBookmark.mutate({ postId: post.id })}
-                  className="cursor-pointer text-3xl text-purple-600"
-                />
-              ) : (
-                <CiBookmarkPlus
-                  className="cursor-pointer text-3xl"
-                  onClick={() => {
-                    bookmarkPost.mutate({
-                      postId: post.id,
-                    });
-                  }}
-                />
-              )}
-            </ActionIcon>
-            <p className="ml-1 w-[10px] text-gray-700">
-              {post._count.bookmarks}
-            </p>
+          </Card.Section>
+          <Text className={classes.title} fw={500} component="a">
+            {searchKeyword && post.title.includes(searchKeyword) ? (
+              <Highlight highlightColor="blue" highlight={searchKeyword}>
+                {post.title}
+              </Highlight>
+            ) : (
+              post.title
+            )}
+          </Text>
+
+          <Text fz="sm" color="dimmed" lineClamp={4}>
+            {searchKeyword && post.content.includes(searchKeyword) ? (
+              <Highlight highlightColor="blue" highlight={searchKeyword}>
+                {post.content.length > 18
+                  ? post.content.substring(0, 19) + "..."
+                  : post.content}
+              </Highlight>
+            ) : post.content.length > 18 ? (
+              post.content.substring(0, 19) + "..."
+            ) : (
+              post.content
+            )}
+          </Text>
+
+          <Group position="apart" className={classes.footer}>
+            <Center>
+              <Avatar src={post.user.image} size={24} radius="xl" mr="xs" />
+
+              <Text fz="xs" inline className="text-gray-600">
+                {post.user.name}
+              </Text>
+            </Center>
+            <Group spacing="0">
+              <ActionIcon title="お気に入り追加">
+                {isBookmarked ? (
+                  <CiBookmarkCheck
+                    onClick={() => removeBookmark.mutate({ postId: post.id })}
+                    className="cursor-pointer text-3xl text-purple-600"
+                  />
+                ) : (
+                  <CiBookmarkPlus
+                    className="cursor-pointer text-3xl"
+                    onClick={() => {
+                      if (!session) {
+                        setIsOpen(true);
+                        return;
+                      }
+                      bookmarkPost.mutate({
+                        postId: post.id,
+                      });
+                    }}
+                  />
+                )}
+              </ActionIcon>
+
+              <p className="ml-1 w-[10px] text-gray-700">
+                {post._count.bookmarks}
+              </p>
+            </Group>
           </Group>
-        </Group>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 };
 
