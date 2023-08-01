@@ -297,18 +297,18 @@ export const postRouter = createTRPCRouter({
     });
     return allBookmarks;
   }),
-  getByCategory: publicProcedure
+  getByCategories: publicProcedure
     .input(
       z.object({
         cursor: z.string().nullish(),
-        categoryName: z.string(),
+        categoryNames: z.array(z.string()),
       })
     )
     .query(async ({ ctx, input }) => {
       const CategorizedPosts = await ctx.prisma.post.findMany({
         where: {
           category: {
-            name: input.categoryName,
+            name: { in: input.categoryNames },
           },
         },
         orderBy: {
@@ -321,6 +321,7 @@ export const postRouter = createTRPCRouter({
           content: true,
           createdAt: true,
           videoId: true,
+          category: { select: { name: true } },
           _count: {
             select: {
               bookmarks: true,

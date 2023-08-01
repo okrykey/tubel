@@ -1,8 +1,9 @@
-import { ScrollArea, SimpleGrid, Tabs } from "@mantine/core";
+import { Loader, SimpleGrid, Tabs } from "@mantine/core";
 import { IconBrandYoutube } from "@tabler/icons-react";
 import { useState } from "react";
 import { BiBookOpen } from "react-icons/bi";
 import { api } from "~/utils/api";
+import { LoginModal } from "../LoginModal";
 import Post from "../Post";
 
 type Post = {
@@ -14,36 +15,36 @@ type Post = {
 export const PostsList = () => {
   const [currentTab, setCurrentTab] = useState<string | null>(null);
   const postGetAll = api.post.all.useInfiniteQuery({});
-  const getPostsByCategory = (categoryName: string) => {
-    return api.post.getByCategory.useInfiniteQuery({
-      categoryName: categoryName,
+  const getPostsByCategories = (categoryNames: string[]) => {
+    return api.post.getByCategories.useInfiniteQuery({
+      categoryNames,
     });
   };
 
+  const allPostsQuery = getPostsByCategories([
+    "Programming",
+    "English",
+    "Culture",
+  ]);
+
   const renderPosts = (categoryName: string) => {
-    const categoryPostsQuery = getPostsByCategory(categoryName);
-
-    return categoryPostsQuery.isSuccess ? (
-      categoryPostsQuery.data?.pages.flatMap((page) =>
-        page.CategorizedPosts
-          ? page.CategorizedPosts.map((post) => (
-              <Post {...post} key={post.id} />
-            ))
-          : []
-      ) ?? <p>現在このカテゴリの記事は存在しません。</p>
-    ) : (
-      <p>現在このカテゴリの記事は存在しません。</p>
+    const categoryPosts = allPostsQuery.data?.pages.flatMap((page) =>
+      page.CategorizedPosts
+        ? page.CategorizedPosts.filter(
+            (post) => post.category && post.category.name === categoryName
+          )
+        : []
     );
-  };
 
+    if (Array.isArray(categoryPosts) && categoryPosts.length > 0) {
+      return categoryPosts.map((post) => <Post {...post} key={post.id} />);
+    }
+
+    return <p>現在このカテゴリの記事は存在しません。</p>;
+  };
   return (
     <>
-      <Tabs
-        color="teal"
-        defaultValue="first"
-        value={currentTab}
-        onTabChange={setCurrentTab}
-      >
+      <Tabs color="teal" value={currentTab} onTabChange={setCurrentTab}>
         <Tabs.List>
           <Tabs.Tab icon={<IconBrandYoutube size="0.8rem" />} value="1">
             プログラミング
@@ -51,7 +52,8 @@ export const PostsList = () => {
           <Tabs.Tab icon={<BiBookOpen size="0.8rem" />} value="2" color="blue">
             英語
           </Tabs.Tab>
-          <Tabs.Tab value="3" color="grape">
+
+          <Tabs.Tab icon={<BiBookOpen size="0.8rem" />} value="3" color="grape">
             カルチャー
           </Tabs.Tab>
         </Tabs.List>
