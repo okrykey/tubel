@@ -22,6 +22,10 @@ import MainLayout from "~/layouts/Mainlayout";
 import YouTube from "react-youtube";
 import CommentForm from "~/components/CommentForm";
 import Link from "next/link";
+import { isBookmarkedAtomFamily, LoginModalAtom } from "~/pages/state/Atoms";
+import { useAtom } from "jotai";
+import { LoginModal } from "~/components/LoginModal";
+import { useSession } from "next-auth/react";
 
 const tagColors: Record<string, string> = {
   motivation: "blue",
@@ -36,21 +40,17 @@ const opts = {
 
 const Postpage = () => {
   const theme = useMantineTheme();
+  const [isOpen, setIsOpen] = useAtom(LoginModalAtom);
+  const { data: session } = useSession();
   const router = useRouter();
-  const { slug } = router.query;
+  const { id } = router.query;
 
-  if (typeof slug !== "string") {
+  if (typeof id !== "string") {
     return null;
   }
 
-  const getPost = api.post.get.useQuery(slug);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-
-  useEffect(() => {
-    if (getPost.isSuccess) {
-      setIsBookmarked(Boolean(getPost.data?.bookmarks?.length));
-    }
-  }, [getPost.isSuccess]);
+  const getPost = api.post.get.useQuery(id);
+  const [isBookmarked, setIsBookmarked] = useAtom(isBookmarkedAtomFamily(id));
 
   const trpc = api.useContext();
   const invalidateCurrentPostPage = useCallback(() => {
@@ -81,16 +81,44 @@ const Postpage = () => {
   });
 
   const handleClickLike = () => {
-    post.id &&
-      likePost.mutate({
-        postId: post.id,
-      });
+    if (session) {
+      post.id &&
+        likePost.mutate({
+          postId: post.id,
+        });
+    } else {
+      setIsOpen(true);
+    }
   };
+
   const handleClickdisLike = () => {
-    post.id &&
-      dislikePost.mutate({
+    if (session) {
+      post.id &&
+        dislikePost.mutate({
+          postId: post.id,
+        });
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  const handleBookmark = () => {
+    if (session) {
+      setIsOpen(false);
+      bookmarkPost.mutate({
         postId: post.id,
       });
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  const handleRemoveBookmark = () => {
+    if (session) {
+      removeBookmark.mutate({ postId: post.id });
+    } else {
+      setIsOpen(true);
+    }
   };
 
   let YouTubeVideoId;
@@ -133,21 +161,18 @@ const Postpage = () => {
                 <ActionIcon title="お気に入り追加">
                   {isBookmarked ? (
                     <BiSolidBookmark
-                      onClick={() => removeBookmark.mutate({ postId: post.id })}
+                      onClick={handleRemoveBookmark}
                       className="cursor-pointer text-xl text-purple-500"
                     />
                   ) : (
                     <BiBookmark
                       className="cursor-pointer text-xl"
-                      onClick={() => {
-                        bookmarkPost.mutate({
-                          postId: post.id,
-                        });
-                      }}
+                      onClick={handleBookmark}
                     />
                   )}
                 </ActionIcon>
               </Group>
+              <LoginModal />
             </div>
           </div>
         </div>
@@ -158,9 +183,11 @@ const Postpage = () => {
         className="flex h-full w-full flex-col items-center justify-center p-4"
       >
         <div className="flex w-full max-w-4xl flex-col space-y-6">
-          <h1 className="rounded-xl bg-opacity-50 p-4 text-center text-3xl font-bold">
-            {post.title}
-          </h1>
+          <Paper withBorder radius="sm">
+            <h1 className=" bg-opacity-50 p-2 text-center text-2xl font-bold">
+              {post.title}
+            </h1>
+          </Paper>
           <Paper withBorder radius="sm" className="p-2 md:p-4">
             <AspectRatio ratio={16 / 9}>
               <YouTube videoId={YouTubeVideoId} opts={opts}></YouTube>
@@ -171,7 +198,7 @@ const Postpage = () => {
                 <div key={id}>
                   <Link href={`/tags/${tag}`}>
                     <Badge
-                      className="mb-2 ml-2 mt-4 md:mb-0 md:mt-4"
+                      className="cursol mb-2 ml-2 mt-4 md:mb-0 md:mt-4"
                       color={tagColors[tag.toLowerCase()]}
                       variant={
                         theme.colorScheme === "dark" ? "light" : "outline"

@@ -69,13 +69,13 @@ const EditPost = () => {
 
   const { mutate } = api.post.update.useMutation({
     onSuccess: () => {
-      router.back;
+      router.back();
       toast.success("編集しました！");
       form.reset();
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
-      await trpc.post.getByCategory.invalidate();
+      await trpc.post.getByCategories.invalidate();
     },
   });
 
