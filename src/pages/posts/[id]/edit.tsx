@@ -39,7 +39,7 @@ const tags = [
 const EditPost = () => {
   const [selectedTags, setSelectedTags] = useState<TAG[]>(tags);
   const router = useRouter();
-  const { slug } = router.query;
+  const { id } = router.query;
 
   const form = useForm<PostFormType>({
     initialValues: {
@@ -52,7 +52,7 @@ const EditPost = () => {
   });
 
   const trpc = api.useContext();
-  const postQuery = api.post.get.useQuery(slug as string);
+  const postQuery = api.post.get.useQuery(id as string);
 
   useEffect(() => {
     if (postQuery.isSuccess) {
@@ -86,7 +86,7 @@ const EditPost = () => {
           className="flex flex-col items-center justify-center space-y-4"
           onSubmit={form.onSubmit((data: PostFormType) => {
             mutate({
-              id: slug as string,
+              id: id as string,
               ...data,
             });
           })}
