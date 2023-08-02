@@ -109,7 +109,7 @@ export function PostsStack({ posts }: PostsStackProps) {
           </tr>
         </thead>
         <tbody>{rows}</tbody>
-        <Modal opened={opened} onClose={close} centered title="警告">
+        <Modal opened={opened} onClose={close} centered title="削除">
           <Group position="apart" mb="xs">
             <Text fz="sm" className="py-4 ">
               本当に削除しますか？（この投稿へのコメントも削除されます）

@@ -58,12 +58,12 @@ export const PostsList = () => {
           </Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="1" pt="xs">
+        <Tabs.Panel value="1" pt="md">
           <SimpleGrid
             cols={3}
             spacing="xl"
             verticalSpacing="xl"
-            mt={50}
+            mt={24}
             breakpoints={[
               { maxWidth: "sm", cols: 1 },
               { maxWidth: "md", cols: 2 },
@@ -73,12 +73,12 @@ export const PostsList = () => {
           </SimpleGrid>
         </Tabs.Panel>
 
-        <Tabs.Panel value="2" pt="xs">
+        <Tabs.Panel value="2" pt="md">
           <SimpleGrid
             cols={3}
             spacing="xl"
             verticalSpacing="xl"
-            mt={50}
+            mt={24}
             breakpoints={[
               { maxWidth: "sm", cols: 1 },
               { maxWidth: "md", cols: 2 },
@@ -87,12 +87,12 @@ export const PostsList = () => {
             {renderPosts("English")}
           </SimpleGrid>
         </Tabs.Panel>
-        <Tabs.Panel value="3" pt="xs">
+        <Tabs.Panel value="3" pt="md">
           <SimpleGrid
             cols={3}
             spacing="xl"
             verticalSpacing="xl"
-            mt={50}
+            mt={24}
             breakpoints={[
               { maxWidth: "sm", cols: 1 },
               { maxWidth: "md", cols: 2 },
@@ -107,7 +107,7 @@ export const PostsList = () => {
           cols={3}
           spacing="xl"
           verticalSpacing="xl"
-          mt={50}
+          mt={24}
           breakpoints={[
             { maxWidth: "sm", cols: 1 },
             { maxWidth: "md", cols: 2 },
