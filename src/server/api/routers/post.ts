@@ -6,6 +6,7 @@ import {
 } from "~/server/api/trpc";
 import { createPostInput, updatePostInput } from "~/server/types";
 import slugify from "slugify";
+import { v4 as uuidv4 } from "uuid";
 
 export const postRouter = createTRPCRouter({
   all: publicProcedure
@@ -71,6 +72,7 @@ export const postRouter = createTRPCRouter({
         title: true,
         content: true,
         videoId: true,
+        createdAt: true,
         category: {
           select: {
             name: true,
@@ -102,11 +104,28 @@ export const postRouter = createTRPCRouter({
       throw new Error("記事が見つかりませんでした。");
     }
 
+    const likesCount = await ctx.prisma.like.count({
+      where: {
+        postId: post.id,
+      },
+    });
+
     const tags = post.tags.map((tag) => tag.name);
     const category = post.category ? post.category.name : "";
 
-    const { id, title, content, likes, bookmarks, videoId } = post;
-    return { id, title, content, likes, bookmarks, videoId, tags, category };
+    const { id, title, content, createdAt, likes, bookmarks, videoId } = post;
+    return {
+      id,
+      title,
+      content,
+      createdAt,
+      likes,
+      bookmarks,
+      videoId,
+      tags,
+      category,
+      likesCount,
+    };
   }),
 
   create: protectedProcedure
@@ -156,7 +175,7 @@ export const postRouter = createTRPCRouter({
           title: input.title,
           content: input.content,
           videoId: input.videoId,
-          slug: slugify(input.videoId),
+          slug: uuidv4(),
           user: {
             connect: {
               id: ctx.session.user.id,
@@ -286,17 +305,7 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
-  getBookmarkList: protectedProcedure.query(async ({ ctx }) => {
-    const allBookmarks = ctx.prisma.bookmark.findMany({
-      where: {
-        userId: ctx.session.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return allBookmarks;
-  }),
+
   getByCategories: publicProcedure
     .input(
       z.object({

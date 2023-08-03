@@ -1,9 +1,13 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { createCommentInput, updateCommentInput } from "~/server/types";
 
 export const commentRouter = createTRPCRouter({
-  all: protectedProcedure
+  all: publicProcedure
     .input(
       z.object({
         postId: z.string(),
@@ -19,6 +23,7 @@ export const commentRouter = createTRPCRouter({
           content: true,
           user: {
             select: {
+              id: true,
               name: true,
               image: true,
             },

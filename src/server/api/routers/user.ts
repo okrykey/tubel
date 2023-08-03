@@ -48,7 +48,7 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
-  getUserPosts: publicProcedure
+  getUserPosts: protectedProcedure
     .input(
       z.object({
         username: z.string(),
@@ -63,36 +63,15 @@ export const userRouter = createTRPCRouter({
           post: {
             select: {
               id: true,
-              slug: true,
               title: true,
-              content: true,
               videoId: true,
               createdAt: true,
-              _count: {
-                select: {
-                  bookmarks: true,
-                  comment: true,
-                },
-              },
               user: {
                 select: {
+                  id: true,
                   name: true,
                   image: true,
                   username: true,
-                },
-              },
-              bookmarks: ctx.session?.user?.id
-                ? {
-                    where: {
-                      userId: ctx.session?.user?.id,
-                    },
-                  }
-                : false,
-              tags: {
-                select: {
-                  name: true,
-                  id: true,
-                  slug: true,
                 },
               },
             },
@@ -100,6 +79,32 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
+
+  getUserBookmarkList: protectedProcedure.query(async ({ ctx }) => {
+    const allBookmarks = await ctx.prisma.bookmark.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        post: {
+          select: {
+            id: true,
+            title: true,
+            videoId: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    const bookmarkedPosts = allBookmarks.map((bookmark) => bookmark.post);
+
+    return bookmarkedPosts;
+  }),
+
   update: protectedProcedure
     .input(
       z.object({
