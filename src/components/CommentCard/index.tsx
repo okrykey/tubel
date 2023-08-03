@@ -14,7 +14,8 @@ import { useSession } from "next-auth/react";
 import { BsThreeDots } from "react-icons/bs";
 import { useDisclosure } from "@mantine/hooks";
 import { api } from "~/utils/api";
-import { useState } from "react";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 const useStyles = createStyles((theme) => ({
   body: {
@@ -49,15 +50,21 @@ export function CommentCard({
 
   const isUser = session && session.user && session.user.id === user.id;
 
-  const handleEdit = () => {
-    // Add your edit logic here
-    // ...
-    setIsEditing(false);
-  };
-
   const deleteComment = api.comment.delete.useMutation({
     onSettled: async () => {
       await trpc.comment.all.invalidate();
+    },
+  });
+
+  const editComment = api.comment.update.useMutation({
+    onSuccess: () => {
+      toast.success("コメントを編集しました！");
+    },
+    onSettled: async () => {
+      await trpc.comment.all.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -103,12 +110,48 @@ export function CommentCard({
         )}
       </Group>
       {isEditing ? (
-        <Input
-          value={currentContent}
-          onChange={(e) => setCurrentContent(e.target.value)}
-          onBlur={handleEdit}
-          autoFocus
-        />
+        <>
+          <Input.Wrapper
+            className={classes.body}
+            error={
+              currentContent.length >= 3
+                ? null
+                : "※コメントは3文字以上である必要があります。"
+            }
+          >
+            <Input
+              variant="unstyled"
+              value={currentContent}
+              autoFocus
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setCurrentContent(e.target.value)
+              }
+            />
+          </Input.Wrapper>
+          <Group spacing={8} m="xs" position="right">
+            <Button
+              size="xs"
+              variant="outline"
+              color="red"
+              onClick={() => {
+                setIsEditing(false);
+              }}
+            >
+              キャンセル
+            </Button>
+            <Button
+              disabled={currentContent.length < 3}
+              onClick={() => {
+                editComment.mutate({ id, content: currentContent });
+                setIsEditing(false);
+              }}
+              size="xs"
+              variant="outline"
+            >
+              変更を保存
+            </Button>
+          </Group>
+        </>
       ) : (
         <Text className={classes.body} size="sm">
           {content}
