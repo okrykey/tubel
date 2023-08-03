@@ -10,11 +10,11 @@ import {
   ThemeIcon,
   rem,
 } from "@mantine/core";
-import { IconCheck } from "@tabler/icons-react";
+import { IconBrandYoutube, IconCheck } from "@tabler/icons-react";
+import { AiFillYoutube } from "react-icons/ai";
 import { useAtom } from "jotai";
-import Link from "next/link";
 import { modalOpenAtom } from "~/pages/state/Atoms";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
@@ -91,11 +91,20 @@ export const Hero = () => {
         <div className={classes.inner}>
           <div className={classes.content}>
             <Title className={classes.title}>
-              <Text component="span" inherit className="text-purple-500">
-                YouTube
-              </Text>
-              で学びを共有
+              <Group spacing={0}>
+                <AiFillYoutube className="text-3xl text-purple-500 md:text-6xl" />
+                <Text
+                  color="indigo"
+                  component="span"
+                  inherit
+                  className="text-purple-500"
+                >
+                  YouTube
+                </Text>
+                で学びを共有
+              </Group>
             </Title>
+
             <Text color="dimmed" mt="md">
               有益な動画を共有し、新たな学びを発見しよう。学習に役立つ動画を見つけ、効率的に学習を深めよう。
             </Text>
@@ -105,18 +114,18 @@ export const Hero = () => {
               spacing="sm"
               size="sm"
               icon={
-                <ThemeIcon size={15} radius="md">
+                <ThemeIcon size={15} radius="md" color="indigo">
                   <IconCheck size={rem(12)} stroke={1.5} />
                 </ThemeIcon>
               }
             >
               <List.Item>
-                <b>無料でアクセス可能</b>
-                ：コンテンツはすべて無料で、誰でも楽しめる。
+                <b>自由にアクセス可能</b>
+                ：コンテンツはすべてフリー。誰でも楽しめる。
               </List.Item>
               <List.Item>
-                <b>学びとつながりの場</b>
-                ：学びと人をつなげることで、最短経路での学びを実現。
+                <b>役立つ動画すぐ見つかる</b>
+                ：学びのある動画を厳選。最短経路で学ぼう。
               </List.Item>
             </List>
 
@@ -130,7 +139,10 @@ export const Hero = () => {
                 sessionData ? setIsOpen(true) : router.push("/signin")
               }
             >
-              {sessionData ? "投稿する" : "登録する"}
+              おすすめ動画
+              <Text component="span" inherit className="text-black">
+                を共有
+              </Text>
             </Button>
           </div>
           <Image src="images/signin-icon.png" className={classes.image} />

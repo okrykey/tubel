@@ -143,7 +143,16 @@ export const HeaderTabs = () => {
 
             {sessionData && (
               <>
-                <Menu position="bottom-end" shadow="md" offset={6} width={240}>
+                <Menu
+                  transitionProps={{
+                    transition: "rotate-right",
+                    duration: 150,
+                  }}
+                  position="bottom-end"
+                  shadow="md"
+                  offset={6}
+                  width={240}
+                >
                   <Menu.Target>
                     <Avatar src={userImage} size={40} radius={80} mx="auto" />
                   </Menu.Target>
@@ -152,17 +161,15 @@ export const HeaderTabs = () => {
                     <Menu.Label className="font-bold">ユーザー設定</Menu.Label>
                     <Link href={`/user/${userName}`}>
                       <Menu.Item className="text-base font-bold text-gray-600">
-                        プロフィール
+                        ユーザーページ
                       </Menu.Item>
                     </Link>
-                    <Menu.Item className="text-base font-bold text-gray-600">
-                      ブックマーク
-                    </Menu.Item>
+
                     <Menu.Divider />
                     <Menu.Label className="font-bold">その他</Menu.Label>
                     <Link href="/about">
                       <Menu.Item className="text-base font-bold text-gray-600">
-                        〇〇について
+                        使い方
                       </Menu.Item>
                     </Link>
                     <Menu.Item
@@ -197,14 +204,45 @@ export const HeaderTabs = () => {
             </Link>
 
             {sessionData ? (
-              <Button
-                variant="outline"
-                size="xs"
-                color="indigo"
-                onClick={() => setIsOpen(true)}
-              >
-                投稿
-              </Button>
+              <>
+                <Menu
+                  transitionProps={{
+                    transition: "rotate-right",
+                    duration: 150,
+                  }}
+                  position="bottom-end"
+                  shadow="md"
+                  offset={6}
+                  width={240}
+                >
+                  <Menu.Target>
+                    <Avatar src={userImage} size={40} radius={80} mx="auto" />
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <Menu.Label className="font-bold">ユーザー設定</Menu.Label>
+                    <Link href={`/user/${userName}`}>
+                      <Menu.Item className="text-base font-bold text-gray-600">
+                        ユーザーページ
+                      </Menu.Item>
+                    </Link>
+
+                    <Menu.Divider />
+                    <Menu.Label className="font-bold">その他</Menu.Label>
+                    <Link href="/about">
+                      <Menu.Item className="text-base font-bold text-gray-600">
+                        使い方
+                      </Menu.Item>
+                    </Link>
+                    <Menu.Item
+                      className="text-base font-bold text-gray-600"
+                      onClick={() => void signOut()}
+                    >
+                      ログアウト
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              </>
             ) : (
               <Button
                 variant="outline"
@@ -212,7 +250,7 @@ export const HeaderTabs = () => {
                 color="indigo"
                 onClick={() => router.push("/signin")}
               >
-                登録
+                ログイン
               </Button>
             )}
           </Group>
@@ -237,8 +275,12 @@ export const HeaderTabs = () => {
             ホーム
           </Link>
 
+          <Link href={`/user/${userName}`} className={classes.link}>
+            ユーザーページ
+          </Link>
+
           <Link href="/about" className={classes.link}>
-            TubeLearnについて
+            使い方
           </Link>
           <Link href="#" className={classes.link}>
             プライバシーポリシー
@@ -259,7 +301,7 @@ export const HeaderTabs = () => {
               color="indigo"
               onClick={sessionData ? () => void signOut() : () => void signIn()}
             >
-              {sessionData ? "Sign out" : "Sign in"}
+              {sessionData ? "ログアウト" : "登録/ログイン"}
             </Button>
           </Group>
         </ScrollArea>
