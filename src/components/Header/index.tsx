@@ -12,16 +12,30 @@ import {
   Avatar,
   Menu,
   ActionIcon,
+  HoverCard,
+  Center,
+  SimpleGrid,
+  Text,
+  Anchor,
+  UnstyledButton,
+  Collapse,
+  ThemeIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useAtom } from "jotai";
-import { modalOpenAtom } from "~/pages/state/Atoms";
 import { ActionToggle } from "../ActionToggle";
 import Link from "next/link";
 import { api } from "~/utils/api";
-import { IconSearch } from "@tabler/icons-react";
+import {
+  IconAtom,
+  IconBook,
+  IconChevronDown,
+  IconCode,
+  IconCoin,
+  IconGlobe,
+  IconSearch,
+} from "@tabler/icons-react";
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -92,15 +106,38 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+const data = [
+  {
+    icon: IconCode,
+    title: "プログラミング",
+    description: "サクッと動画で分かりやすく学ぼう",
+  },
+  {
+    icon: IconGlobe,
+    title: "カルチャー",
+    description: "動画から多様な文化と世界の広さを感じよう",
+  },
+
+  {
+    icon: IconBook,
+    title: "英語",
+    description: "見るだけで世界中へ。場所を問わずグローバル化しよう",
+  },
+  {
+    icon: IconAtom,
+    title: "科学",
+    description: "自然科学からコンピュータ科学まで、幅広い知識を学ぼう",
+  },
+];
+
 export const HeaderTabs = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
+
+  const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const { classes, theme } = useStyles();
   const { data: sessionData } = useSession();
-
   const router = useRouter();
-
-  const [isOpen, setIsOpen] = useAtom(modalOpenAtom);
 
   const userId = sessionData?.user?.id;
   const userAvatarQuery = api.user.getUserAvatar.useQuery(
@@ -115,6 +152,23 @@ export const HeaderTabs = () => {
   const userImage = userAvatarQuery.data?.image as string;
   const userName = userAvatarQuery.data?.username as string;
 
+  const links = data.map((item) => (
+    <UnstyledButton className={classes.subLink} key={item.title}>
+      <Group noWrap align="flex-start">
+        <ThemeIcon size={34} variant="default" radius="md">
+          <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
+        </ThemeIcon>
+        <div>
+          <Text size="sm" fw={500}>
+            {item.title}
+          </Text>
+          <Text size="xs" color="dimmed">
+            {item.description}
+          </Text>
+        </div>
+      </Group>
+    </UnstyledButton>
+  ));
   return (
     <Box pb={0}>
       <Header height={60} px="md">
@@ -126,11 +180,67 @@ export const HeaderTabs = () => {
             position="center"
           >
             <a href="/" className={classes.link}>
-              Home
+              ロゴ
             </a>
+
             <a href="/about" className={classes.link}>
-              About
+              ABOUT
             </a>
+
+            <HoverCard
+              width={600}
+              position="bottom"
+              radius="md"
+              shadow="md"
+              withinPortal
+            >
+              <HoverCard.Target>
+                <a href="#" className={classes.link}>
+                  <Center inline>
+                    <Box component="span" mr={5}>
+                      CATEGORY
+                    </Box>
+                    <IconChevronDown
+                      size={16}
+                      color={theme.fn.primaryColor()}
+                    />
+                  </Center>
+                </a>
+              </HoverCard.Target>
+              <HoverCard.Dropdown sx={{ overflow: "hidden" }}>
+                <Group position="apart" px="md">
+                  <Text fw={500}>カテゴリ</Text>
+                  <Anchor href="/category" fz="xs">
+                    すべてみる
+                  </Anchor>
+                </Group>
+
+                <Divider
+                  my="sm"
+                  mx="-md"
+                  color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
+                />
+
+                <SimpleGrid cols={2} spacing={0}>
+                  {links}
+                </SimpleGrid>
+
+                <div className={classes.dropdownFooter}>
+                  <Group position="apart">
+                    <div>
+                      <Text fw={500} fz="sm">
+                        カテゴリの追加
+                      </Text>
+                      <Text size="xs" color="dimmed">
+                        カテゴリの追加は
+                        <span className="underline">お問い合わせ</span>
+                        にお願いします
+                      </Text>
+                    </div>
+                  </Group>
+                </div>
+              </HoverCard.Dropdown>
+            </HoverCard>
           </Group>
 
           <Group className={classes.hiddenMobile}>
@@ -182,14 +292,19 @@ export const HeaderTabs = () => {
                 </Menu>
               </>
             )}
-            <Button
-              variant="outline"
-              size="xs"
-              color="indigo"
-              onClick={sessionData ? () => void signOut() : () => void signIn()}
-            >
-              {sessionData ? "ログアウト" : "登録/ログイン"}
-            </Button>
+
+            {!sessionData && (
+              <Button
+                variant="outline"
+                size="md"
+                color="indigo"
+                onClick={
+                  sessionData ? () => void signOut() : () => void signIn()
+                }
+              >
+                登録/ログイン
+              </Button>
+            )}
           </Group>
 
           <Group className={classes.hiddenDesktop} position="apart">
@@ -260,11 +375,13 @@ export const HeaderTabs = () => {
       <Drawer
         opened={drawerOpened}
         onClose={closeDrawer}
+        withCloseButton={false}
         size="100%"
         padding="md"
         className={classes.hiddenDesktop}
         zIndex={1000000}
       >
+        <Drawer.CloseButton size="md" />
         <ScrollArea h={`calc(100vh - ${rem(60)})`} mx="-md">
           <Divider
             my="sm"
@@ -282,6 +399,15 @@ export const HeaderTabs = () => {
           <Link href="/about" className={classes.link}>
             使い方
           </Link>
+          <UnstyledButton className={classes.link} onClick={toggleLinks}>
+            <Center inline>
+              <Box component="span" mr={5}>
+                カテゴリ
+              </Box>
+              <IconChevronDown size={16} color={theme.fn.primaryColor()} />
+            </Center>
+          </UnstyledButton>
+          <Collapse in={linksOpened}>{links}</Collapse>
           <Link href="#" className={classes.link}>
             プライバシーポリシー
           </Link>
