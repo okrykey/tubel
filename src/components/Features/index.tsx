@@ -1,5 +1,12 @@
 import { createStyles, Text, SimpleGrid, Container, rem } from "@mantine/core";
-import { IconTruck, IconCertificate, IconCoin } from "@tabler/icons-react";
+import {
+  IconTruck,
+  IconCertificate,
+  IconCoin,
+  IconSearch,
+  IconSend,
+} from "@tabler/icons-react";
+import { BiChat } from "react-icons/bi";
 
 const useStyles = createStyles((theme) => ({
   feature: {
@@ -68,29 +75,28 @@ function Feature({
   );
 }
 
-const mockdata = [
+const data = [
   {
-    icon: IconTruck,
-    title: "Free Worldwide shipping",
-    description:
-      "As electricity builds up inside its body, it becomes more aggressive. One theory is that the electricity.",
+    icon: IconSearch,
+    title: "1.検索して見つける",
+    description: "検索して動画を見つけよう。見たくなる動画が必ずここにある",
   },
   {
-    icon: IconCertificate,
-    title: "Best Quality Product",
+    icon: BiChat,
+    title: "2.コメントして意見交換する",
     description:
-      "Slakoth’s heart beats just once a minute. Whatever happens, it is content to loaf around motionless.",
+      "投稿に対してコメントしよう。その動画のポイントや活用方法をシェアしよう。",
   },
   {
-    icon: IconCoin,
-    title: "Very Affordable Pricing",
+    icon: IconSend,
+    title: "3.投稿して動画を共有する",
     description:
-      "Thought to have gone extinct, Relicanth was given a name that is a variation of the name of the person who discovered.",
+      "自分の「この動画みてよかった」を共有しよう。必ず他の人にも役立つはず",
   },
 ];
 
 export function Features() {
-  const items = mockdata.map((item) => <Feature {...item} key={item.title} />);
+  const items = data.map((item) => <Feature {...item} key={item.title} />);
 
   return (
     <Container mt={30} mb={30} size="lg">
