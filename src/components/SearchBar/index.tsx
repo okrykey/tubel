@@ -5,6 +5,8 @@ import {
   ActionIcon,
   useMantineTheme,
   SimpleGrid,
+  Divider,
+  Box,
 } from "@mantine/core";
 import { IconSearch, IconArrowRight, IconArrowLeft } from "@tabler/icons-react";
 import { api } from "~/utils/api";
@@ -28,7 +30,9 @@ export const SearchBar = (props: TextInputProps) => {
   );
 
   useEffect(() => {
-    const debounced = debounce(() => setDebouncedQuery(query), 500);
+    const debounced = debounce(() => {
+      setDebouncedQuery(query.replace(/\s{2,}/g, " ").trim());
+    }, 500);
     debounced();
     return () => {
       debounced.cancel();
@@ -43,21 +47,12 @@ export const SearchBar = (props: TextInputProps) => {
         size="md"
         value={query}
         onChange={(event) => setQuery(event.currentTarget.value)}
-        rightSection={
-          <ActionIcon size={32} radius="xl" color="indigo" variant="outline">
-            {theme.dir === "ltr" ? (
-              <IconArrowRight size="1.1rem" stroke={1.5} />
-            ) : (
-              <IconArrowLeft size="1.1rem" stroke={1.5} />
-            )}
-          </ActionIcon>
-        }
         placeholder="Search..."
         rightSectionWidth={42}
         {...props}
       />
       {debouncedQuery && (
-        <h1 className="pt-8 text-sm font-bold text-gray-700 sm:text-lg md:text-xl lg:text-xl">
+        <h1 className="pt-8 text-lg font-bold text-gray-700 sm:text-lg md:text-xl lg:text-xl">
           「{debouncedQuery}」の検索結果
         </h1>
       )}
@@ -65,15 +60,24 @@ export const SearchBar = (props: TextInputProps) => {
       {debouncedQuery ? (
         (searchResult?.data?.SearchedPosts?.length ?? 0) > 0 ? (
           <>
-            <p>
-              {searchResult?.data?.SearchedPosts?.length}
-              件の記事がヒットしました
-            </p>
+            <Divider
+              my="xs"
+              labelPosition="left"
+              label={
+                <>
+                  <IconSearch size={14} />
+                  <Box ml={5} className="text-sm">
+                    {searchResult?.data?.SearchedPosts?.length}
+                    件の記事がヒットしました
+                  </Box>
+                </>
+              }
+            />
             <SimpleGrid
               cols={3}
               spacing="xl"
               verticalSpacing="xl"
-              mt={50}
+              mt={24}
               breakpoints={[
                 { maxWidth: "sm", cols: 1 },
                 { maxWidth: "md", cols: 2 },

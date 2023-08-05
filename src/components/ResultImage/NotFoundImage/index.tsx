@@ -12,8 +12,8 @@ import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
   root: {
-    paddingTop: rem(80),
-    paddingBottom: rem(80),
+    paddingTop: rem(50),
+    paddingBottom: rem(50),
   },
 
   title: {
@@ -56,8 +56,8 @@ export function NotFoundImage() {
         cols={2}
         breakpoints={[{ maxWidth: "sm", cols: 1, spacing: 40 }]}
       >
-        <Image src={""} className={classes.mobileImage} />
-        <div>
+        <Image src="images/signin-icon.png" className={classes.mobileImage} />
+        <div className="pt-8">
           <Title className={classes.title}>
             検索キーワードを入力してください
           </Title>
@@ -65,16 +65,16 @@ export function NotFoundImage() {
             キーワードに該当するタイトル、本文の記事が表示されます
           </Text>
           <Button
-            variant="outline"
+            variant="subtle"
             size="md"
             mt="xl"
             className={classes.control}
-            onClick={() => router.push("/")}
+            onClick={() => router.back()}
           >
-            →ホームページへ戻る
+            前のページへ戻る→
           </Button>
         </div>
-        <Image src={""} className={classes.desktopImage} />
+        <Image src="images/signin-icon.png" className={classes.desktopImage} />
       </SimpleGrid>
     </Container>
   );
