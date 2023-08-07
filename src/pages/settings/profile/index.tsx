@@ -13,19 +13,28 @@ import {
   Avatar,
   Card,
   FileButton,
+  Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import MainLayout from "~/layouts/Mainlayout";
 import { api } from "~/utils/api";
 
 type ProfileFormType = {
-  userId: string;
   name: string;
+  image?: string;
+  imageAsDataUrl?: string;
+  file?: File;
+};
+
+type PayloadType = {
+  name: string;
+  username: string;
+  imageAsDataUrl?: string;
 };
 
 const useStyles = createStyles((theme) => ({
@@ -33,12 +42,15 @@ const useStyles = createStyles((theme) => ({
     fontSize: rem(26),
     fontWeight: 900,
     fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    paddingTop: "32px",
+    paddingBottom: "32px",
   },
 
   controls: {
     [theme.fn.smallerThan("md")]: {
       flexDirection: "column-reverse",
     },
+    paddingTop: "16px",
   },
 
   control: {
@@ -69,12 +81,38 @@ export default function EditUserProfile() {
   const router = useRouter();
   const { classes } = useStyles();
   const trpc = api.useContext();
-  const [file, setFile] = useState<File | null>(null);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [objectImage, setObjectImage] = useState("");
+
+  const handleChangeImage = (file: File | null) => {
+    if (file) {
+      if (file.size > 1.5 * 1000000) {
+        return notifications.show({
+          color: "red",
+          autoClose: 5000,
+          title: "エラー",
+          message: "1MBより大きい画像は使用できません。",
+        });
+      }
+      setObjectImage(URL.createObjectURL(file));
+      setSelectedFile(file);
+    }
+  };
+
+  const userId = session?.user?.id;
+  const getUser = api.user.getUserAvatar.useQuery(
+    {
+      userId: userId || "",
+    },
+    {
+      enabled: !!userId,
+    }
+  );
 
   const form = useForm<ProfileFormType>({
     initialValues: {
-      userId: session?.user.id || "",
-      name: "",
+      name: getUser.data?.name || "",
     },
     validate: {
       name: (value) =>
@@ -84,10 +122,15 @@ export default function EditUserProfile() {
     },
   });
 
-  const updateName = api.user.update.useMutation({
+  const updateAvatar = api.user.uploadAvatar.useMutation({
     onSuccess: () => {
-      toast.success("プロフィールを編集しました！");
-
+      router.push(`/user/${getUser.data?.username}`);
+      notifications.show({
+        color: "grape",
+        autoClose: 5000,
+        title: "プロフィールを変更",
+        message: "プロフィールを変更しました！",
+      });
       form.reset();
     },
     onSettled: async () => {
@@ -97,22 +140,44 @@ export default function EditUserProfile() {
 
   return (
     <MainLayout>
-      <Container className="h-full w-full px-24 py-20">
+      <Container size="lg" p="md" className="h-full w-full  max-w-3xl">
         <Title className={classes.title} align="center">
           ユーザー編集
         </Title>
-        <div className="pt-10">
+        <div>
           <form
             onSubmit={form.onSubmit((data: ProfileFormType) => {
-              updateName.mutate(data);
+              const updateUser = (imageDataUrl?: string) => {
+                const payload: PayloadType = {
+                  name: data.name,
+                  username: getUser.data?.username || "",
+                };
+                if (imageDataUrl) {
+                  payload.imageAsDataUrl = imageDataUrl;
+                }
+
+                updateAvatar.mutate(payload);
+              };
+
+              if (selectedFile) {
+                const fileReader = new FileReader();
+                fileReader.readAsDataURL(selectedFile);
+                fileReader.onloadend = () => {
+                  if (typeof fileReader.result === "string") {
+                    updateUser(fileReader.result);
+                  }
+                };
+              } else {
+                updateUser();
+              }
             })}
           >
             <Card withBorder padding="xl" radius="md" className={classes.card}>
               <Card.Section sx={{ height: 60 }} />
 
-              {file ? (
+              {objectImage ? (
                 <Avatar
-                  src={URL.createObjectURL(file)}
+                  src={objectImage}
                   size={80}
                   radius={80}
                   mx="auto"
@@ -121,7 +186,7 @@ export default function EditUserProfile() {
                 />
               ) : (
                 <Avatar
-                  src=""
+                  src={getUser.data?.image}
                   size={80}
                   radius={80}
                   mx="auto"
@@ -130,9 +195,16 @@ export default function EditUserProfile() {
                 />
               )}
 
-              <Center className="pt-4">
-                <FileButton onChange={setFile} accept="image/png,image/jpeg">
-                  {(props) => <Button {...props}>画像を変更する</Button>}
+              <Center className="pt-1">
+                <FileButton
+                  onChange={handleChangeImage}
+                  accept="image/png,image/jpeg"
+                >
+                  {(props) => (
+                    <Button variant="subtle" color="dark" {...props}>
+                      画像を変更する
+                    </Button>
+                  )}
                 </FileButton>
               </Center>
 
@@ -158,14 +230,15 @@ export default function EditUserProfile() {
                     </Box>
                   </Center>
                 </Anchor>
-                <Button
-                  className={classes.control}
-                  variant="outline"
-                  type="submit"
-                >
-                  変更する
+
+                <Button className={classes.control} color="dark" type="submit">
+                  プロフィールを更新する
                 </Button>
+                <Text color="dimmed" size="xs">
+                  ※画像が反映されるまで時間がかかるおそれがあります。
+                </Text>
               </Group>
+              <Card.Section sx={{ height: 40 }} />
             </Card>
           </form>
         </div>
