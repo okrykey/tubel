@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { atomFamily } from "jotai/utils";
 
 const tags = [
   { value: "react", label: "React" },
@@ -10,4 +11,5 @@ const tags = [
 ];
 
 export const modalOpenAtom = atom(false);
+export const LoginModalAtom = atom(false);
 export const tagsAtom = atom(tags);
