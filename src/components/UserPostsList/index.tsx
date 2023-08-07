@@ -13,27 +13,43 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { api } from "~/utils/api";
-import { PostProps } from "../Post";
 
-type PostsStackProps = {
-  posts: PostProps[];
+type Post = {
+  id: string;
+  title: string;
+  videoId: string;
+  createdAt: Date;
+  user?: {
+    id: string;
+  };
 };
 
-export function PostsStack({ posts }: PostsStackProps) {
+type PostsStackProps = {
+  posts: Post[];
+};
+
+const PostRow: React.FC<{ post: Post }> = ({ post }) => {
   const router = useRouter();
   const { data: session } = useSession();
-  const [selectedPostId, setSelectedPostId] = useState<string>("");
   const [opened, { open, close }] = useDisclosure(false);
+  const [selectedPostId, setSelectedPostId] = useState<string>("");
+  const isUserMatch = session && session.user?.id === post.user?.id;
 
-  const rows = posts.map((post) => {
-    const isUserMatch = session && session.user?.id === post.user?.id;
+  const YouTubeVideoId = new URLSearchParams(new URL(post.videoId).search).get(
+    "v"
+  );
 
-    const YouTubeVideoId = new URLSearchParams(
-      new URL(post.videoId).search
-    ).get("v");
+  const trpc = api.useContext();
+  const deletePost = api.post.delete.useMutation({
+    onSettled: async () => {
+      await trpc.user.getUserPosts.invalidate();
+      await trpc.user.getUserProfile.invalidate();
+    },
+  });
 
-    return (
-      <tr key={post.id}>
+  return (
+    <>
+      <tr>
         <td>
           <Link href={`/posts/${post.id}`}>
             <Image
@@ -62,7 +78,8 @@ export function PostsStack({ posts }: PostsStackProps) {
           {isUserMatch && (
             <Group spacing={10}>
               <Button
-                variant="outline"
+                variant="subtle"
+                color="gray"
                 size="xs"
                 radius="xl"
                 onClick={() => router.push(`/posts/${post.id}/edit`)}
@@ -75,8 +92,8 @@ export function PostsStack({ posts }: PostsStackProps) {
                   setSelectedPostId(post.id);
                   open();
                 }}
+                variant="subtle"
                 color="red"
-                variant="outline"
                 size="xs"
                 radius="xl"
               >
@@ -86,17 +103,34 @@ export function PostsStack({ posts }: PostsStackProps) {
           )}
         </td>
       </tr>
-    );
-  });
+      <Modal opened={opened} onClose={close} centered title="削除">
+        <Group position="apart" mb="xs">
+          <Text fz="sm" className="py-4 ">
+            本当に削除しますか？（この投稿へのコメントも削除されます）
+          </Text>
+        </Group>
+        <Group position="right" mt="md">
+          <Button variant="default" size="xs" onClick={close}>
+            キャンセル
+          </Button>
+          <Button
+            variant="outline"
+            size="xs"
+            color="red"
+            onClick={() => {
+              deletePost.mutate(selectedPostId);
+              close();
+            }}
+          >
+            削除する
+          </Button>
+        </Group>
+      </Modal>
+    </>
+  );
+};
 
-  const trpc = api.useContext();
-  const deletePost = api.post.delete.useMutation({
-    onSettled: async () => {
-      await trpc.user.getUserPosts.invalidate();
-      await trpc.user.getUserProfile.invalidate();
-    },
-  });
-
+export function UserPostsList({ posts }: PostsStackProps) {
   return (
     <ScrollArea>
       <Table className="min-w-full" verticalSpacing="sm">
@@ -105,33 +139,14 @@ export function PostsStack({ posts }: PostsStackProps) {
             <th>動画</th>
             <th>タイトル</th>
             <th className="hidden sm:table-cell">投稿日</th>
-            <th>編集</th>
+            <th></th>
           </tr>
         </thead>
-        <tbody>{rows}</tbody>
-        <Modal opened={opened} onClose={close} centered title="削除">
-          <Group position="apart" mb="xs">
-            <Text fz="sm" className="py-4 ">
-              本当に削除しますか？（この投稿へのコメントも削除されます）
-            </Text>
-          </Group>
-          <Group position="right" mt="md">
-            <Button variant="default" size="xs" onClick={close}>
-              キャンセル
-            </Button>
-            <Button
-              variant="outline"
-              size="xs"
-              color="red"
-              onClick={() => {
-                deletePost.mutate(selectedPostId);
-                close();
-              }}
-            >
-              削除する
-            </Button>
-          </Group>
-        </Modal>
+        <tbody>
+          {posts.map((post) => (
+            <PostRow post={post} key={post.id} />
+          ))}
+        </tbody>
       </Table>
     </ScrollArea>
   );
