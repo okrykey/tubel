@@ -35,12 +35,16 @@ function MyApp(
   return (
     <>
       <Head>
-        <title>My App</title>
+        <title>Tubel - Watch, Learn, Share -</title>
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
-        <link rel="shortcut icon" href="/favicon.svg" />
+        <meta
+          name="description"
+          content="TubelはYouTubeの動画で学習を共有できるサービスです。"
+        ></meta>
+        <link rel="icon" type="image/png" href="/favicon.png" />
       </Head>
       <SessionProvider session={session}>
         <ColorSchemeProvider
@@ -72,7 +76,7 @@ function MyApp(
             <Toaster />
             <Component {...pageProps} />
             <LoginModal />
-            <Notifications />
+            <Notifications position="top-right" />
           </MantineProvider>
         </ColorSchemeProvider>
       </SessionProvider>
