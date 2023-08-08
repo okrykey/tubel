@@ -97,6 +97,14 @@ export const postRouter = createTRPCRouter({
             name: true,
           },
         },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+          },
+        },
       },
     });
 
@@ -113,7 +121,8 @@ export const postRouter = createTRPCRouter({
     const tags = post.tags.map((tag) => tag.name);
     const category = post.category ? post.category.name : "";
 
-    const { id, title, content, createdAt, likes, bookmarks, videoId } = post;
+    const { id, title, content, createdAt, likes, bookmarks, videoId, user } =
+      post;
     return {
       id,
       title,
@@ -122,6 +131,8 @@ export const postRouter = createTRPCRouter({
       likes,
       bookmarks,
       videoId,
+      username: user?.username,
+      userId: user?.id,
       tags,
       category,
       likesCount,
@@ -359,6 +370,33 @@ export const postRouter = createTRPCRouter({
               slug: true,
             },
           },
+        },
+      });
+
+      return { CategorizedPosts };
+    }),
+
+  getCategorizedPosts: publicProcedure
+    .input(
+      z.object({
+        categoryNames: z.array(z.string()),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const CategorizedPosts = await ctx.prisma.post.findMany({
+        where: {
+          category: {
+            name: { in: input.categoryNames },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 4,
+        select: {
+          title: true,
+          videoId: true,
+          category: { select: { name: true } },
         },
       });
 

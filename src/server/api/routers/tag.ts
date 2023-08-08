@@ -1,7 +1,14 @@
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const tagRouter = createTRPCRouter({
-  getTags: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.tag.findMany();
+  getAllTags: publicProcedure.query(async ({ ctx }) => {
+    const tags = await ctx.prisma.tag.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return tags;
   }),
 });

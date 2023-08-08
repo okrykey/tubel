@@ -2,14 +2,11 @@ import { z } from "zod";
 
 export const updatePostInput = z.object({
   id: z.string(),
-  title: z
-    .string()
-    .min(1, "must be at least 1 letter")
-    .max(50, "must be 50 letters or less"),
-  content: z
-    .string()
-    .min(1, "must be at least 1 letter")
-    .max(300, "must be 300 letters or less"),
+  title: z.string(),
+  content: z.string(),
+  videoId: z.string(),
+  category: z.string(),
+  tags: z.array(z.string()),
 });
 
 export const createPostInput = z.object({
