@@ -1,14 +1,13 @@
 import { Container } from "@mantine/core";
 import { NextPage } from "next";
 import { Hero } from "~/components/Hero";
-import PostFormModal from "~/components/PostFormModal";
-import { HeaderTabs } from "~/components/Header";
-import { PostsList } from "~/components/PostsList";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import toast from "react-hot-toast";
+
 import MainLayout from "~/layouts/Mainlayout";
+import { CategoryPostsList } from "~/components/CategoryPostsList";
+import { notifications } from "@mantine/notifications";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
@@ -16,7 +15,12 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (status === "authenticated" && router.query.login === "success") {
-      toast.success("ログインしました");
+      notifications.show({
+        color: "indigo",
+        autoClose: 5000,
+        title: "ログイン",
+        message: "ログインしました。",
+      });
       router.replace(router.pathname);
     }
   }, [status, router.query, router.pathname]);
@@ -24,10 +28,9 @@ const Home: NextPage = () => {
   return (
     <>
       <MainLayout>
-        <Container size="lg" py="xl">
-          <PostFormModal />
+        <Container size="lg" p="md">
           <Hero />
-          <PostsList />
+          <CategoryPostsList />
         </Container>
       </MainLayout>
     </>
