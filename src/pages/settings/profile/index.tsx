@@ -64,8 +64,8 @@ const useStyles = createStyles((theme) => ({
     backgroundColor:
       theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
     [theme.fn.smallerThan("md")]: {
-      paddingTop: "80px",
-      paddingBottom: "80px",
+      paddingTop: "40px",
+      paddingBottom: "40px",
     },
   },
 
@@ -79,7 +79,7 @@ const useStyles = createStyles((theme) => ({
 export default function EditUserProfile() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
   const trpc = api.useContext();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -152,13 +152,13 @@ export default function EditUserProfile() {
                   name: data.name,
                   username: getUser.data?.username || "",
                 };
+
                 if (imageDataUrl) {
                   payload.imageAsDataUrl = imageDataUrl;
                 }
 
                 updateAvatar.mutate(payload);
               };
-
               if (selectedFile) {
                 const fileReader = new FileReader();
                 fileReader.readAsDataURL(selectedFile);
@@ -201,7 +201,11 @@ export default function EditUserProfile() {
                   accept="image/png,image/jpeg"
                 >
                   {(props) => (
-                    <Button variant="subtle" color="dark" {...props}>
+                    <Button
+                      variant="subtle"
+                      color={theme.colorScheme === "dark" ? "gray" : "dark"}
+                      {...props}
+                    >
                       画像を変更する
                     </Button>
                   )}
@@ -231,7 +235,11 @@ export default function EditUserProfile() {
                   </Center>
                 </Anchor>
 
-                <Button className={classes.control} color="dark" type="submit">
+                <Button
+                  className={classes.control}
+                  color={theme.colorScheme === "dark" ? "teal" : "dark"}
+                  type="submit"
+                >
                   プロフィールを更新する
                 </Button>
                 <Text color="dimmed" size="xs">
