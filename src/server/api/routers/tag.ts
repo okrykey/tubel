@@ -7,6 +7,9 @@ export const tagRouter = createTRPCRouter({
         id: true,
         name: true,
       },
+      orderBy: {
+        name: "asc",
+      },
     });
 
     return tags;
