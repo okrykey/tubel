@@ -10,12 +10,10 @@ import {
   ThemeIcon,
   rem,
 } from "@mantine/core";
-import { IconBrandYoutube, IconCheck } from "@tabler/icons-react";
-import { AiFillYoutube } from "react-icons/ai";
+import { IconCheck } from "@tabler/icons-react";
 import { useAtom } from "jotai";
-import { modalOpenAtom } from "~/pages/state/Atoms";
+import { LoginModalAtom, modalOpenAtom } from "~/pages/state/Atoms";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -47,13 +45,13 @@ const useStyles = createStyles((theme) => ({
     },
 
     [theme.fn.smallerThan("xs")]: {
-      fontSize: rem(28),
+      fontSize: rem(36),
       lineHeight: 1.3,
     },
   },
 
   control: {
-    marginTop: `calc(${theme.spacing.xl} * 1.5)`,
+    marginTop: `calc(${theme.spacing.xl} * 1.2)`,
 
     [theme.fn.smallerThan("sm")]: {
       width: "100%",
@@ -80,11 +78,11 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const Hero = () => {
-  const { classes } = useStyles();
-  const [isOpen, setIsOpen] = useAtom(modalOpenAtom);
+  const { classes, theme } = useStyles();
+  const [_, setIsOpen] = useAtom(modalOpenAtom);
+  const [__, setIsLginOpen] = useAtom(LoginModalAtom);
   const { data: sessionData } = useSession();
 
-  const router = useRouter();
   return (
     <div>
       <Container>
@@ -92,16 +90,25 @@ export const Hero = () => {
           <div className={classes.content}>
             <Title className={classes.title}>
               <Group spacing={0}>
-                <AiFillYoutube className="text-3xl text-purple-500 md:text-6xl" />
+                You
                 <Text
-                  color="indigo"
                   component="span"
                   inherit
-                  className="text-purple-500"
+                  color={theme.colorScheme === "dark" ? "teal" : "indigo"}
                 >
-                  YouTube
+                  Tube
                 </Text>
-                で学びを共有
+                <Text component="span" inherit color="gray">
+                  ×
+                </Text>
+                <Text
+                  component="span"
+                  inherit
+                  color={theme.colorScheme === "dark" ? "teal" : "indigo"}
+                >
+                  L
+                </Text>
+                earn
               </Group>
             </Title>
 
@@ -114,38 +121,39 @@ export const Hero = () => {
               spacing="sm"
               size="sm"
               icon={
-                <ThemeIcon size={15} radius="md" color="indigo">
+                <ThemeIcon size={15} radius="md">
                   <IconCheck size={rem(12)} stroke={1.5} />
                 </ThemeIcon>
               }
             >
               <List.Item>
-                <b>自由にアクセス可能</b>
-                ：コンテンツはすべてフリー。誰でも楽しめる。
+                <b className="text-lg">Learning from YouTube</b>
+                ：YouTubeのコンテンツはすべてフリー。誰でも楽しめる。
               </List.Item>
               <List.Item>
-                <b>役立つ動画すぐ見つかる</b>
-                ：学びのある動画を厳選。最短経路で学ぼう。
+                <b className="text-lg">You earn more!</b>
+                ：有益な動画を最短経路で学び活用しよう。
               </List.Item>
             </List>
 
             <Button
-              variant="outline"
-              color="violet"
+              variant="filled"
               size="xl"
               radius="xl"
               className={classes.control}
               onClick={() =>
-                sessionData ? setIsOpen(true) : router.push("/signin")
+                sessionData ? setIsOpen(true) : setIsLginOpen(true)
               }
             >
-              おすすめ動画
-              <Text component="span" inherit className="text-black">
-                を共有
-              </Text>
+              学びになる動画を共有
             </Button>
           </div>
-          <Image src="images/signin-icon.png" className={classes.image} />
+          <Image
+            src="images/hero.png"
+            className={classes.image}
+            width={350}
+            height={350}
+          />
         </div>
       </Container>
     </div>

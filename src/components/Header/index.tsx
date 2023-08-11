@@ -1,5 +1,6 @@
 import {
   createStyles,
+  Image,
   Header,
   Group,
   Button,
@@ -16,7 +17,6 @@ import {
   Center,
   SimpleGrid,
   Text,
-  Anchor,
   UnstyledButton,
   Collapse,
   ThemeIcon,
@@ -31,9 +31,8 @@ import {
   IconAtom,
   IconBook,
   IconChevronDown,
-  IconCode,
-  IconCoin,
   IconGlobe,
+  IconMovie,
   IconSearch,
 } from "@tabler/icons-react";
 
@@ -93,6 +92,10 @@ const useStyles = createStyles((theme) => ({
     }`,
   },
 
+  menu: {
+    color: theme.colorScheme === "dark" ? theme.white : theme.colors.dark[4],
+  },
+
   hiddenMobile: {
     [theme.fn.smallerThan("sm")]: {
       display: "none",
@@ -106,27 +109,32 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const data = [
+const categoryData = [
   {
-    icon: IconCode,
-    title: "プログラミング",
-    description: "サクッと動画で分かりやすく学ぼう",
+    icon: IconMovie,
+    title: "映画",
+    label: "movie",
+    description:
+      "制作の裏話から最新情報まで。映画の魅力や背後にあるストーリーを探求しよう",
   },
-  {
-    icon: IconGlobe,
-    title: "カルチャー",
-    description: "動画から多様な文化と世界の広さを感じよう",
-  },
-
   {
     icon: IconBook,
     title: "英語",
+    label: "english",
     description: "見るだけで世界中へ。場所を問わずグローバル化しよう",
   },
   {
     icon: IconAtom,
     title: "科学",
+    label: "science",
     description: "自然科学からコンピュータ科学まで、幅広い知識を学ぼう",
+  },
+  {
+    icon: IconGlobe,
+    title: "文化",
+    label: "culture",
+    description:
+      "世界中の文化が集まる。動画から多様な文化と世界の広さを感じよう",
   },
 ];
 
@@ -152,8 +160,12 @@ export const HeaderTabs = () => {
   const userImage = userAvatarQuery.data?.image as string;
   const userName = userAvatarQuery.data?.username as string;
 
-  const links = data.map((item) => (
-    <UnstyledButton className={classes.subLink} key={item.title}>
+  const links = categoryData.map((item) => (
+    <UnstyledButton
+      className={classes.subLink}
+      key={item.label}
+      onClick={() => router.push(`/category/${item.label}`)}
+    >
       <Group noWrap align="flex-start">
         <ThemeIcon size={34} variant="default" radius="md">
           <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
@@ -179,13 +191,22 @@ export const HeaderTabs = () => {
             className={classes.hiddenMobile}
             position="center"
           >
-            <a href="/" className={classes.link}>
-              ロゴ
-            </a>
+            <Link href="/" className={classes.link}>
+              <Image
+                width={100}
+                height={60}
+                src={
+                  theme.colorScheme === "dark"
+                    ? "/images/tubel-white-logo.png"
+                    : "/images/tubel-logo.png"
+                }
+                alt="Tubel"
+              ></Image>
+            </Link>
 
-            <a href="/about" className={classes.link}>
+            <Link href="/about" className={classes.link}>
               ABOUT
-            </a>
+            </Link>
 
             <HoverCard
               width={600}
@@ -195,7 +216,7 @@ export const HeaderTabs = () => {
               withinPortal
             >
               <HoverCard.Target>
-                <a href="#" className={classes.link}>
+                <Link href="/category" className={classes.link}>
                   <Center inline>
                     <Box component="span" mr={5}>
                       CATEGORY
@@ -205,14 +226,14 @@ export const HeaderTabs = () => {
                       color={theme.fn.primaryColor()}
                     />
                   </Center>
-                </a>
+                </Link>
               </HoverCard.Target>
               <HoverCard.Dropdown sx={{ overflow: "hidden" }}>
                 <Group position="apart" px="md">
                   <Text fw={500}>カテゴリ</Text>
-                  <Anchor href="/category" fz="xs">
+                  <Link href="/category" className="text-xs underline">
                     すべてみる
-                  </Anchor>
+                  </Link>
                 </Group>
 
                 <Divider
@@ -259,7 +280,7 @@ export const HeaderTabs = () => {
                     duration: 150,
                   }}
                   position="bottom-end"
-                  shadow="md"
+                  shadow="xs"
                   offset={6}
                   width={240}
                 >
@@ -270,20 +291,18 @@ export const HeaderTabs = () => {
                   <Menu.Dropdown>
                     <Menu.Label className="font-bold">ユーザー設定</Menu.Label>
                     <Link href={`/user/${userName}`}>
-                      <Menu.Item className="text-base font-bold text-gray-600">
-                        ユーザーページ
+                      <Menu.Item
+                        className={`${classes.menu} text-base font-bold `}
+                      >
+                        設定
                       </Menu.Item>
                     </Link>
 
                     <Menu.Divider />
                     <Menu.Label className="font-bold">その他</Menu.Label>
-                    <Link href="/about">
-                      <Menu.Item className="text-base font-bold text-gray-600">
-                        使い方
-                      </Menu.Item>
-                    </Link>
+
                     <Menu.Item
-                      className="text-base font-bold text-gray-600"
+                      className={`${classes.menu} text-base font-bold `}
                       onClick={() => void signOut()}
                     >
                       ログアウト
@@ -295,9 +314,8 @@ export const HeaderTabs = () => {
 
             {!sessionData && (
               <Button
-                variant="outline"
-                size="md"
-                color="indigo"
+                variant="filled"
+                size="xs"
                 onClick={
                   sessionData ? () => void signOut() : () => void signIn()
                 }
@@ -337,21 +355,22 @@ export const HeaderTabs = () => {
                   <Menu.Dropdown>
                     <Menu.Label className="font-bold">ユーザー設定</Menu.Label>
                     <Link href={`/user/${userName}`}>
-                      <Menu.Item className="text-base font-bold text-gray-600">
-                        ユーザーページ
+                      <Menu.Item
+                        className={`${classes.menu} text-base font-bold `}
+                      >
+                        設定
                       </Menu.Item>
                     </Link>
 
                     <Menu.Divider />
                     <Menu.Label className="font-bold">その他</Menu.Label>
-                    <Link href="/about">
-                      <Menu.Item className="text-base font-bold text-gray-600">
-                        使い方
-                      </Menu.Item>
-                    </Link>
+
                     <Menu.Item
-                      className="text-base font-bold text-gray-600"
-                      onClick={() => void signOut()}
+                      className={`${classes.menu} text-base font-bold `}
+                      onClick={() => {
+                        void signOut();
+                        router.push("/");
+                      }}
                     >
                       ログアウト
                     </Menu.Item>
@@ -362,7 +381,6 @@ export const HeaderTabs = () => {
               <Button
                 variant="outline"
                 size="xs"
-                color="indigo"
                 onClick={() => router.push("/signin")}
               >
                 ログイン
@@ -391,14 +409,12 @@ export const HeaderTabs = () => {
           <Link href="/" className={classes.link}>
             ホーム
           </Link>
+          {sessionData && (
+            <Link href={`/user/${userName}`} className={classes.link}>
+              ユーザーページ
+            </Link>
+          )}
 
-          <Link href={`/user/${userName}`} className={classes.link}>
-            ユーザーページ
-          </Link>
-
-          <Link href="/about" className={classes.link}>
-            使い方
-          </Link>
           <UnstyledButton className={classes.link} onClick={toggleLinks}>
             <Center inline>
               <Box component="span" mr={5}>
@@ -411,8 +427,11 @@ export const HeaderTabs = () => {
           <Link href="#" className={classes.link}>
             プライバシーポリシー
           </Link>
-          <Link href="#" className={classes.link}>
-            ご要望・ご質問
+          <Link
+            href="https://docs.google.com/forms/d/e/1FAIpQLSdytwlDnLWjiRZmmdilnyo-j8nrpmUsl5swNDLDfcBkHrlhSA/viewform"
+            className={classes.link}
+          >
+            お問い合わせ
           </Link>
 
           <Divider
@@ -423,8 +442,7 @@ export const HeaderTabs = () => {
           <Group position="center" grow pb="xl" px="xl">
             <Button
               variant="outline"
-              size="md"
-              color="indigo"
+              size="sm"
               onClick={sessionData ? () => void signOut() : () => void signIn()}
             >
               {sessionData ? "ログアウト" : "登録/ログイン"}

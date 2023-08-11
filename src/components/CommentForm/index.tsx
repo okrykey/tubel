@@ -2,16 +2,24 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
-import { Box, Button, Center, Divider, Input, Text } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Center,
+  Divider,
+  Text,
+  Textarea,
+} from "@mantine/core";
 import { BiChat } from "react-icons/bi";
 import { CommentCard } from "../CommentCard";
 import { useSession } from "next-auth/react";
 import { LoginModalAtom } from "~/pages/state/Atoms";
 import { useAtom } from "jotai";
+import { notifications } from "@mantine/notifications";
 dayjs.extend(relativeTime);
 
 type CommentFormType = { content: string };
@@ -31,17 +39,27 @@ const CommentForm = ({ postId }: { postId: string }) => {
   });
 
   const { data: session } = useSession();
-  const [isOpen, setIsOpen] = useAtom(LoginModalAtom);
+  const [_, setIsOpen] = useAtom(LoginModalAtom);
 
   const postRoute = api.useContext().comment;
   const submitComment = api.comment.create.useMutation({
     onSuccess: () => {
-      toast.success("コメントを作成しました！");
+      notifications.show({
+        color: "grape",
+        autoClose: 5000,
+        title: "Nice!",
+        message: "この投稿にコメントしました！",
+      });
       postRoute.all.invalidate({ postId });
       reset();
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      notifications.show({
+        color: "red",
+        autoClose: 5000,
+        title: "エラー",
+        message: "エラーが発生しました",
+      });
     },
   });
 
@@ -72,39 +90,45 @@ const CommentForm = ({ postId }: { postId: string }) => {
       <Divider
         className="pb-4"
         labelPosition="center"
-        label={<Box ml={5}>{getComments.data?.length ?? 0} コメント</Box>}
+        label={
+          <Badge
+            px={0}
+            className="w-[112px]"
+            component="p"
+            variant="light"
+            size="lg"
+            radius="md"
+            color="gray"
+          >
+            {getComments.data?.length ?? 0} コメント
+          </Badge>
+        }
       ></Divider>
       <form onSubmit={handleSubmit(handleComment)}>
         <div className="flex items-center" onClick={handleClick}>
-          <Input
+          <Textarea
             icon={<BiChat />}
             variant="filled"
             placeholder="コメントする"
+            autosize
             className="mx-2 flex-grow"
             id="comment"
             {...register("content")}
             disabled={!session}
           />
         </div>
-        <Center className="pt-4">
-          {isValid ? (
-            <Button
-              type="submit"
-              variant="outline"
-              size="sm"
-              className="hover flex items-center space-x-3 rounded border border-gray-300 px-4 py-2 text-gray-900 transition hover:border-gray-900"
-            >
-              コメントする
+        <div className="mx-2 mt-4 flex justify-end">
+          {isValid && (
+            <Button type="submit" variant="outline" size="sm">
+              コメント
             </Button>
-          ) : (
-            <div style={{ height: "2rem" }}></div>
           )}
-        </Center>
+        </div>
       </form>
 
       {getComments.data && getComments.data?.length > 0 ? (
         getComments.data?.map((comment) => (
-          <div key={comment.id} className="pb-8">
+          <div key={comment.id} className="pt-6">
             <CommentCard
               postedAt={dayjs(comment.createdAt).fromNow()}
               content={comment.content}

@@ -1,4 +1,4 @@
-import { Button, Text } from "@mantine/core";
+import { Image, Button, Text, useMantineTheme, Center } from "@mantine/core";
 import Link from "next/link";
 import { useAtom } from "jotai";
 import Modal from "../Modal";
@@ -7,56 +7,55 @@ import { LoginModalAtom } from "~/pages/state/Atoms";
 export const LoginModal = () => {
   const [isOpen, setIsOpen] = useAtom(LoginModalAtom);
 
+  const theme = useMantineTheme();
+
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-      <div className="mr-6 mt-2 flex items-center justify-center">
-        <img
-          alt=""
-          width="30"
-          height="30"
-          className="xs:mr-2 xs:h-[46px] xs:w-[46px] ml-2 mr-1.5 h-[20px] w-[20px]"
-          src="/header-logo.svg"
-        />
-
-        <Text
-          variant="gradient"
-          gradient={{ from: "grape", to: "gray", deg: 45 }}
-          sx={{ fontFamily: "Greycliff CF, sans-serif" }}
-          ta="center"
-          fz="xl"
-          fw={700}
-          className="text-2xl"
-        >
-          TubeLarn
-        </Text>
+      <div>
+        <Center>
+          <Image
+            width={140}
+            height={60}
+            src={
+              theme.colorScheme === "dark"
+                ? "/images/tubel-white-logo.png"
+                : "/images/tubel-logo.png"
+            }
+            alt="Tubel"
+          />
+        </Center>
       </div>
 
-      <div className="px-1.5 py-5">
-        <p className="font-sans text-sm text-gray-700">
-          TubeLearnはYouTubeの動画で学習を共有できるサービスです。
+      <div className="p-1">
+        <Text color="gary" className="font-sans text-sm ">
+          Tubelは学習に役立つYouTubeの動画を共有するサービスです。
           ログインすると、投稿やコメント、ブックマークなどの機能をお使いいただけます。
-        </p>
+        </Text>
 
         <Button
           component={Link}
-          href="/login"
-          variant="outline"
-          color="grape"
-          className="mx-auto my-6 flex w-[200px] justify-center bg-gray-50 py-[9px] text-sm text-gray-700 shadow-sm shadow-gray-400"
+          href="/signin"
+          className="mx-auto my-6 flex w-[200px] justify-center  py-[9px]"
+          color={theme.colorScheme === "dark" ? "teal" : "dark"}
+          onClick={() => setIsOpen(false)}
         >
           ログインページへ
         </Button>
 
-        <p className="font-sans text-xs text-gray-700">
+        <Text color="dimmed" className="font-sans text-xs">
           <span className="underline">
-            <Link href="/terms">利用規約</Link>
+            <Link href="/terms" onClick={() => setIsOpen(false)}>
+              利用規約
+            </Link>
           </span>
           、
           <span className="underline">
-            <Link href="/privacy">プライバシーポリシー</Link>
+            <Link href="/privacy" onClick={() => setIsOpen(false)}>
+              プライバシーポリシー
+            </Link>
           </span>
           に同意の上でご利用ください。
-        </p>
+        </Text>
       </div>
     </Modal>
   );

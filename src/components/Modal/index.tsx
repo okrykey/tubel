@@ -1,5 +1,13 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { createStyles } from "@mantine/core";
+
+const useStyles = createStyles((theme) => ({
+  dialogPanel: {
+    backgroundColor:
+      theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.white,
+  },
+}));
 
 type ModalProps = {
   isOpen: boolean;
@@ -10,13 +18,13 @@ type ModalProps = {
 export default function Modal({
   isOpen,
   onClose,
-  title,
   children,
 }: React.PropsWithChildren<ModalProps>) {
+  const { classes } = useStyles();
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={onClose}>
+        <Dialog as="div" className="relative z-30" onClose={onClose}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -40,13 +48,9 @@ export default function Modal({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
-                    {title}
-                  </Dialog.Title>
+                <Dialog.Panel
+                  className={`${classes.dialogPanel} w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all`}
+                >
                   {children}
                 </Dialog.Panel>
               </Transition.Child>

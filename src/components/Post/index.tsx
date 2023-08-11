@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { inferRouterOutputs } from "@trpc/server";
 import { AppRouter } from "~/server/api/root";
-import { Button, createStyles, Highlight, Modal, rem } from "@mantine/core";
+import { createStyles, Highlight, Modal, rem } from "@mantine/core";
 import {
   Card,
   Text,
@@ -15,9 +14,9 @@ import {
 } from "@mantine/core";
 import { CiBookmarkCheck, CiBookmarkPlus } from "react-icons/ci";
 import { useSession } from "next-auth/react";
-import { LoginModal } from "../LoginModal";
-import { isBookmarkedAtomFamily, LoginModalAtom } from "~/pages/state/Atoms";
+import { LoginModalAtom } from "~/pages/state/Atoms";
 import { useAtom } from "jotai";
+import { useState } from "react";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -50,14 +49,15 @@ export type PostProps =
   };
 
 const Post = ({ searchKeyword, ...post }: PostProps) => {
-  const { classes, cx } = useStyles();
+  const { classes, cx, theme } = useStyles();
   const { data: session } = useSession();
-  const [isOpen, setIsOpen] = useAtom(LoginModalAtom);
-  const [isBookmarked, setIsBookmarked] = useAtom(
-    isBookmarkedAtomFamily(post.id)
+  const [_, setIsOpen] = useAtom(LoginModalAtom);
+  const [isBookmarked, setIsBookmarked] = useState(
+    Boolean(post.bookmarks?.length)
   );
 
   const trpc = api.useContext();
+
   const bookmarkPost = api.post.bookmarkPost.useMutation({
     onSuccess: () => {
       setIsBookmarked((prev) => !prev);
@@ -89,7 +89,7 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
       <div key={post.id}>
         <Card withBorder radius="md" className={cx(classes.card)}>
           <Card.Section>
-            <Link href={`/posts/${post.id}`}>
+            <Link href={`/tubes/${post.id}`}>
               <Image
                 src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
                 height={180}
@@ -97,9 +97,12 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
               />
             </Link>
           </Card.Section>
-          <Text className={classes.title} fw={500} component="a">
+          <Text className={classes.title} fw={600} component="a">
             {searchKeyword && post.title.includes(searchKeyword) ? (
-              <Highlight highlightColor="blue" highlight={searchKeyword}>
+              <Highlight
+                highlightColor={theme.colorScheme === "dark" ? "teal" : "blue"}
+                highlight={searchKeyword}
+              >
                 {post.title}
               </Highlight>
             ) : (
@@ -125,7 +128,7 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
             <Center>
               <Avatar src={post.user.image} size={24} radius="xl" mr="xs" />
 
-              <Text fz="xs" inline className="text-gray-600">
+              <Text fz="xs" inline color="dimmed">
                 {post.user.name}
               </Text>
             </Center>
@@ -134,7 +137,8 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
                 {isBookmarked ? (
                   <CiBookmarkCheck
                     onClick={() => removeBookmark.mutate({ postId: post.id })}
-                    className="cursor-pointer text-3xl text-purple-600"
+                    className="cursor-pointer text-3xl "
+                    color={theme.colorScheme === "dark" ? "teal" : "blue"}
                   />
                 ) : (
                   <CiBookmarkPlus
@@ -152,9 +156,9 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
                 )}
               </ActionIcon>
 
-              <p className="ml-1 w-[10px] text-gray-700">
+              <Text className="ml-1 w-[10px] " color="dimmed" inline>
                 {post._count.bookmarks}
-              </p>
+              </Text>
             </Group>
           </Group>
         </Card>

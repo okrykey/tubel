@@ -51,7 +51,7 @@ const PostRow: React.FC<{ post: Post }> = ({ post }) => {
     <>
       <tr>
         <td>
-          <Link href={`/posts/${post.id}`}>
+          <Link href={`/tubes/${post.id}`}>
             <Image
               radius="sm"
               width={106}
@@ -82,7 +82,7 @@ const PostRow: React.FC<{ post: Post }> = ({ post }) => {
                 color="gray"
                 size="xs"
                 radius="xl"
-                onClick={() => router.push(`/posts/${post.id}/edit`)}
+                onClick={() => router.push(`/tubes/${post.id}/edit`)}
               >
                 編集
               </Button>

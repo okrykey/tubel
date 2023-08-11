@@ -75,28 +75,28 @@ function Feature({
   );
 }
 
-const data = [
+const howtoData = [
   {
     icon: IconSearch,
-    title: "1.検索して見つける",
-    description: "検索して動画を見つけよう。見たくなる動画が必ずここにある",
+    title: "Watch",
+    description: "検索して動画を見つけよう。見たくなる動画が必ずここにある。",
   },
   {
     icon: BiChat,
-    title: "2.コメントして意見交換する",
+    title: "Learn",
     description:
       "投稿に対してコメントしよう。その動画のポイントや活用方法をシェアしよう。",
   },
   {
     icon: IconSend,
-    title: "3.投稿して動画を共有する",
+    title: "Share",
     description:
-      "自分の「この動画みてよかった」を共有しよう。必ず他の人にも役立つはず",
+      "自分の「この動画みてよかった」を共有しよう。必ず他の人にも役立つはず。",
   },
 ];
 
 export function Features() {
-  const items = data.map((item) => <Feature {...item} key={item.title} />);
+  const items = howtoData.map((item) => <Feature {...item} key={item.title} />);
 
   return (
     <Container mt={30} mb={30} size="lg">

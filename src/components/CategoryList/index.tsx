@@ -17,6 +17,7 @@ import {
   IconBrush,
   IconMovie,
   IconShirt,
+  IconChevronRight,
 } from "@tabler/icons-react";
 import { api } from "~/utils/api";
 
@@ -85,18 +86,11 @@ const useStyles = createStyles((theme) => ({
 const categoryData = [
   {
     id: 1,
-    icon: IconCode,
-    title: "プログラミング",
-    value: "programming",
-    description: "分からない疑問を解決。サクッと動画で分かりやすく学ぼう",
-  },
-  {
-    id: 2,
-    icon: IconGlobe,
-    title: "カルチャー",
-    value: "culture",
+    icon: IconMovie,
+    title: "映画",
+    value: "movie",
     description:
-      "世界中の文化が集まる。動画から多様な文化と世界の広さを感じよう",
+      "制作の裏話から最新情報まで。映画の魅力や背後にあるストーリーを探求しよう",
   },
 
   {
@@ -128,13 +122,21 @@ const categoryData = [
     description: "美術、音楽、舞台など、芸術の多様な形を楽しもう",
   },
   {
-    id: 7,
-    icon: IconMovie,
-    title: "映画",
-    value: "movie",
+    id: 2,
+    icon: IconGlobe,
+    title: "カルチャー",
+    value: "culture",
     description:
-      "制作の裏話から最新情報まで。映画の魅力や背後にあるストーリーを探求しよう",
+      "世界中の文化が集まる。動画から多様な文化と世界の広さを感じよう",
   },
+  {
+    id: 7,
+    icon: IconCode,
+    title: "プログラミング",
+    value: "programming",
+    description: "分からない疑問を解決。サクッと動画で分かりやすく学ぼう",
+  },
+
   {
     id: 8,
     icon: IconShirt,
@@ -168,7 +170,7 @@ export function CategoryList() {
 
         return (
           <Link href={`/category/${item.value}`} key={item.id}>
-            <UnstyledButton className={classes.subLink} key={item.title}>
+            <UnstyledButton className={classes.subLink}>
               <Group noWrap align="flex-start">
                 <ThemeIcon size={34} variant="default" radius="md">
                   <item.icon
@@ -183,37 +185,45 @@ export function CategoryList() {
                   <Text size="xs" color="dimmed">
                     {item.description}
                   </Text>
-                  <Group spacing={4} pt="sm">
-                    <div className="flex space-x-[-20px]">
-                      {CategorizedPosts.length > 0 ? (
-                        CategorizedPosts.slice(0, 3).map((post, i) => {
-                          const YouTubeVideoId = new URLSearchParams(
-                            new URL(post.videoId).search
-                          ).get("v");
-                          return (
-                            <Image
-                              key={i}
-                              width={64}
-                              height={36}
-                              className={`${classes.image} relative z-${
-                                20 - i * 10
-                              }`}
-                              src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
-                              alt={post.title}
-                            />
-                          );
-                        })
-                      ) : (
-                        <Text size="sm" color="dimmed">
-                          Not Found
+                  <Group position="apart">
+                    <Group spacing={4} pt="sm">
+                      <div className="flex space-x-[-20px]">
+                        {CategorizedPosts.length > 0 ? (
+                          CategorizedPosts.slice(0, 2).map((post, i) => {
+                            const YouTubeVideoId = new URLSearchParams(
+                              new URL(post.videoId).search
+                            ).get("v");
+                            return (
+                              <Image
+                                key={i}
+                                width={64}
+                                height={36}
+                                className={`${classes.image} relative z-${
+                                  20 - i * 10
+                                }`}
+                                src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
+                                alt={post.title}
+                              />
+                            );
+                          })
+                        ) : (
+                          <Text size="sm" color="dimmed">
+                            まだ投稿はありません
+                          </Text>
+                        )}
+                      </div>
+                      {CategorizedPosts.length > 2 && (
+                        <Text color="dimmed" size="sm">
+                          +more
                         </Text>
                       )}
-                    </div>
-                    {CategorizedPosts.length > 2 && (
-                      <Text color="dimmed" size="sm">
-                        +more
-                      </Text>
-                    )}
+                    </Group>
+                    <IconChevronRight
+                      size="1.2rem"
+                      color={theme.colorScheme === "dark" ? "white" : "black"}
+                      stroke={1.5}
+                      className="mt-3"
+                    />
                   </Group>
                 </div>
               </Group>

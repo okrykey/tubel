@@ -7,13 +7,14 @@ import {
   SimpleGrid,
   Divider,
   Box,
+  Text,
 } from "@mantine/core";
 import { IconSearch, IconArrowRight, IconArrowLeft } from "@tabler/icons-react";
 import { api } from "~/utils/api";
 import { debounce } from "lodash";
 import Post from "~/components/Post";
 import { NotFoundImage } from "../ResultImage/NotFoundImage";
-import { NotFoundContent } from "../ResultImage/NotFoundContent";
+import { NotFoundResult } from "../ResultImage/NotFoundResult";
 
 export const SearchBar = (props: TextInputProps) => {
   const theme = useMantineTheme();
@@ -52,16 +53,20 @@ export const SearchBar = (props: TextInputProps) => {
         {...props}
       />
       {debouncedQuery && (
-        <h1 className="pt-8 text-lg font-bold text-gray-700 sm:text-lg md:text-xl lg:text-xl">
+        <Text
+          component="h3"
+          color={theme.colorScheme === "dark" ? "white" : "dark"}
+          className="pt-8 text-lg font-bold  sm:text-lg md:text-xl lg:text-xl"
+        >
           「{debouncedQuery}」の検索結果
-        </h1>
+        </Text>
       )}
 
       {debouncedQuery ? (
         (searchResult?.data?.SearchedPosts?.length ?? 0) > 0 ? (
           <>
             <Divider
-              my="xs"
+              mt="xl"
               labelPosition="left"
               label={
                 <>
@@ -90,7 +95,7 @@ export const SearchBar = (props: TextInputProps) => {
           </>
         ) : (
           <>
-            <NotFoundContent />
+            <NotFoundResult />
           </>
         )
       ) : (

@@ -1,4 +1,14 @@
-import { Badge, Center, createStyles, SimpleGrid, Tabs } from "@mantine/core";
+import {
+  Badge,
+  Center,
+  createStyles,
+  SimpleGrid,
+  Tabs,
+  Text,
+} from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { IconAtom, IconBook, IconMovie } from "@tabler/icons-react";
+import Link from "next/link";
 import { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { api } from "~/utils/api";
@@ -16,6 +26,7 @@ const useStyles = createStyles(() => ({}));
 export const CategoryPostsList = () => {
   const { theme } = useStyles();
   const [currentTab, setCurrentTab] = useState<string | null>(null);
+  const isMdUp = useMediaQuery("(min-width: 768px)");
 
   const postGetAll = api.post.all.useInfiniteQuery({});
   const getPostsByCategories = (categoryNames: string[]) => {
@@ -24,11 +35,7 @@ export const CategoryPostsList = () => {
     });
   };
 
-  const allPostsQuery = getPostsByCategories([
-    "programming",
-    "english",
-    "culture",
-  ]);
+  const allPostsQuery = getPostsByCategories(["movie", "english", "science"]);
 
   const renderPosts = (categoryName: string) => {
     const categoryPosts = allPostsQuery.data?.pages.flatMap((page) =>
@@ -43,23 +50,29 @@ export const CategoryPostsList = () => {
       return categoryPosts.map((post) => <Post {...post} key={post.id} />);
     }
 
-    return <p>現在このカテゴリの記事は存在しません。</p>;
+    return (
+      <Text color="dimmed" className="text-center">
+        現在このカテゴリの記事は存在しません。
+      </Text>
+    );
   };
   return (
     <>
       <Tabs color="teal" value={currentTab} onTabChange={setCurrentTab}>
-        <Tabs.List>
-          <Tabs.Tab value="1">プログラミング</Tabs.Tab>
-
-          <Tabs.Tab value="2" color="blue">
-            英語
+        <Tabs.List grow>
+          <Tabs.Tab value="1" color="green" icon={<IconMovie size="1rem" />}>
+            Movie
           </Tabs.Tab>
 
-          <Tabs.Tab value="3" color="grape">
-            カルチャー
+          <Tabs.Tab value="2" color="yellow" icon={<IconBook size="1rem" />}>
+            English
+          </Tabs.Tab>
+
+          <Tabs.Tab value="3" color="blue" icon={<IconAtom size="1rem" />}>
+            Science
           </Tabs.Tab>
           <Tabs.Tab ml="auto" value="4" color="black">
-            <BsThreeDots />
+            {isMdUp ? "All" : <BsThreeDots />}
           </Tabs.Tab>
         </Tabs.List>
 
@@ -74,7 +87,7 @@ export const CategoryPostsList = () => {
               { maxWidth: "md", cols: 2 },
             ]}
           >
-            {renderPosts("programming")}
+            {renderPosts("movie")}
           </SimpleGrid>
         </Tabs.Panel>
 
@@ -103,28 +116,28 @@ export const CategoryPostsList = () => {
               { maxWidth: "md", cols: 2 },
             ]}
           >
-            {renderPosts("culture")}
+            {renderPosts("science")}
           </SimpleGrid>
         </Tabs.Panel>
-        <Tabs.Panel value="4" pt="xl" className="max-w-5xl">
+        <Tabs.Panel value="4" className="max-w-5xl pt-10">
           <Center>
-            <Badge
-              component="h2"
-              variant="filled"
-              radius="sm"
-              color={theme.colorScheme === "dark" ? "blue" : "dark"}
-              size="lg"
-              className="text-center"
-            >
-              すべてのカテゴリ
-            </Badge>
+            <Link href="/category">
+              <Badge
+                variant="filled"
+                radius="sm"
+                color={theme.colorScheme === "dark" ? "teal" : "dark"}
+                size="lg"
+              >
+                すべてのカテゴリ
+              </Badge>
+            </Link>
           </Center>
           <SimpleGrid
             cols={3}
             spacing="xl"
             verticalSpacing="xl"
             mt={24}
-            className="mx-4 md:mx-0"
+            className="mx-2 md:mx-0"
             breakpoints={[
               { maxWidth: "sm", cols: 1 },
               { maxWidth: "md", cols: 2 },

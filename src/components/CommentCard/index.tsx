@@ -11,11 +11,11 @@ import {
   Input,
 } from "@mantine/core";
 import { useSession } from "next-auth/react";
-import { BsThreeDots } from "react-icons/bs";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { useDisclosure } from "@mantine/hooks";
 import { api } from "~/utils/api";
 import React, { useState } from "react";
-import toast from "react-hot-toast";
+import { notifications } from "@mantine/notifications";
 
 const useStyles = createStyles((theme) => ({
   body: {
@@ -52,19 +52,35 @@ export function CommentCard({
 
   const deleteComment = api.comment.delete.useMutation({
     onSettled: async () => {
+      notifications.show({
+        color: "grape",
+        autoClose: 5000,
+        title: "コメントを削除",
+        message: "コメントを削除しました。",
+      });
       await trpc.comment.all.invalidate();
     },
   });
 
   const editComment = api.comment.update.useMutation({
     onSuccess: () => {
-      toast.success("コメントを編集しました！");
+      notifications.show({
+        color: "grape",
+        autoClose: 5000,
+        title: "コメントを編集",
+        message: "コメントを編集しました！",
+      });
     },
     onSettled: async () => {
       await trpc.comment.all.invalidate();
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      notifications.show({
+        color: "red",
+        autoClose: 5000,
+        title: "",
+        message: "コメントの編集に失敗しました。",
+      });
     },
   });
 
@@ -85,7 +101,7 @@ export function CommentCard({
             <Menu position="bottom-end" shadow="md" offset={6} width={80}>
               <Menu.Target>
                 <ActionIcon>
-                  <BsThreeDots />
+                  <BsThreeDotsVertical />
                 </ActionIcon>
               </Menu.Target>
 

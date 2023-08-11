@@ -47,12 +47,11 @@ export function BookmarkPost({ post }: BookmarkPostProps) {
   );
 
   return (
-    <Link key={post.id} href={`/posts/${post.id}`}>
+    <Link key={post.id} href={`/tubes/${post.id}`}>
       <Card withBorder radius="md" p={0} className={classes.card}>
-        <Group noWrap spacing={0} pl={8}>
+        <Group noWrap spacing={0} ml="xs">
           <Image
             radius="sm"
-            className="mx-1 lg:mx-0"
             width={106}
             height={60}
             src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}

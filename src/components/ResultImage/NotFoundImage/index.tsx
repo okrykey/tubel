@@ -56,7 +56,7 @@ export function NotFoundImage() {
         cols={2}
         breakpoints={[{ maxWidth: "sm", cols: 1, spacing: 40 }]}
       >
-        <Image src="images/signin-icon.png" className={classes.mobileImage} />
+        <Image src="images/search-image.png" className={classes.mobileImage} />
         <div className="pt-8">
           <Title className={classes.title}>
             検索キーワードを入力してください
@@ -71,10 +71,10 @@ export function NotFoundImage() {
             className={classes.control}
             onClick={() => router.back()}
           >
-            前のページへ戻る→
+            前のページへ戻る
           </Button>
         </div>
-        <Image src="images/signin-icon.png" className={classes.desktopImage} />
+        <Image src="images/search-image.png" className={classes.desktopImage} />
       </SimpleGrid>
     </Container>
   );
