@@ -6,11 +6,14 @@ import {
   Container,
   Group,
   rem,
+  Image,
 } from "@mantine/core";
+import { useAtom } from "jotai";
+import { modalOpenAtom } from "~/pages/state/Atoms";
 
 const useStyles = createStyles((theme) => ({
   root: {
-    paddingTop: rem(80),
+    paddingTop: rem(16),
     paddingBottom: rem(80),
   },
 
@@ -31,24 +34,36 @@ const useStyles = createStyles((theme) => ({
     marginTop: theme.spacing.xl,
     marginBottom: `calc(${theme.spacing.xl} * 1.5)`,
   },
+  desktopImage: {
+    [theme.fn.smallerThan("sm")]: {
+      display: "none",
+    },
+  },
 }));
 
-export function NotFoundContent() {
+export function NotFoundResult() {
   const { classes } = useStyles();
+  const [_, setIsOpen] = useAtom(modalOpenAtom);
 
   return (
-    <Container className={classes.root}>
-      <Title className={classes.title}>Sorry...</Title>
+    <Container className={`${classes.root} flex flex-col items-center`}>
+      <Image
+        src="images/no-result-image.png"
+        alt="no result"
+        width={400}
+        height={320}
+        className={classes.desktopImage}
+      />
       <Text
         color="dimmed"
         size="lg"
         align="center"
         className={classes.description}
       >
-        現在、このキーワードに関連する記事は存在しません。
+        現在、このキーワードに関連する記事はありません。
       </Text>
       <Group position="center">
-        <Button variant="subtle" size="md">
+        <Button variant="subtle" size="md" onClick={() => setIsOpen(true)}>
           関連する記事を投稿する
         </Button>
       </Group>
