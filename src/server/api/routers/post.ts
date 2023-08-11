@@ -8,6 +8,28 @@ import { createPostInput, updatePostInput } from "~/server/types";
 import slugify from "slugify";
 import { v4 as uuidv4 } from "uuid";
 
+const kuromoji = require("kuromoji");
+
+type KuromojiToken = {
+  surface_form: string;
+  pos: string;
+  word_type: string;
+};
+
+const getKeywords = (text: string): Promise<string[]> => {
+  const builder = kuromoji.builder({ dicPath: "./dict" });
+  return new Promise((resolve, reject) => {
+    builder.build((err: Error | null, tokenizer: any) => {
+      if (err) return reject(err);
+      const tokens: KuromojiToken[] = tokenizer.tokenize(text);
+      const keywords = tokens
+        .filter((token) => token.pos === "名詞" && token.word_type === "KNOWN")
+        .map((token) => token.surface_form);
+      resolve(keywords);
+    });
+  });
+};
+
 export const postRouter = createTRPCRouter({
   all: publicProcedure
     .input(
@@ -527,5 +549,61 @@ export const postRouter = createTRPCRouter({
       });
 
       return { SearchedPosts };
+    }),
+
+  recommendByContent: publicProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { postId } = input;
+      const post = await ctx.prisma.post.findUnique({
+        where: { id: postId },
+        select: { title: true, content: true },
+      });
+
+      if (!post) {
+        throw new Error("Post not found");
+      }
+
+      const keywords = await getKeywords(`${post.title} ${post.content}`);
+
+      const recommendedPosts = await ctx.prisma.post.findMany({
+        where: {
+          OR: keywords.map((keyword) => ({
+            title: { contains: keyword },
+          })),
+          NOT: { id: postId },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 3,
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          videoId: true,
+          createdAt: true,
+
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              image: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return { recommendedPosts };
     }),
 });
