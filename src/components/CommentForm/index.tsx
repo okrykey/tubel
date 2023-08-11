@@ -1,7 +1,4 @@
 import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
@@ -12,22 +9,26 @@ import { useSession } from "next-auth/react";
 import { LoginModalAtom } from "~/pages/state/Atoms";
 import { useAtom } from "jotai";
 import { notifications } from "@mantine/notifications";
+import { useForm } from "@mantine/form";
 dayjs.extend(relativeTime);
 
 type CommentFormType = { content: string };
 
-export const commentFormSchema = z.object({
-  content: z.string().min(3),
-});
-
 const CommentForm = ({ postId }: { postId: string }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { isValid },
-    reset,
-  } = useForm<CommentFormType>({
-    resolver: zodResolver(commentFormSchema),
+  const form = useForm<CommentFormType>({
+    initialValues: {
+      content: "",
+    },
+    validate: {
+      content: (value) => {
+        if (value.length < 3) {
+          return "※コメントは3文字以上で入力してください";
+        } else if (value.length > 10) {
+          return "※コメントは最大30文字までです";
+        }
+        return null;
+      },
+    },
   });
 
   const { data: session } = useSession();
@@ -42,8 +43,8 @@ const CommentForm = ({ postId }: { postId: string }) => {
         title: "Nice!",
         message: "この投稿にコメントしました！",
       });
-      postRoute.all.invalidate({ postId });
-      reset();
+      void postRoute.all.invalidate({ postId });
+      form.reset();
     },
     onError: () => {
       notifications.show({
@@ -58,17 +59,6 @@ const CommentForm = ({ postId }: { postId: string }) => {
   const getComments = api.comment.all.useQuery({
     postId,
   });
-
-  const handleComment = (data: CommentFormType) => {
-    if (session) {
-      void submitComment.mutate({
-        ...data,
-        postId,
-      });
-    } else {
-      setIsOpen(true);
-    }
-  };
 
   const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
     if (!session) {
@@ -96,7 +86,14 @@ const CommentForm = ({ postId }: { postId: string }) => {
           </Badge>
         }
       ></Divider>
-      <form onSubmit={handleSubmit(handleComment)}>
+      <form
+        onSubmit={form.onSubmit((data: CommentFormType) => {
+          submitComment.mutate({
+            ...data,
+            postId,
+          });
+        })}
+      >
         <div className="flex items-center" onClick={handleClick}>
           <Textarea
             icon={<BiChat />}
@@ -105,16 +102,14 @@ const CommentForm = ({ postId }: { postId: string }) => {
             autosize
             className="mx-2 flex-grow"
             id="comment"
-            {...register("content")}
+            {...form.getInputProps("content")}
             disabled={!session}
           />
         </div>
         <div className="mx-2 mt-4 flex justify-end">
-          {isValid && (
-            <Button type="submit" variant="outline" size="sm">
-              コメント
-            </Button>
-          )}
+          <Button type="submit" variant="outline" size="sm">
+            コメント
+          </Button>
         </div>
       </form>
 

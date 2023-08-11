@@ -173,7 +173,10 @@ const EditPost = () => {
 
   const { mutate } = api.post.update.useMutation({
     onSuccess: () => {
-      void router.push(`/user/${postQuery.data?.username}`);
+      void router.push(
+        `/user/${postQuery.data?.username ?? "defaultUsername"}`
+      );
+
       notifications.show({
         color: "indigo",
         autoClose: 5000,

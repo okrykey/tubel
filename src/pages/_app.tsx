@@ -8,13 +8,27 @@ import type { Session } from "next-auth";
 import { MantineProvider, ColorSchemeProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { SessionProvider } from "next-auth/react";
-
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { LoginModal } from "~/components/LoginModal";
 import PostFormModal from "~/components/PostFormModal";
+import type { NextComponentType, NextPageContext } from "next";
+
+interface PageData {
+  user: {
+    id: number;
+    name: string;
+  };
+  posts: Array<{
+    id: number;
+    title: string;
+    content: string;
+  }>;
+}
 
 interface CustomAppProps extends AppProps {
+  Component: NextComponentType<NextPageContext, PageData, PageData>;
+  pageProps: PageData;
   colorScheme: ColorScheme;
   session: Session | null;
 }

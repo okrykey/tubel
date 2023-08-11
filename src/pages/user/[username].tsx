@@ -83,8 +83,8 @@ export function UserProfilePage() {
     }
   }, [userProfile.isSuccess, isUserMatch, router]);
 
-  const handleProfileEdit = async () => {
-    await router.push("/settings/profile");
+  const handleProfileEdit = () => {
+    void router.push("/settings/profile");
   };
 
   return (

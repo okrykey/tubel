@@ -2,6 +2,7 @@ import { ActionIcon, Group, useMantineColorScheme } from "@mantine/core";
 import { IconMoonStars, IconSun } from "@tabler/icons-react";
 
 export const ActionToggle = () => {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   const handleToggle = (_event: React.MouseEvent<HTMLButtonElement>) => {

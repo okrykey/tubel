@@ -73,24 +73,21 @@ const Postpage = () => {
   const { data: session } = useSession();
   const trpc = api.useContext();
   const router = useRouter();
-  const { id } = router.query;
+
   const invalidateCurrentPostPage = useCallback(() => {
-    trpc.post.get.invalidate(router.query.id as string);
+    void trpc.post.get.invalidate(router.query.id as string);
   }, [trpc.post.get, router.query.id]);
 
-  if (typeof id !== "string") {
-    return null;
-  }
+  const getPost = api.post.get.useQuery(router.query.id as string);
 
-  const getPost = api.post.get.useQuery(id);
   const post = getPost.data;
 
   const recommendPost = api.post.recommendByContent.useQuery(
     {
-      postId: id,
+      postId: router.query.id as string,
     },
     {
-      enabled: !!id,
+      enabled: Boolean(router.query.id),
     }
   );
 
@@ -125,7 +122,7 @@ const Postpage = () => {
     } else {
       setIsOpen(true);
     }
-  }, [session, post, likePost.mutate, setIsOpen]);
+  }, [session, post, setIsOpen, likePost]);
 
   const handleClickdisLike = useCallback(() => {
     if (session && post?.id) {
@@ -135,7 +132,7 @@ const Postpage = () => {
     } else {
       setIsOpen(true);
     }
-  }, [session, post, dislikePost.mutate, setIsOpen]);
+  }, [session, post, setIsOpen, dislikePost]);
 
   let YouTubeVideoId: string | undefined;
   if (getPost.data?.videoId) {
@@ -221,7 +218,11 @@ const Postpage = () => {
                 {post?.title}
               </h1>
               <Group spacing={4} className="md:mt-1">
-                <Link href={`/category/${post?.category.toLowerCase()}`}>
+                <Link
+                  href={`/category/${
+                    post?.category?.toLowerCase() ?? "default"
+                  }`}
+                >
                   <Badge
                     color={theme.colorScheme === "dark" ? "gray" : "dark"}
                     radius="sm"
@@ -244,7 +245,7 @@ const Postpage = () => {
             </AspectRatio>
 
             <Group position="apart">
-              <Group key={id} spacing={8}>
+              <Group spacing={8}>
                 {post?.tags.slice(0, 2).map((tag, id) => (
                   <Link key={id} href={`/tags/${tag}`}>
                     <Badge

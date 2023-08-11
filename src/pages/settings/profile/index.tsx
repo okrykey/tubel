@@ -123,7 +123,7 @@ export default function EditUserProfile() {
 
   const updateAvatar = api.user.uploadAvatar.useMutation({
     onSuccess: () => {
-      router.push(`/user/${getUser.data?.username}`);
+      void router.push(`/user/${getUser.data?.username ?? "defaultUsername"}`);
       notifications.show({
         color: "grape",
         autoClose: 5000,

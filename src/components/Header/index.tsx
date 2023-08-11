@@ -37,6 +37,7 @@ import {
 } from "@tabler/icons-react";
 
 const useStyles = createStyles((theme) => ({
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   link: {
     display: "flex",
     alignItems: "center",
@@ -62,7 +63,7 @@ const useStyles = createStyles((theme) => ({
           : theme.colors.gray[0],
     }),
   },
-
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   subLink: {
     width: "100%",
     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
@@ -369,7 +370,7 @@ export const HeaderTabs = () => {
                       className={`${classes.menu} text-base font-bold `}
                       onClick={() => {
                         void signOut();
-                        router.push("/");
+                        void router.push("/");
                       }}
                     >
                       ログアウト
