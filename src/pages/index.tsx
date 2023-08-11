@@ -18,7 +18,7 @@ const Home: NextPage = () => {
       notifications.show({
         color: "indigo",
         autoClose: 5000,
-        title: "ログイン",
+        title: "Login",
         message: "ログインしました。",
       });
       router.replace(router.pathname);

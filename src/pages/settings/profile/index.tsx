@@ -219,11 +219,7 @@ export default function EditUserProfile() {
                 id="name"
                 {...form.getInputProps("name")}
               />
-              <Textarea
-                label="自己紹介"
-                placeholder="よろしくお願いします"
-                className="pt-8"
-              />
+
               <Group position="apart" mt="lg" className={classes.controls}>
                 <Anchor color="dimmed" size="sm" className={classes.control}>
                   <Center inline>
@@ -242,11 +238,11 @@ export default function EditUserProfile() {
                 >
                   プロフィールを更新する
                 </Button>
-                <Text color="dimmed" size="xs">
-                  ※画像が反映されるまで時間がかかるおそれがあります。
-                </Text>
               </Group>
-              <Card.Section sx={{ height: 40 }} />
+              <Text color="dimmed" size="xs" className="pt-4 text-right">
+                ※画像が反映されるまで時間がかかるおそれがあります。
+              </Text>
+              <Card.Section sx={{ height: 32 }} />
             </Card>
           </form>
         </div>

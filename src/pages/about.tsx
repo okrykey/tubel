@@ -3,18 +3,14 @@ import {
   Title,
   Container,
   Accordion,
-  getStylesRef,
   rem,
-  Box,
-  Timeline,
   Text,
-  Avatar,
   Divider,
 } from "@mantine/core";
 import MainLayout from "~/layouts/Mainlayout";
-import { IconPlus, IconSearch, IconSend } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { Features } from "~/components/Features";
-import { BiChat } from "react-icons/bi";
+import { Footer } from "~/components/Footer";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -73,32 +69,35 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const purposeContent =
-  "このサービスの目的は、インターネット上で学習を支援することです。インターネット上には山ほど情報がありますが、そこから本当に有益な情報を見つけるのは難しいです。そんな有益な情報と出会いやすく最短経路で学習できる場があればいいなという考えでこのサービスを作成しました。";
+  "このサービスの目的は、インターネット上での学習を支援することです。インターネット上には山ほど情報がありますが、そこから本当に有益な情報を見つけるのは難しいです。そんな有益な情報と出会いやすく最短経路で学習できる場があればいいなという考えでこのサービスを作成しました。";
 
 const why =
-  "共有するコンテンツを「YouTube」に限定している理由は、動画がもっとも学習のハードルが低く、楽しく学ぶことができるからです。YouTube上の有益な動画で効率よく、場所を問わずどこでも気軽に見て学習を進めることが可能です。";
+  "共有するコンテンツを「YouTube」に限定している理由は、動画によって学習のハードルが低く、楽しく学ぶことができるためです。YouTube上の有益な動画で効率よく、場所を問わずどこでも気軽に見て学習を進めることができます。";
 
 export default function About() {
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
   return (
     <MainLayout>
       <div className={classes.wrapper}>
         <Title className={classes.title}>
           YouTubeでつながる
-          <Text component="span" inherit color="indigo">
-            SNS
+          <Text
+            component="span"
+            inherit
+            color={theme.colorScheme === "dark" ? "teal" : "indigo"}
+          >
+            W.L.S.
           </Text>
         </Title>
 
-        <Container className="space-y-16">
+        <Container py="lg" className="space-y-16">
           <Text size="lg" className={classes.description}>
-            YouTubeは最強の無料学習ツール。そんなYouTube上の有益な動画があつまるプラットフォームを目指しています。YouTubeの上で他の人にも見てほしい動画を共有しよう。
+            YouTubeは現代の無料学習ツール。そんなYouTube上の有益な動画があつまるプラットフォームを目指しています。YouTubeの上で他の人にも見てほしい動画を共有しよう。
           </Text>
 
-          <Features></Features>
-
-          <div className="pb-40">
-            <Divider my="xl" />
+          <Features />
+          <div>
+            <Divider mb="xl" />
             <Accordion
               chevronPosition="right"
               chevronSize={50}
@@ -107,17 +106,27 @@ export default function About() {
               chevron={<IconPlus size="1.05rem" stroke={1.5} />}
             >
               <Accordion.Item className={classes.item} value="searvice-purpose">
-                <Accordion.Control>サービスの目的について</Accordion.Control>
+                <Accordion.Control>サービスの目的は？</Accordion.Control>
                 <Accordion.Panel>{purposeContent}</Accordion.Panel>
               </Accordion.Item>
 
               <Accordion.Item className={classes.item} value="why">
-                <Accordion.Control>"YouTube"のみである理由</Accordion.Control>
+                <Accordion.Control>「YouTube」を選ぶ理由は？</Accordion.Control>
                 <Accordion.Panel>{why}</Accordion.Panel>
               </Accordion.Item>
             </Accordion>
           </div>
         </Container>
+        <Footer
+          links={[
+            { link: "/privacy", label: "プライバシーポリシー" },
+            { link: "/terms", label: "利用規約" },
+            {
+              link: "https://docs.google.com/forms/d/e/1FAIpQLSdytwlDnLWjiRZmmdilnyo-j8nrpmUsl5swNDLDfcBkHrlhSA/viewform",
+              label: "お問い合わせ",
+            },
+          ]}
+        />
       </div>
     </MainLayout>
   );

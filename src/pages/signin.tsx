@@ -1,14 +1,7 @@
 import type { InferGetServerSidePropsType } from "next";
 import { getProviders, signIn } from "next-auth/react";
-import {
-  Anchor,
-  Paper,
-  Title,
-  Text,
-  Container,
-  Button,
-  Image,
-} from "@mantine/core";
+import { Paper, Title, Text, Container, Button, Image } from "@mantine/core";
+import { AiOutlineGoogle } from "react-icons/ai";
 import Link from "next/link";
 
 export async function getServerSideProps() {
@@ -25,27 +18,20 @@ export default function SignIn({
   return (
     <>
       <Container size={420} my={60}>
-        <Title
-          align="center"
-          sx={(theme) => ({
-            fontFamily: `Greycliff CF, ${theme.fontFamily}`,
-            fontWeight: 900,
-          })}
-        >
-          Welcome back!
-        </Title>
-        <Text color="dimmed" size="sm" align="center" mt={5}>
-          Do not have an account yet?{" "}
-          <Link href="/">
-            <Anchor size="sm" component="button">
-              Return to top page
-            </Anchor>
-          </Link>
-        </Text>
-
-        <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+        <Paper withBorder shadow="md" p={30} mt={120} radius="md">
           <div className="mx-auto max-w-3xl">
-            <div className="flexjustify-center"></div>
+            <Title
+              align="center"
+              sx={(theme) => ({
+                fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+                fontWeight: 900,
+              })}
+            >
+              LOGIN / SIGNIN
+            </Title>
+            <Text color="dimmed" size="sm" align="center" my={8}>
+              <Link href="/">トップページに戻る</Link>
+            </Text>
             <Image
               maw={240}
               mx="auto"
@@ -56,18 +42,20 @@ export default function SignIn({
             {Object.values(providers).map((provider) => (
               <div key={provider.name}>
                 <Button
-                  variant="outline"
-                  color="indigo"
+                  leftIcon={<AiOutlineGoogle size="1.5rem" />}
+                  variant="filled"
+                  radius="xl"
+                  color="teal"
                   size="md"
                   fullWidth
-                  mt="xl"
+                  my="xl"
                   onClick={() =>
                     void signIn(provider.id, {
-                      callbackUrl: "/",
+                      callbackUrl: `/?login=success`,
                     })
                   }
                 >
-                  Sign in with {provider.name}
+                  {provider.name}でサインイン
                 </Button>
               </div>
             ))}
