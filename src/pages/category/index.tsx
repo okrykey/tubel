@@ -7,6 +7,7 @@ import {
   rem,
   Divider,
   Button,
+  Center,
 } from "@mantine/core";
 import { useAtom } from "jotai";
 import { useSession } from "next-auth/react";
@@ -78,17 +79,18 @@ export default function CategoriesPage() {
         size="lg"
         className=" h-fill flex w-full max-w-5xl flex-col pt-10"
       >
-        <Badge
-          component="h1"
-          size="xl"
-          radius="sm"
-          color={theme.colorScheme === "dark" ? "blue" : "dark"}
-          variant="outline"
-          m="md"
-          className="w-full"
-        >
-          全てのカテゴリ一覧
-        </Badge>
+        <Center>
+          <Badge
+            component="h1"
+            size="xl"
+            radius="sm"
+            variant="outline"
+            color={theme.colorScheme === "dark" ? "teal" : "dark"}
+            m="md"
+          >
+            全てのカテゴリ一覧
+          </Badge>
+        </Center>
 
         <Divider className="mt-10" />
         <div className="h-full w-full ">
@@ -105,28 +107,31 @@ export default function CategoriesPage() {
           >
             <CategoryList />
           </SimpleGrid>
-          <div className="flex flex-col items-center space-y-4 pb-8">
-            <Button
-              variant="outline"
-              color="indigo"
-              size="md"
-              radius="xl"
-              onClick={() =>
-                sessionData ? setIsOpen(true) : router.push("/signin")
-              }
-            >
-              おすすめ動画
-              <Text
-                component="span"
-                inherit
-                color={theme.colorScheme === "dark" ? "white" : "black"}
+          <div className="flex flex-col  space-y-4 pb-8">
+            <Center>
+              <Button
+                variant="filled"
+                color={theme.colorScheme === "dark" ? "teal" : "dark"}
+                size="md"
+                radius="xl"
+                onClick={() =>
+                  sessionData ? setIsOpen(true) : router.push("/signin")
+                }
               >
-                を共有する
-              </Text>
-            </Button>
-            <Text className="text-center" color="dimmed" size="xs" weight={600}>
-              ※カテゴリの追加は
-              <Link href="/" className="underline">
+                おすすめ動画を共有する
+              </Button>
+            </Center>
+            <Text
+              className="pt-4 text-right"
+              color="dimmed"
+              size="xs"
+              weight={600}
+            >
+              ※カテゴリの追加要望は
+              <Link
+                href="https://docs.google.com/forms/d/e/1FAIpQLSdytwlDnLWjiRZmmdilnyo-j8nrpmUsl5swNDLDfcBkHrlhSA/viewform"
+                className="underline"
+              >
                 お問い合わせ
               </Link>
               までお願いします。
