@@ -1,8 +1,10 @@
 import {
   Badge,
+  Center,
   Container,
   createStyles,
   Group,
+  Loader,
   useMantineTheme,
 } from "@mantine/core";
 import Link from "next/link";
@@ -11,6 +13,11 @@ import { api } from "~/utils/api";
 
 const useStyles = createStyles((theme) => ({
   badge: {
+    width: "160px",
+    height: "40px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     "&:hover": {
       boxShadow: theme.shadows.xs,
       transform: "scale(1.01)",
@@ -28,40 +35,39 @@ export default function TagsPage() {
       <Container
         size="lg"
         p="md"
-        className="flex h-screen w-full max-w-4xl flex-col py-10"
+        className="flex h-screen w-full max-w-4xl flex-col py-16"
       >
         <Badge
           component="h1"
           size="xl"
           radius="sm"
-          color={theme.colorScheme === "dark" ? "blue" : "dark"}
+          color={theme.colorScheme === "dark" ? "teal" : "dark"}
           variant="outline"
           className="mb-10 "
         >
           全てのタグ一覧
         </Badge>
         {getTags.data && getTags.data?.length > 0 ? (
-          <div className="flex flex-col md:flex-row md:space-x-4">
+          <Group spacing={32} position="center">
             {getTags.data?.map((tag) => (
-              <div key={tag.id} className="pb-8">
-                <Link href={`/tags/${tag.name}`}>
-                  <Badge
-                    radius="sm"
-                    size="xl"
-                    color={theme.colorScheme === "dark" ? "gray" : "dark"}
-                    variant={
-                      theme.colorScheme === "dark" ? "outline" : "filled"
-                    }
-                    className={classes.badge}
-                  >
-                    {tag.name}→
-                  </Badge>
-                </Link>
-              </div>
+              <Link href={`/tags/${tag.name}`}>
+                <Badge
+                  key={tag.id}
+                  radius="lg"
+                  size="xl"
+                  color={theme.colorScheme === "dark" ? "gray" : "dark"}
+                  variant="filled"
+                  className={classes.badge}
+                >
+                  {tag.name}
+                </Badge>
+              </Link>
             ))}
-          </div>
+          </Group>
         ) : (
-          <div>No tags found.</div>
+          <Center>
+            <Loader />
+          </Center>
         )}
       </Container>
     </MainLayout>
