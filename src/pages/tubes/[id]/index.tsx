@@ -1,5 +1,5 @@
 import { api } from "~/utils/api";
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { useRouter } from "next/router";
 import { BiLike, BiSolidLike } from "react-icons/bi";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
@@ -7,11 +7,16 @@ import {
   ActionIcon,
   AspectRatio,
   Badge,
+  Button,
+  Center,
   Collapse,
   createStyles,
+  Divider,
   Group,
   Loader,
   Paper,
+  SimpleGrid,
+  Spoiler,
   Text,
   Tooltip,
   useMantineTheme,
@@ -22,10 +27,12 @@ import CommentForm from "~/components/CommentForm";
 import Link from "next/link";
 import { LoginModalAtom } from "~/pages/state/Atoms";
 import { useAtom } from "jotai";
-import { LoginModal } from "~/components/LoginModal";
 import { useSession } from "next-auth/react";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
+import { BookmarkPost } from "~/components/BookmarkPost";
+
+const MemoizedMainLayout = memo(MainLayout);
 
 const useStyles = createStyles((theme) => ({
   likePart: {
@@ -51,6 +58,7 @@ const tagColors: Record<string, string> = {
   youtube: "pink",
   computerscience: "cyan",
   wired: "grape",
+  ted: "red",
 };
 
 const opts = {
@@ -78,6 +86,15 @@ const Postpage = () => {
   }, [trpc.post.get, router.query.id]);
 
   const post = getPost.data;
+
+  const recommendPost = api.post.recommendByContent.useQuery(
+    {
+      postId: id,
+    },
+    {
+      enabled: !!id,
+    }
+  );
 
   const likePost = api.post.likePost.useMutation({
     onSuccess: () => {
@@ -133,13 +150,11 @@ const Postpage = () => {
 
   if (getPost.isLoading) {
     return (
-      <MainLayout>
-        <div className="relative min-h-screen">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Loader size="lg" />
-          </div>
-        </div>
-      </MainLayout>
+      <MemoizedMainLayout>
+        <Center className="flex h-full w-full flex-col items-center justify-center px-4 py-10 md:py-16">
+          <Loader />
+        </Center>
+      </MemoizedMainLayout>
     );
   }
 
@@ -148,7 +163,7 @@ const Postpage = () => {
   }
 
   return (
-    <MainLayout>
+    <MemoizedMainLayout>
       {getPost.isSuccess && (
         <div className="fixed bottom-10 z-10 flex w-full items-center justify-center pr-4 md:bottom-5">
           <div className="flex w-full max-w-4xl flex-col items-end justify-end">
@@ -159,7 +174,7 @@ const Postpage = () => {
                 {post?.likes && post?.likes.length > 0 ? (
                   <ActionIcon>
                     <BiSolidLike
-                      className="cursor-pointer text-2xl text-indigo-500"
+                      className="cursor-pointer text-2xl text-blue-500"
                       onClick={handleClickdisLike}
                     />
                   </ActionIcon>
@@ -193,7 +208,6 @@ const Postpage = () => {
                   {post?.likesCount}
                 </Text>
               </Group>
-              <LoginModal />
             </div>
           </div>
         </div>
@@ -201,21 +215,28 @@ const Postpage = () => {
 
       <div
         key={post?.id}
-        className="flex h-full w-full flex-col items-center justify-center px-4 py-8 md:py-16"
+        className="flex h-full w-full flex-col items-center justify-center px-4 py-10 md:py-16"
       >
         <div className="flex w-full max-w-4xl flex-col space-y-4">
           <Paper withBorder radius="sm" className="p-2 md:p-4">
             <div className="flex flex-wrap justify-between pb-2">
-              <h1 className=" py-2 text-lg font-bold sm:text-xl">
+              <h1 className=" py-2 text-sm font-bold sm:text-xl">
                 {post?.title}
               </h1>
-              <Group spacing={4}>
+              <Group spacing={4} className="md:mt-1">
                 <Link href={`/category/${post?.category.toLowerCase()}`}>
-                  <Badge color="gray" radius="sm">
+                  <Badge
+                    color={theme.colorScheme === "dark" ? "gray" : "dark"}
+                    radius="sm"
+                  >
                     {post?.category}
                   </Badge>
                 </Link>
-                <Text size="xs" color="dimmed" className="pt-1">
+                <Text
+                  size="xs"
+                  color={theme.colorScheme === "dark" ? "dimmed" : "dark"}
+                  className="pt-1"
+                >
                   {post?.createdAt.toLocaleDateString()}
                 </Text>
               </Group>
@@ -228,10 +249,10 @@ const Postpage = () => {
             <Group position="apart">
               <Group key={id} spacing={8}>
                 {post?.tags.slice(0, 2).map((tag, id) => (
-                  <Link href={`/tags/${tag}`}>
+                  <Link key={id} href={`/tags/${tag}`}>
                     <Badge
                       component="button"
-                      className="cursol mb-2 mt-4 md:mb-0 "
+                      className="cursol mt-2 md:mb-0 md:mt-4 "
                       color={tagColors[tag.toLowerCase()]}
                       size="sm"
                       variant={
@@ -249,7 +270,7 @@ const Postpage = () => {
                   onClick={toggle}
                   color="gray"
                   radius="sm"
-                  className="cursol cursol mb-2 mt-4 md:mb-0"
+                  className=" cursol mb-2 md:mb-0 md:mt-4"
                 >
                   {opened ? (
                     <MdKeyboardArrowUp className="text-2xl" />
@@ -266,7 +287,7 @@ const Postpage = () => {
                   <Group key={id} spacing={0}>
                     <Link href={`/tags/${tag}`}>
                       <Badge
-                        className="cursol mb-2  md:mb-0 md:mt-4"
+                        className="cursol  md:mb-0 md:mt-2"
                         size="sm"
                         variant={
                           theme.colorScheme === "dark" ? "light" : "outline"
@@ -280,19 +301,83 @@ const Postpage = () => {
               </Group>
             </Collapse>
           </Paper>
-
-          <div className="pt-4">
+          <Spoiler
+            className="pt-4"
+            maxHeight={120}
+            transitionDuration={200}
+            showLabel={
+              <Badge
+                component="a"
+                className="ml-[17.5rem] mt-3 md:ml-[45rem] md:mt-4 lg:ml-[51rem]"
+                size="sm"
+                color="gray"
+                variant="light"
+              >
+                もっとみる
+              </Badge>
+            }
+            hideLabel={
+              <MdKeyboardArrowUp
+                className="mx-[20rem] mt-1 text-2xl md:ml-[47.5rem] lg:ml-[53rem]"
+                color="gray"
+              />
+            }
+          >
             <Text className="border-l-4 border-gray-400 pl-6">
               {post?.content}
             </Text>
-          </div>
+          </Spoiler>
 
-          <div className="py-4">
+          <div className="pt-4">
             {getPost.data?.id && <CommentForm postId={getPost.data?.id} />}
           </div>
+          {recommendPost.isSuccess && (
+            <div>
+              <Divider
+                my="sm"
+                labelPosition="center"
+                label={
+                  <Badge
+                    component="p"
+                    variant="light"
+                    size="lg"
+                    radius="md"
+                    color="gray"
+                    px={0}
+                    className="w-[112px]"
+                  >
+                    recommend
+                  </Badge>
+                }
+              />
+
+              <SimpleGrid
+                cols={3}
+                spacing="xl"
+                verticalSpacing="xl"
+                mt={24}
+                breakpoints={[
+                  { maxWidth: "sm", cols: 1 },
+                  { maxWidth: "md", cols: 2 },
+                ]}
+              >
+                {recommendPost.data.recommendedPosts.map((postData) => (
+                  <BookmarkPost
+                    key={postData.id}
+                    post={{
+                      ...postData,
+                      category: postData.category?.name
+                        ? postData.category.name
+                        : "",
+                    }}
+                  />
+                ))}
+              </SimpleGrid>
+            </div>
+          )}
         </div>
       </div>
-    </MainLayout>
+    </MemoizedMainLayout>
   );
 };
 
