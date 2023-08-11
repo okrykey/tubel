@@ -5,9 +5,7 @@ import {
   type NextAuthOptions,
   type DefaultSession,
 } from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { generateUsername } from "~/utils/generateUsername";
 
@@ -70,21 +68,7 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          username: generateUsername(profile.name),
-        };
-      },
-    } as ClientType),
-
-    GitHubProvider({
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET,
-      profile(profile) {
-        return {
-          id: profile.id,
-          name: profile.name,
-          email: profile.email,
-          image: profile.image,
-          username: generateUsername(profile.name),
+          username: generateUsername(),
         };
       },
     } as ClientType),

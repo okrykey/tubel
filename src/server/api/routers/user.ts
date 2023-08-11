@@ -9,8 +9,8 @@ import { decode } from "base64-arraybuffer";
 import { createClient } from "@supabase/supabase-js";
 import { TRPCError } from "@trpc/server";
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseAnonKey = process.env.SERVICE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const userRouter = createTRPCRouter({
