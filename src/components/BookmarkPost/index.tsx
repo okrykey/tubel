@@ -46,6 +46,8 @@ export function BookmarkPost({ post }: BookmarkPostProps) {
     "v"
   );
 
+  const vailYouTubeVideoId = YouTubeVideoId !== null ? YouTubeVideoId : "";
+
   return (
     <Link key={post.id} href={`/tubes/${post.id}`}>
       <Card withBorder radius="md" p={0} className={classes.card}>
@@ -54,9 +56,10 @@ export function BookmarkPost({ post }: BookmarkPostProps) {
             radius="sm"
             width={106}
             height={60}
-            src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
+            src={`https://i.ytimg.com/vi/${vailYouTubeVideoId}/maxresdefault.jpg`}
             alt={post.title}
           />
+
           <div className={classes.body}>
             <Text transform="uppercase" color="dimmed" weight={700} size="xs">
               {post.category}

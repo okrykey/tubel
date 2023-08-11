@@ -147,7 +147,7 @@ export const HeaderTabs = () => {
   const { data: sessionData } = useSession();
   const router = useRouter();
 
-  const userId = sessionData?.user?.id;
+  const userId: string | undefined = sessionData?.user?.id;
   const userAvatarQuery = api.user.getUserAvatar.useQuery(
     {
       userId: userId || "",
@@ -157,14 +157,14 @@ export const HeaderTabs = () => {
     }
   );
 
-  const userImage = (userAvatarQuery.data?.image as string) || "";
-  const userName = (userAvatarQuery.data?.username as string) || "";
+  const userImage: string = (userAvatarQuery.data?.image as string) || "";
+  const userName: string = (userAvatarQuery.data?.username as string) || "";
 
   const links = categoryData.map((item) => (
     <UnstyledButton
       className={classes.subLink}
       key={item.label}
-      onClick={() => router.push(`/category/${item.label}`)}
+      onClick={() => void router.push(`/category/${item.label}`)}
     >
       <Group noWrap align="flex-start">
         <ThemeIcon size={34} variant="default" radius="md">
@@ -381,7 +381,7 @@ export const HeaderTabs = () => {
               <Button
                 variant="outline"
                 size="xs"
-                onClick={() => router.push("/signin")}
+                onClick={() => void router.push("/signin")}
               >
                 ログイン
               </Button>

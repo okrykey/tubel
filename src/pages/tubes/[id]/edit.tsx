@@ -71,7 +71,9 @@ const EditPost = () => {
 
   const [inputVideoId, setInputVideoId] = useState<string>("");
 
-  const [YouTubeVideoId, setYouTubeVideoId] = useState<string | null>("");
+  const [YouTubeVideoId, setYouTubeVideoId] = useState<
+    string | null | undefined
+  >("");
 
   useEffect(() => {
     if (postQuery.isSuccess) {

@@ -118,26 +118,24 @@ const Postpage = () => {
   });
 
   const handleClickLike = useCallback(() => {
-    if (session) {
-      post?.id &&
-        likePost.mutate({
-          postId: post?.id,
-        });
+    if (session && post?.id) {
+      likePost.mutate({
+        postId: post.id,
+      });
     } else {
       setIsOpen(true);
     }
-  }, [session, post?.id, likePost.mutate, setIsOpen]);
+  }, [session, post, likePost.mutate, setIsOpen]);
 
   const handleClickdisLike = useCallback(() => {
-    if (session) {
-      post?.id &&
-        dislikePost.mutate({
-          postId: post?.id,
-        });
+    if (session && post?.id) {
+      dislikePost.mutate({
+        postId: post.id,
+      });
     } else {
       setIsOpen(true);
     }
-  }, [session, post?.id, dislikePost.mutate, setIsOpen]);
+  }, [session, post, dislikePost.mutate, setIsOpen]);
 
   let YouTubeVideoId: string | undefined;
   if (getPost.data?.videoId) {
@@ -242,7 +240,7 @@ const Postpage = () => {
             </div>
 
             <AspectRatio ratio={16 / 9}>
-              <YouTube videoId={YouTubeVideoId} opts={opts}></YouTube>
+              <YouTube videoId={YouTubeVideoId || ""} opts={opts}></YouTube>
             </AspectRatio>
 
             <Group position="apart">

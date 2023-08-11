@@ -9,7 +9,6 @@ import {
   Center,
   Box,
   rem,
-  Textarea,
   Avatar,
   Card,
   FileButton,
@@ -41,7 +40,7 @@ const useStyles = createStyles((theme) => ({
   title: {
     fontSize: rem(26),
     fontWeight: 900,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
     paddingTop: "32px",
     paddingBottom: "32px",
   },

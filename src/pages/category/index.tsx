@@ -72,11 +72,11 @@ export default function CategoriesPage() {
   const { data: sessionData } = useSession();
   const router = useRouter();
 
-  const handleButtonClick = async () => {
+  const handleButtonClick = () => {
     if (sessionData) {
       setIsOpen(true);
     } else {
-      await router.push("/signin");
+      void router.push("/signin");
     }
   };
 

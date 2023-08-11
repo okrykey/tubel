@@ -168,7 +168,7 @@ export function CategoryList() {
     {
       enabled: true,
     }
-  ) as { data: PostData | undefined };
+  ) as { data: PostData };
 
   return (
     <>
@@ -212,7 +212,7 @@ export function CategoryList() {
                                   20 - i * 10
                                 }`}
                                 src={`https://i.ytimg.com/vi/${
-                                  YouTubeVideoId || "default"
+                                  YouTubeVideoId || ""
                                 }/maxresdefault.jpg`}
                                 alt={post.title}
                               />

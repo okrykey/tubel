@@ -73,7 +73,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
   const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
     if (!session) {
       event.preventDefault();
-      setIsOpen(true);
+      void setIsOpen(true);
     }
   };
 

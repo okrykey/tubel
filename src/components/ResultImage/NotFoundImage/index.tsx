@@ -56,7 +56,11 @@ export function NotFoundImage() {
         cols={2}
         breakpoints={[{ maxWidth: "sm", cols: 1, spacing: 40 }]}
       >
-        <Image src="images/search-image.png" className={classes.mobileImage} />
+        <Image
+          src="images/search-image.png"
+          alt="Search Placeholder"
+          className={classes.mobileImage}
+        />
         <div className="pt-8">
           <Title className={classes.title}>
             検索キーワードを入力してください

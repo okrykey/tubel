@@ -82,7 +82,7 @@ const PostRow: React.FC<{ post: Post }> = ({ post }) => {
                 color="gray"
                 size="xs"
                 radius="xl"
-                onClick={() => router.push(`/tubes/${post.id}/edit`)}
+                onClick={() => void router.push(`/tubes/${post.id}/edit`)}
               >
                 編集
               </Button>

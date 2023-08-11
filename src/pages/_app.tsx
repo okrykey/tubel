@@ -14,9 +14,12 @@ import "~/styles/globals.css";
 import { LoginModal } from "~/components/LoginModal";
 import PostFormModal from "~/components/PostFormModal";
 
-function MyApp(
-  props: AppProps & { colorScheme: ColorScheme; session: Session | null }
-) {
+interface CustomAppProps extends AppProps {
+  colorScheme: ColorScheme;
+  session: Session | null;
+}
+
+function MyApp(props: CustomAppProps) {
   const { Component, pageProps, session } = props;
   const [colorScheme, setColorScheme] = useState<ColorScheme>(
     props.colorScheme

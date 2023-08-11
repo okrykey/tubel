@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { api } from "~/utils/api";
-import { inferRouterOutputs } from "@trpc/server";
-import { AppRouter } from "~/server/api/root";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "~/server/api/root";
 import { createStyles, Highlight, rem } from "@mantine/core";
 import {
   Card,
@@ -46,12 +46,13 @@ const useStyles = createStyles((theme) => ({
 export type PostProps =
   inferRouterOutputs<AppRouter>["post"]["all"]["posts"][number] & {
     searchKeyword?: string;
+    videoId: string;
   };
 
 const Post = ({ searchKeyword, ...post }: PostProps) => {
   const { classes, cx, theme } = useStyles();
   const { data: session } = useSession();
-  const [_, setIsOpen] = useAtom(LoginModalAtom);
+  const [, setIsOpen] = useAtom(LoginModalAtom);
   const [isBookmarked, setIsBookmarked] = useState(
     Boolean(post.bookmarks?.length)
   );
@@ -84,6 +85,8 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
     "v"
   );
 
+  const vailYouTubeVideoId: string =
+    YouTubeVideoId !== null ? YouTubeVideoId : "";
   return (
     <>
       <div key={post.id}>
@@ -91,7 +94,7 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
           <Card.Section>
             <Link href={`/tubes/${post.id}`}>
               <Image
-                src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
+                src={`https://i.ytimg.com/vi/${vailYouTubeVideoId}/maxresdefault.jpg`}
                 height={180}
                 alt={post.title}
               />

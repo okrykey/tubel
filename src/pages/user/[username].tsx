@@ -41,7 +41,7 @@ export function UserProfilePage() {
   const { classes, theme } = useStyles();
   const router = useRouter();
   const { data: session } = useSession();
-  const [_, setIsOpen] = useAtom(modalOpenAtom);
+  const [, setIsOpen] = useAtom(modalOpenAtom);
 
   const userProfile = api.user.getUserProfile.useQuery(
     {
