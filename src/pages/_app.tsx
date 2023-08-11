@@ -9,11 +9,12 @@ import {
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "react-hot-toast";
+
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { Session } from "next-auth";
 import { LoginModal } from "~/components/LoginModal";
+import PostFormModal from "~/components/PostFormModal";
 
 function MyApp(
   props: AppProps & { colorScheme: ColorScheme; session: Session | null }
@@ -43,7 +44,15 @@ function MyApp(
         <meta
           name="description"
           content="TubelはYouTubeの動画で学習を共有できるサービスです。"
-        ></meta>
+        />
+        <meta property="og:title" content="Tubel - Watch, Learn, Share -" />
+        <meta
+          property="og:description"
+          content="TubelはYouTubeの動画で学習を共有できるサービスです。"
+        />
+        <meta property="og:image" content="/images/og-image.png" />
+        <meta property="og:url" content="URL_TO_YOUR_PAGE" />
+        <meta property="og:type" content="website" />
         <link rel="icon" type="image/png" href="/favicon.png" />
       </Head>
       <SessionProvider session={session}>
@@ -67,15 +76,27 @@ function MyApp(
                   "#3B5BDB",
                   "#364FC7",
                 ],
+                teal: [
+                  "#E6FCF5",
+                  "#C3FAE8",
+                  "#96F2D7",
+                  "#63E6BE",
+                  "#38D9A9",
+                  "#20C997",
+                  "#12B886",
+                  "#0CA678",
+                  "#099268",
+                  "#087F5B",
+                ],
               },
-              primaryColor: "indigo",
+              primaryColor: colorScheme === "dark" ? "teal" : "indigo",
             }}
             withGlobalStyles
             withNormalizeCSS
           >
-            <Toaster />
             <Component {...pageProps} />
             <LoginModal />
+            <PostFormModal />
             <Notifications position="top-right" />
           </MantineProvider>
         </ColorSchemeProvider>
