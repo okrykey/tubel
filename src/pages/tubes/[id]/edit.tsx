@@ -2,6 +2,7 @@ import { api } from "~/utils/api";
 import React, { useState, useEffect } from "react";
 import {
   Anchor,
+  AspectRatio,
   Box,
   Button,
   Center,
@@ -10,14 +11,17 @@ import {
   MultiSelect,
   Paper,
   Select,
+  Text,
   Textarea,
   TextInput,
+  useMantineTheme,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import MainLayout from "~/layouts/Mainlayout";
 import { useRouter } from "next/router";
 import { notifications } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
+import YouTube from "react-youtube";
 
 type PostFormType = {
   title: string;
@@ -30,28 +34,76 @@ type PostFormType = {
 export type TAG = { value: string; label: string };
 
 const categories = [
-  { value: "programming", label: "Programming" },
+  { value: "movie", label: "Movie" },
   { value: "english", label: "English" },
   { value: "science", label: "Science" },
   { value: "culture", label: "Culture" },
   { value: "society", label: "Society" },
   { value: "art", label: "Art" },
-  { value: "movie", label: "Movie" },
+  { value: "programming", label: "Programming" },
   { value: "fashion", label: "Fashion" },
 ];
 
 const tags = [
-  { value: "youtube", label: "YouTube" },
   { value: "motivation", label: "motivation" },
-  { value: "computer-science", label: "computer-science" },
-  { value: "science", label: "science" },
+  { value: "wired", label: "wired" },
+  { value: "ted", label: "ted" },
 ];
 
+const opts = {
+  width: "90%",
+  height: "90%",
+};
+
+const extractVideoIdFromUrl = (url: string): string | null => {
+  return new URLSearchParams(new URL(url).search).get("v");
+};
+
 const EditPost = () => {
+  const theme = useMantineTheme();
   const [selectedTags, setSelectedTags] = useState<TAG[]>(tags);
+  const [showPreview, setShowPreview] = useState(false);
   const router = useRouter();
   const { id } = router.query;
   const { data: session } = useSession();
+  const trpc = api.useContext();
+  const postQuery = api.post.get.useQuery(id as string);
+
+  const [inputVideoId, setInputVideoId] = useState<string>("");
+
+  const [YouTubeVideoId, setYouTubeVideoId] = useState<string | null>("");
+
+  useEffect(() => {
+    if (postQuery.isSuccess) {
+      setInputVideoId(postQuery.data?.videoId ?? "");
+    }
+  }, [postQuery.isSuccess, postQuery.data]);
+
+  useEffect(() => {
+    if (postQuery.isSuccess) {
+      const videoId = extractVideoIdFromUrl(postQuery.data.videoId);
+      setYouTubeVideoId(videoId);
+    }
+  }, [postQuery.isSuccess, postQuery.data]);
+
+  const handlePreview = () => {
+    const youtubeUrlPattern =
+      /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+    if (!youtubeUrlPattern.test(inputVideoId)) {
+      notifications.show({
+        color: "red",
+        autoClose: 5000,
+        title: "エラー",
+        message: "無効なYouTubeのURLです。",
+      });
+      return;
+    }
+
+    const extractedVideoId = extractVideoIdFromUrl(inputVideoId);
+    form.setValues({ ...form.values, videoId: inputVideoId });
+    setYouTubeVideoId(extractedVideoId);
+    setShowPreview(true);
+  };
 
   const form = useForm<PostFormType>({
     initialValues: {
@@ -61,10 +113,40 @@ const EditPost = () => {
       tags: [""],
       category: "",
     },
-  });
+    validate: {
+      title: (value) => {
+        if (value.length < 3) {
+          return "※タイトルは3文字以上で入力してください";
+        } else if (value.length > 10) {
+          return "※タイトルは最大10文字までです";
+        }
+        return null;
+      },
+      content: (value) => {
+        if (value.length < 20) {
+          return "※内容は20文字以上で入力してください";
+        } else if (value.length > 100) {
+          return "※内容は最大100文字までです";
+        }
+        return null;
+      },
+      videoId: (value) => {
+        if (value.length < 5) {
+          return "※URLを入力してください";
+        }
 
-  const trpc = api.useContext();
-  const postQuery = api.post.get.useQuery(id as string);
+        const youtubeUrlPattern =
+          /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+        if (!youtubeUrlPattern.test(value)) {
+          return "無効なURLです";
+        }
+        return null;
+      },
+      category: (value) =>
+        value.length < 1 ? "※カテゴリを選択してください" : null,
+      tags: (value) => (value.length < 1 ? "※タグを選択してください" : null),
+    },
+  });
 
   useEffect(() => {
     if (postQuery.isSuccess) {
@@ -112,6 +194,7 @@ const EditPost = () => {
           <form
             className="flex flex-col items-center justify-center space-y-6"
             onSubmit={form.onSubmit((data: PostFormType) => {
+              console.log("Submitting with videoId:", data.videoId);
               mutate({
                 id: id as string,
                 ...data,
@@ -170,8 +253,31 @@ const EditPost = () => {
               type="text"
               placeholder="https://www.youtube.com/xxxxxxxx"
               {...form.getInputProps("videoId")}
+              onChange={(e) => {
+                setInputVideoId(e.target.value);
+                form.setValues({ ...form.values, videoId: e.target.value });
+              }}
+              value={inputVideoId}
               className="w-full"
             />
+
+            <div className="flex w-full flex-col items-end">
+              <Button
+                type="button"
+                size="xs"
+                radius="xl"
+                color={theme.colorScheme === "dark" ? "teal" : "dark"}
+                onClick={handlePreview}
+                variant="outline"
+                className="text-right"
+                disabled={!inputVideoId || inputVideoId.trim() === ""}
+              >
+                動画のプレビュー
+              </Button>
+              <Text color="dimmed" size="xs" pt="xs" className="text-right">
+                ※フォームの下に表示されます
+              </Text>
+            </div>
 
             <Group position="apart" mt="lg" className="sm:flex-col-reverse">
               <Anchor
@@ -187,14 +293,28 @@ const EditPost = () => {
               </Anchor>
               <Button
                 className="sm:w-full sm:text-center"
-                variant="outline"
+                variant="filled"
                 type="submit"
+                color={theme.colorScheme === "dark" ? "teal" : "dark"}
               >
-                編集する
+                投稿を編集する
               </Button>
             </Group>
           </form>
         </Paper>
+        {showPreview && (
+          <Paper withBorder radius="sm" p="sm" className="mt-4">
+            <Text size="lg" weight={600}>
+              プレビュー
+            </Text>
+            <AspectRatio ratio={16 / 9}>
+              <YouTube
+                videoId={YouTubeVideoId || undefined}
+                opts={opts}
+              ></YouTube>
+            </AspectRatio>
+          </Paper>
+        )}
       </Container>
     </MainLayout>
   );
