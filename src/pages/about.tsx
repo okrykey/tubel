@@ -34,7 +34,7 @@ const useStyles = createStyles((theme) => ({
     color: theme.colorScheme === "dark" ? theme.white : theme.black,
     marginBottom: theme.spacing.xs,
     textAlign: "center",
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
 
     [theme.fn.smallerThan("xs")]: {
       fontSize: rem(28),

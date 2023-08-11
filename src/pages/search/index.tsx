@@ -1,5 +1,5 @@
 import { Container } from "@mantine/core";
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import { HeaderTabs } from "~/components/Header";
 import { SearchBar } from "~/components/SearchBar";
 

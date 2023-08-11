@@ -9,8 +9,21 @@ import { decode } from "base64-arraybuffer";
 import { createClient } from "@supabase/supabase-js";
 import { TRPCError } from "@trpc/server";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY!;
+function assertEnv(variable: string | undefined, name: string): string {
+  if (!variable) {
+    throw new Error(`Environment variable ${name} is not set!`);
+  }
+  return variable;
+}
+
+const supabaseUrl = assertEnv(
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL,
+  "NEXT_PUBLIC_SUPABASE_PUBLIC_URL"
+);
+const supabaseAnonKey = assertEnv(
+  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY,
+  "NEXT_PUBLIC_SUPABASE_SERVICE_KEY"
+);
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const userRouter = createTRPCRouter({

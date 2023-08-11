@@ -151,10 +151,10 @@ const EditPost = () => {
   useEffect(() => {
     if (postQuery.isSuccess) {
       if (postQuery.data.userId !== session?.user?.id) {
-        router.push("/");
+        void router.push("/");
       }
     }
-  }, [session, router]);
+  }, [session, router, postQuery.isSuccess, postQuery.data?.userId]);
 
   useEffect(() => {
     if (postQuery.isSuccess) {
@@ -167,13 +167,13 @@ const EditPost = () => {
         category: postData.category,
       });
     }
-  }, [postQuery.data]);
+  }, [postQuery.isSuccess, postQuery.data, form]);
 
   const { mutate } = api.post.update.useMutation({
     onSuccess: () => {
-      router.push(`/user/${postQuery.data?.username}`);
+      void router.push(`/user/${postQuery.data?.username}`);
       notifications.show({
-        color: "grape",
+        color: "indigo",
         autoClose: 5000,
         title: "記事を変更",
         message: "記事を変更しました！",

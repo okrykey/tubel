@@ -1,6 +1,5 @@
 import {
   createStyles,
-  Title,
   Text,
   Button,
   Container,
@@ -18,7 +17,7 @@ const useStyles = createStyles((theme) => ({
   },
 
   title: {
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
     textAlign: "center",
     fontWeight: 900,
     fontSize: rem(38),
@@ -43,7 +42,7 @@ const useStyles = createStyles((theme) => ({
 
 export function NotFoundResult() {
   const { classes } = useStyles();
-  const [_, setIsOpen] = useAtom(modalOpenAtom);
+  const [, setIsOpen] = useAtom(modalOpenAtom);
 
   return (
     <Container className={`${classes.root} flex flex-col items-center`}>

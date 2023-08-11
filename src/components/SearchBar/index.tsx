@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
   TextInput,
-  TextInputProps,
-  ActionIcon,
   useMantineTheme,
   SimpleGrid,
   Divider,
   Box,
   Text,
 } from "@mantine/core";
-import { IconSearch, IconArrowRight, IconArrowLeft } from "@tabler/icons-react";
+import type { TextInputProps } from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
 import { api } from "~/utils/api";
 import { debounce } from "lodash";
 import Post from "~/components/Post";

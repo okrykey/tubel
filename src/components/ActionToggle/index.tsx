@@ -4,10 +4,14 @@ import { IconMoonStars, IconSun } from "@tabler/icons-react";
 export const ActionToggle = () => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
+  const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+    toggleColorScheme(colorScheme);
+  };
+
   return (
     <Group>
       <ActionIcon
-        onClick={() => toggleColorScheme()}
+        onClick={handleToggle}
         size="lg"
         sx={(theme) => ({
           backgroundColor:

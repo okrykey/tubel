@@ -79,9 +79,13 @@ export function UserProfilePage() {
 
   useEffect(() => {
     if (userProfile.isSuccess && !isUserMatch) {
-      router.push("/");
+      void router.push("/");
     }
-  }, [userProfile.isSuccess, isUserMatch]);
+  }, [userProfile.isSuccess, isUserMatch, router]);
+
+  const handleProfileEdit = async () => {
+    await router.push("/settings/profile");
+  };
 
   return (
     <>
@@ -137,7 +141,7 @@ export function UserProfilePage() {
                       mt="lg"
                       size="md"
                       color={theme.colorScheme === "dark" ? "teal" : "dark"}
-                      onClick={() => router.push("/settings/profile")}
+                      onClick={handleProfileEdit}
                     >
                       プロフィールを編集する
                     </Button>

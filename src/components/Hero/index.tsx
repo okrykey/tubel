@@ -79,8 +79,8 @@ const useStyles = createStyles((theme) => ({
 
 export const Hero = () => {
   const { classes, theme } = useStyles();
-  const [_, setIsOpen] = useAtom(modalOpenAtom);
-  const [__, setIsLginOpen] = useAtom(LoginModalAtom);
+  const [, setIsOpen] = useAtom(modalOpenAtom);
+  const [, setIsLginOpen] = useAtom(LoginModalAtom);
   const { data: sessionData } = useSession();
 
   return (
@@ -150,6 +150,7 @@ export const Hero = () => {
           </div>
           <Image
             src="images/hero.png"
+            alt="hero image"
             className={classes.image}
             width={350}
             height={350}

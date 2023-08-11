@@ -7,7 +7,6 @@ import {
   ActionIcon,
   AspectRatio,
   Badge,
-  Button,
   Center,
   Collapse,
   createStyles,
@@ -68,23 +67,22 @@ const opts = {
 
 const Postpage = () => {
   const theme = useMantineTheme();
-  const [_, setIsOpen] = useAtom(LoginModalAtom);
+  const [, setIsOpen] = useAtom(LoginModalAtom);
   const [opened, { toggle }] = useDisclosure(false);
   const { classes } = useStyles();
   const { data: session } = useSession();
   const trpc = api.useContext();
   const router = useRouter();
   const { id } = router.query;
+  const invalidateCurrentPostPage = useCallback(() => {
+    trpc.post.get.invalidate(router.query.id as string);
+  }, [trpc.post.get, router.query.id]);
 
   if (typeof id !== "string") {
     return null;
   }
 
   const getPost = api.post.get.useQuery(id);
-  const invalidateCurrentPostPage = useCallback(() => {
-    trpc.post.get.invalidate(router.query.id as string);
-  }, [trpc.post.get, router.query.id]);
-
   const post = getPost.data;
 
   const recommendPost = api.post.recommendByContent.useQuery(
@@ -141,11 +139,12 @@ const Postpage = () => {
     }
   }, [session, post?.id, dislikePost.mutate, setIsOpen]);
 
-  let YouTubeVideoId;
+  let YouTubeVideoId: string | undefined;
   if (getPost.data?.videoId) {
-    YouTubeVideoId =
-      new URLSearchParams(new URL(getPost.data.videoId).search).get("v") ||
-      undefined;
+    const videoId = new URLSearchParams(
+      new URL(getPost.data.videoId).search
+    ).get("v");
+    YouTubeVideoId = videoId !== null ? videoId : undefined;
   }
 
   if (getPost.isLoading) {

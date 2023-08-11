@@ -7,8 +7,7 @@ import {
 import { createPostInput, updatePostInput } from "~/server/types";
 import slugify from "slugify";
 import { v4 as uuidv4 } from "uuid";
-
-const kuromoji = require("kuromoji");
+import * as kuromoji from "kuromoji";
 
 type KuromojiToken = {
   surface_form: string;
@@ -16,10 +15,14 @@ type KuromojiToken = {
   word_type: string;
 };
 
+type KuromojiTokenizer = {
+  tokenize: (text: string) => KuromojiToken[];
+};
+
 const getKeywords = (text: string): Promise<string[]> => {
   const builder = kuromoji.builder({ dicPath: "./dict" });
   return new Promise((resolve, reject) => {
-    builder.build((err: Error | null, tokenizer: any) => {
+    builder.build((err: Error | null, tokenizer: KuromojiTokenizer) => {
       if (err) return reject(err);
       const tokens: KuromojiToken[] = tokenizer.tokenize(text);
       const keywords = tokens

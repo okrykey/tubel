@@ -68,9 +68,17 @@ const useStyles = createStyles((theme) => ({
 
 export default function CategoriesPage() {
   const { theme } = useStyles();
-  const [_, setIsOpen] = useAtom(modalOpenAtom);
+  const [, setIsOpen] = useAtom(modalOpenAtom);
   const { data: sessionData } = useSession();
   const router = useRouter();
+
+  const handleButtonClick = async () => {
+    if (sessionData) {
+      setIsOpen(true);
+    } else {
+      await router.push("/signin");
+    }
+  };
 
   return (
     <MainLayout>
@@ -114,9 +122,7 @@ export default function CategoriesPage() {
                 color={theme.colorScheme === "dark" ? "teal" : "dark"}
                 size="md"
                 radius="xl"
-                onClick={() =>
-                  sessionData ? setIsOpen(true) : router.push("/signin")
-                }
+                onClick={handleButtonClick}
               >
                 おすすめ動画を共有する
               </Button>

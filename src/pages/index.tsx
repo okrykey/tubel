@@ -1,5 +1,5 @@
 import { Container } from "@mantine/core";
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import { Hero } from "~/components/Hero";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
@@ -10,7 +10,7 @@ import { CategoryPostsList } from "~/components/CategoryPostsList";
 import { notifications } from "@mantine/notifications";
 
 const Home: NextPage = () => {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,9 +21,9 @@ const Home: NextPage = () => {
         title: "Login",
         message: "ログインしました。",
       });
-      router.replace(router.pathname);
+      void router.replace(router.pathname);
     }
-  }, [status, router.query, router.pathname]);
+  }, [status, router.query, router.pathname, router]);
 
   return (
     <>

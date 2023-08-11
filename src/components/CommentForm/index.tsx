@@ -5,15 +5,7 @@ import { z } from "zod";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
-import {
-  Badge,
-  Box,
-  Button,
-  Center,
-  Divider,
-  Text,
-  Textarea,
-} from "@mantine/core";
+import { Badge, Button, Center, Divider, Text, Textarea } from "@mantine/core";
 import { BiChat } from "react-icons/bi";
 import { CommentCard } from "../CommentCard";
 import { useSession } from "next-auth/react";
@@ -39,7 +31,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
   });
 
   const { data: session } = useSession();
-  const [_, setIsOpen] = useAtom(LoginModalAtom);
+  const [, setIsOpen] = useAtom(LoginModalAtom);
 
   const postRoute = api.useContext().comment;
   const submitComment = api.comment.create.useMutation({
@@ -69,7 +61,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
 
   const handleComment = (data: CommentFormType) => {
     if (session) {
-      submitComment.mutate({
+      void submitComment.mutate({
         ...data,
         postId,
       });
@@ -135,8 +127,8 @@ const CommentForm = ({ postId }: { postId: string }) => {
               id={comment.id}
               user={{
                 id: comment.user.id,
-                name: `${comment.user.name}`,
-                image: `${comment.user.image}`,
+                name: `${comment.user.name || "Unknown"}`,
+                image: `${comment.user.image || "Default"}`,
               }}
             />
           </div>

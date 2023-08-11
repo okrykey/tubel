@@ -1,11 +1,5 @@
 import { createStyles, Text, SimpleGrid, Container, rem } from "@mantine/core";
-import {
-  IconTruck,
-  IconCertificate,
-  IconCoin,
-  IconSearch,
-  IconSend,
-} from "@tabler/icons-react";
+import { IconSearch, IconSend } from "@tabler/icons-react";
 import { BiChat } from "react-icons/bi";
 
 const useStyles = createStyles((theme) => ({

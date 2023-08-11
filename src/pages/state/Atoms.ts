@@ -1,5 +1,4 @@
 import { atom } from "jotai";
-import { atomFamily } from "jotai/utils";
 
 const tags = [
   { value: "react", label: "React" },

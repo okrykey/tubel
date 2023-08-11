@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const tagRouter = createTRPCRouter({
   getAllTags: publicProcedure.query(async ({ ctx }) => {

@@ -157,8 +157,8 @@ export const HeaderTabs = () => {
     }
   );
 
-  const userImage = userAvatarQuery.data?.image as string;
-  const userName = userAvatarQuery.data?.username as string;
+  const userImage = (userAvatarQuery.data?.image as string) || "";
+  const userName = (userAvatarQuery.data?.username as string) || "";
 
   const links = categoryData.map((item) => (
     <UnstyledButton
@@ -316,9 +316,9 @@ export const HeaderTabs = () => {
               <Button
                 variant="filled"
                 size="xs"
-                onClick={
-                  sessionData ? () => void signOut() : () => void signIn()
-                }
+                onClick={() => {
+                  void (sessionData ? signOut() : signIn());
+                }}
               >
                 登録/ログイン
               </Button>
@@ -443,7 +443,9 @@ export const HeaderTabs = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={sessionData ? () => void signOut() : () => void signIn()}
+              onClick={() => {
+                void (sessionData ? signOut() : signIn());
+              }}
             >
               {sessionData ? "ログアウト" : "登録/ログイン"}
             </Button>

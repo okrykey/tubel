@@ -35,9 +35,8 @@ const PostRow: React.FC<{ post: Post }> = ({ post }) => {
   const [selectedPostId, setSelectedPostId] = useState<string>("");
   const isUserMatch = session && session.user?.id === post.user?.id;
 
-  const YouTubeVideoId = new URLSearchParams(new URL(post.videoId).search).get(
-    "v"
-  );
+  const YouTubeVideoId =
+    new URLSearchParams(new URL(post.videoId).search).get("v") || "";
 
   const trpc = api.useContext();
   const deletePost = api.post.delete.useMutation({
@@ -57,6 +56,7 @@ const PostRow: React.FC<{ post: Post }> = ({ post }) => {
               width={106}
               height={60}
               src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
+              alt={`Thumbnail for ${post.title}`}
             />
           </Link>
         </td>

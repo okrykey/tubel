@@ -9,10 +9,17 @@ import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "~/server/db";
 import { generateUsername } from "~/utils/generateUsername";
 
+interface ProfileType {
+  sub: string;
+  name: string;
+  email: string;
+  picture: string;
+}
+
 type ClientType = {
   clientId: string;
   clientSecret: string;
-  profile: (profile: any) => {
+  profile: (profile: ProfileType) => {
     id: string;
     name: string;
     email: string;
@@ -62,7 +69,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      profile(profile) {
+      profile(profile: ProfileType) {
         return {
           id: profile.sub,
           name: profile.name,

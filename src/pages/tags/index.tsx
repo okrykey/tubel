@@ -50,9 +50,8 @@ export default function TagsPage() {
         {getTags.data && getTags.data?.length > 0 ? (
           <Group spacing={32} position="center">
             {getTags.data?.map((tag) => (
-              <Link href={`/tags/${tag.name}`}>
+              <Link key={tag.id} href={`/tags/${tag.name}`}>
                 <Badge
-                  key={tag.id}
                   radius="lg"
                   size="xl"
                   color={theme.colorScheme === "dark" ? "gray" : "dark"}

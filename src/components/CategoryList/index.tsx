@@ -21,6 +21,16 @@ import {
 } from "@tabler/icons-react";
 import { api } from "~/utils/api";
 
+type PostData = {
+  CategorizedPosts: {
+    videoId: string;
+    title: string;
+    category?: {
+      name: string;
+    };
+  }[];
+};
+
 const useStyles = createStyles((theme) => ({
   badge: {
     "&:hover": {
@@ -158,7 +168,7 @@ export function CategoryList() {
     {
       enabled: true,
     }
-  );
+  ) as { data: PostData | undefined };
 
   return (
     <>
@@ -201,7 +211,9 @@ export function CategoryList() {
                                 className={`${classes.image} relative z-${
                                   20 - i * 10
                                 }`}
-                                src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
+                                src={`https://i.ytimg.com/vi/${
+                                  YouTubeVideoId || "default"
+                                }/maxresdefault.jpg`}
                                 alt={post.title}
                               />
                             );

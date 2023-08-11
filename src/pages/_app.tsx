@@ -1,18 +1,16 @@
 import { useState } from "react";
-import NextApp, { AppProps, AppContext } from "next/app";
+import NextApp from "next/app";
 import { getCookie, setCookie } from "cookies-next";
 import Head from "next/head";
-import {
-  MantineProvider,
-  ColorScheme,
-  ColorSchemeProvider,
-} from "@mantine/core";
+import type { AppProps, AppContext } from "next/app";
+import type { ColorScheme } from "@mantine/core";
+import type { Session } from "next-auth";
+import { MantineProvider, ColorSchemeProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
-import { Session } from "next-auth";
 import { LoginModal } from "~/components/LoginModal";
 import PostFormModal from "~/components/PostFormModal";
 

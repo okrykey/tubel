@@ -14,7 +14,7 @@ const useStyles = createStyles((theme) => ({
 
   title: {
     fontWeight: 700,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
     lineHeight: 1.2,
   },
 
@@ -55,6 +55,7 @@ export function BookmarkPost({ post }: BookmarkPostProps) {
             width={106}
             height={60}
             src={`https://i.ytimg.com/vi/${YouTubeVideoId}/maxresdefault.jpg`}
+            alt={post.title}
           />
           <div className={classes.body}>
             <Text transform="uppercase" color="dimmed" weight={700} size="xs">
@@ -67,8 +68,12 @@ export function BookmarkPost({ post }: BookmarkPostProps) {
             </Text>
             <Group noWrap spacing="xs">
               <Group spacing="xs" noWrap>
-                <Avatar size={20} src={post.user?.image} radius="xl" />
-                <Text size="xs">{post.user?.name}</Text>
+                <Avatar
+                  size={20}
+                  src={post.user?.image || undefined}
+                  radius="xl"
+                />
+                <Text size="xs">{post.user?.name || "Unknown"}</Text>
               </Group>
 
               <Text size="xs" color="dimmed">

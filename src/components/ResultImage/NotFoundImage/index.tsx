@@ -20,7 +20,7 @@ const useStyles = createStyles((theme) => ({
     fontWeight: 900,
     fontSize: rem(34),
     marginBottom: theme.spacing.md,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
 
     [theme.fn.smallerThan("sm")]: {
       fontSize: rem(32),
@@ -74,7 +74,11 @@ export function NotFoundImage() {
             前のページへ戻る
           </Button>
         </div>
-        <Image src="images/search-image.png" className={classes.desktopImage} />
+        <Image
+          src="images/search-image.png"
+          alt="Search Placeholder"
+          className={classes.desktopImage}
+        />
       </SimpleGrid>
     </Container>
   );

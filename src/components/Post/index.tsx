@@ -2,7 +2,7 @@ import Link from "next/link";
 import { api } from "~/utils/api";
 import { inferRouterOutputs } from "@trpc/server";
 import { AppRouter } from "~/server/api/root";
-import { createStyles, Highlight, Modal, rem } from "@mantine/core";
+import { createStyles, Highlight, rem } from "@mantine/core";
 import {
   Card,
   Text,

@@ -23,7 +23,7 @@ export default function SignIn({
             <Title
               align="center"
               sx={(theme) => ({
-                fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+                fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
                 fontWeight: 900,
               })}
             >
