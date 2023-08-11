@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
 import { useAtom } from "jotai";
-import { LoginModalAtom, modalOpenAtom } from "~/pages/state/Atoms";
+import { LoginModalAtom, modalOpenAtom } from "~/state/Atoms";
 import { useSession } from "next-auth/react";
 
 const useStyles = createStyles((theme) => ({

@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { CategoryList } from "~/components/CategoryList";
 import MainLayout from "~/layouts/Mainlayout";
-import { modalOpenAtom } from "../state/Atoms";
+import { modalOpenAtom } from "../../state/Atoms";
 
 const useStyles = createStyles((theme) => ({
   badge: {

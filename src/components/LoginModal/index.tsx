@@ -2,7 +2,7 @@ import { Image, Button, Text, useMantineTheme, Center } from "@mantine/core";
 import Link from "next/link";
 import { useAtom } from "jotai";
 import Modal from "../Modal";
-import { LoginModalAtom } from "~/pages/state/Atoms";
+import { LoginModalAtom } from "~/state/Atoms";
 
 export const LoginModal = () => {
   const [isOpen, setIsOpen] = useAtom(LoginModalAtom);

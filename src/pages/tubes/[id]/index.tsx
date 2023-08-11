@@ -24,7 +24,7 @@ import MainLayout from "~/layouts/Mainlayout";
 import YouTube from "react-youtube";
 import CommentForm from "~/components/CommentForm";
 import Link from "next/link";
-import { LoginModalAtom } from "~/pages/state/Atoms";
+import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { useSession } from "next-auth/react";
 import { notifications } from "@mantine/notifications";

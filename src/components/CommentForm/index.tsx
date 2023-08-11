@@ -6,7 +6,7 @@ import { Badge, Button, Center, Divider, Text, Textarea } from "@mantine/core";
 import { BiChat } from "react-icons/bi";
 import { CommentCard } from "../CommentCard";
 import { useSession } from "next-auth/react";
-import { LoginModalAtom } from "~/pages/state/Atoms";
+import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";

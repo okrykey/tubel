@@ -19,7 +19,7 @@ import { BiEdit } from "react-icons/bi";
 import { useSession } from "next-auth/react";
 import { HeaderTabs } from "~/components/Header";
 import { BookmarkPost } from "~/components/BookmarkPost";
-import { modalOpenAtom } from "../state/Atoms";
+import { modalOpenAtom } from "../../state/Atoms";
 import { useAtom } from "jotai";
 import { UserPostsList } from "~/components/UserPostsList";
 import PostFormModal from "~/components/PostFormModal";

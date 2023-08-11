@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { CiBookmarkCheck, CiBookmarkPlus } from "react-icons/ci";
 import { useSession } from "next-auth/react";
-import { LoginModalAtom } from "~/pages/state/Atoms";
+import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { useState } from "react";
 

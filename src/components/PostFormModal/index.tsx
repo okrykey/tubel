@@ -1,6 +1,6 @@
 import Modal from "../Modal";
 import { useAtom } from "jotai";
-import { modalOpenAtom } from "~/pages/state/Atoms";
+import { modalOpenAtom } from "~/state/Atoms";
 import { api } from "~/utils/api";
 import React, { useState } from "react";
 import {
