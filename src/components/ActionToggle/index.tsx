@@ -1,12 +1,12 @@
 import { useMantineColorScheme, ActionIcon, Group } from "@mantine/core";
 import { IconSun, IconMoonStars } from "@tabler/icons-react";
 
-export function ActionToggle() {
+export const ActionToggle = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   return (
-    <Group position="center" my="xl">
+    <Group>
       <ActionIcon
         onClick={() => toggleColorScheme()}
         size="lg"
@@ -29,4 +29,4 @@ export function ActionToggle() {
       </ActionIcon>
     </Group>
   );
-}
+};
