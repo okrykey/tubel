@@ -1,18 +1,14 @@
-import { ActionIcon, Group, useMantineColorScheme } from "@mantine/core";
-import { IconMoonStars, IconSun } from "@tabler/icons-react";
+import { useMantineColorScheme, ActionIcon, Group } from "@mantine/core";
+import { IconSun, IconMoonStars } from "@tabler/icons-react";
 
-export const ActionToggle = () => {
+export function ActionToggle() {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
-  const handleToggle = (_event: React.MouseEvent<HTMLButtonElement>) => {
-    toggleColorScheme(colorScheme);
-  };
-
   return (
-    <Group>
+    <Group position="center" my="xl">
       <ActionIcon
-        onClick={handleToggle}
+        onClick={() => toggleColorScheme()}
         size="lg"
         sx={(theme) => ({
           backgroundColor:
@@ -33,4 +29,4 @@ export const ActionToggle = () => {
       </ActionIcon>
     </Group>
   );
-};
+}
