@@ -88,7 +88,6 @@ const PostFormModal = () => {
       },
       category: (value) =>
         value.length < 1 ? "※カテゴリを選択してください" : null,
-      tags: (value) => (value.length < 1 ? "※タグを選択してください" : null),
     },
   });
 
@@ -100,8 +99,8 @@ const PostFormModal = () => {
         autoClose: 5000,
         message: "新しい投稿を作成しました！",
       });
-      form.reset();
       setIsOpen(false);
+      form.reset();
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
@@ -114,8 +113,7 @@ const PostFormModal = () => {
     <Modal
       isOpen={isOpen}
       onClose={() => {
-        form.reset();
-        setIsOpen(false);
+        /* intentionally empty */
       }}
     >
       <form
@@ -124,9 +122,7 @@ const PostFormModal = () => {
           mutate(data);
         })}
       >
-        <Title order={3} size="xl">
-          投稿
-        </Title>
+        <Title size="xl">投稿</Title>
         <TextInput
           type="text"
           id="title"
@@ -186,6 +182,7 @@ const PostFormModal = () => {
           </Button>
           <Button
             variant="outline"
+            type="button"
             size="sm"
             color="red"
             radius="xl"

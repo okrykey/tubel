@@ -255,7 +255,14 @@ export const HeaderTabs = () => {
                       </Text>
                       <Text size="xs" color="dimmed">
                         カテゴリの追加は
-                        <span className="underline">お問い合わせ</span>
+                        <Link
+                          href="https://docs.google.com/forms/d/e/1FAIpQLSdytwlDnLWjiRZmmdilnyo-j8nrpmUsl5swNDLDfcBkHrlhSA/viewform"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          お問い合わせ
+                        </Link>
                         にお願いします
                       </Text>
                     </div>
@@ -304,7 +311,10 @@ export const HeaderTabs = () => {
 
                     <Menu.Item
                       className={`${classes.menu} text-base font-bold `}
-                      onClick={() => void signOut()}
+                      onClick={() => {
+                        void signOut();
+                        void router.push("/");
+                      }}
                     >
                       ログアウト
                     </Menu.Item>
@@ -319,6 +329,7 @@ export const HeaderTabs = () => {
                 size="xs"
                 onClick={() => {
                   void (sessionData ? signOut() : signIn());
+                  void router.push("/");
                 }}
               >
                 登録/ログイン
@@ -425,11 +436,13 @@ export const HeaderTabs = () => {
             </Center>
           </UnstyledButton>
           <Collapse in={linksOpened}>{links}</Collapse>
-          <Link href="#" className={classes.link}>
+          <Link href="/privacy" className={classes.link}>
             プライバシーポリシー
           </Link>
           <Link
             href="https://docs.google.com/forms/d/e/1FAIpQLSdytwlDnLWjiRZmmdilnyo-j8nrpmUsl5swNDLDfcBkHrlhSA/viewform"
+            target="_blank"
+            rel="noopener noreferrer"
             className={classes.link}
           >
             お問い合わせ
@@ -441,15 +454,28 @@ export const HeaderTabs = () => {
           />
 
           <Group position="center" grow pb="xl" px="xl">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                void (sessionData ? signOut() : signIn());
-              }}
-            >
-              {sessionData ? "ログアウト" : "登録/ログイン"}
-            </Button>
+            {sessionData ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  void signOut();
+                  void router.push("/");
+                }}
+              >
+                ログアウト
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  void signIn();
+                }}
+              >
+                ログイン
+              </Button>
+            )}
           </Group>
         </ScrollArea>
       </Drawer>

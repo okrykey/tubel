@@ -95,6 +95,8 @@ export default function CategoriesPage() {
               ※カテゴリの追加要望は
               <Link
                 href="https://docs.google.com/forms/d/e/1FAIpQLSdytwlDnLWjiRZmmdilnyo-j8nrpmUsl5swNDLDfcBkHrlhSA/viewform"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="underline"
               >
                 お問い合わせ

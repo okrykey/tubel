@@ -92,7 +92,7 @@ export default function About() {
 
         <Container py="lg" className="space-y-16">
           <Text size="lg" className={classes.description}>
-            YouTubeは現代の無料学習ツール。そんなYouTube上の有益な動画があつまるプラットフォームを目指しています。YouTubeの上で他の人にも見てほしい動画を共有しよう。
+            本サイトはYouTube上の有益な動画があつまるプラットフォームを目指しています。他の人にも有益になる動画を共有しよう。
           </Text>
 
           <Features />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
@@ -33,7 +33,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
 
   const { data: session } = useSession();
   const [, setIsOpen] = useAtom(LoginModalAtom);
-
+  const [showButton, setShowButton] = useState(false);
   const postRoute = api.useContext().comment;
   const submitComment = api.comment.create.useMutation({
     onSuccess: () => {
@@ -45,6 +45,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
       });
       void postRoute.all.invalidate({ postId });
       form.reset();
+      setShowButton(false);
     },
     onError: () => {
       notifications.show({
@@ -104,13 +105,17 @@ const CommentForm = ({ postId }: { postId: string }) => {
             id="comment"
             {...form.getInputProps("content")}
             disabled={!session}
+            onClick={() => setShowButton(true)}
+            onBlur={() => setShowButton(false)}
           />
         </div>
-        <div className="mx-2 mt-4 flex justify-end">
-          <Button type="submit" variant="outline" size="sm">
-            コメント
-          </Button>
-        </div>
+        {showButton && (
+          <div className="mx-2 mt-4 flex justify-end">
+            <Button type="submit" variant="outline" size="sm">
+              コメント
+            </Button>
+          </div>
+        )}
       </form>
 
       {getComments.data && getComments.data?.length > 0 ? (
@@ -130,7 +135,9 @@ const CommentForm = ({ postId }: { postId: string }) => {
         ))
       ) : (
         <Center>
-          <Text className="mt-8">まだコメントはありません</Text>
+          <Text className="mt-8" color="dimmed">
+            まだコメントはありません
+          </Text>
         </Center>
       )}
     </>
