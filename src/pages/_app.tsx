@@ -58,15 +58,15 @@ function MyApp(props: CustomAppProps) {
         />
         <meta
           name="description"
-          content="TubelはYouTubeの動画で学習を共有できるサービスです。"
+          content="TubelはYouTube動画での学びを共有できるサービスです。"
         />
         <meta property="og:title" content="Tubel - Watch, Learn, Share -" />
         <meta
           property="og:description"
-          content="TubelはYouTubeの動画で学習を共有できるサービスです。"
+          content="TubelはYouTube動画での学びを共有できるサービスです。"
         />
         <meta property="og:image" content="/images/og-image.png" />
-        <meta property="og:url" content="URL_TO_YOUR_PAGE" />
+        <meta property="og:url" content="https://tubel.vercel.app/" />
         <meta property="og:type" content="website" />
         <link rel="icon" type="image/png" href="/favicon.png" />
       </Head>

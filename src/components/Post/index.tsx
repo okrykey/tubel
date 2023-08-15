@@ -67,6 +67,9 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
   const bookmarkPost = api.post.bookmarkPost.useMutation({
     onMutate: async (): Promise<BookmarkContext> => {
       await trpc.post.all.cancel();
+      await trpc.post.getByCategories.cancel();
+      await trpc.post.getByTag.cancel();
+      await trpc.post.search.cancel();
       const previousIsBookmarked = isBookmarked;
       setIsBookmarked((prev) => !prev);
       post._count.bookmarks += 1;
@@ -94,6 +97,9 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
   const removeBookmark = api.post.removebookmark.useMutation({
     onMutate: async (): Promise<BookmarkContext> => {
       await trpc.post.all.cancel();
+      await trpc.post.getByCategories.cancel();
+      await trpc.post.getByTag.cancel();
+      await trpc.post.search.cancel();
       const previousIsBookmarked = isBookmarked;
       setIsBookmarked((prev) => !prev);
       post._count.bookmarks -= 1;

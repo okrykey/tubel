@@ -92,7 +92,7 @@ const Privacy = () => {
 
           <h2 className="mb-2 mt-8 text-xl font-semibold">著作権について</h2>
           <p className="mb-4">
-            当社Webサイト内の文章や画像、すべてのコンテンツは著作権・肖像権等により保護されています。無断での使用や転用は禁止されています。
+            当Webサイト内の文章や画像、すべてのコンテンツは著作権・肖像権等により保護されています。無断での使用や転用は禁止されています。
           </p>
 
           <h2 className="mb-2 mt-8 text-xl font-semibold">

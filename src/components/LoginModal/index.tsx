@@ -36,7 +36,6 @@ export const LoginModal = () => {
           component={Link}
           href="/signin"
           className="mx-auto my-6 flex w-[200px] justify-center  py-[9px]"
-          color={theme.colorScheme === "dark" ? "teal" : "dark"}
           onClick={() => setIsOpen(false)}
         >
           ログインページへ

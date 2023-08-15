@@ -65,7 +65,7 @@ export default function TagPage() {
                 color={tagColors[tag.toLowerCase()]}
                 variant={theme.colorScheme === "dark" ? "light" : "outline"}
               >
-                {tag} の記事一覧
+                {tag} タグがついた投稿
               </Badge>
             </Center>
             <Divider mt="xl"></Divider>

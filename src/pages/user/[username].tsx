@@ -98,7 +98,7 @@ export function UserProfilePage() {
 
             {isLoading ? (
               <Center>
-                <Loader color="indigo" />
+                <Loader />
               </Center>
             ) : isError ? (
               <Center>

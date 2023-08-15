@@ -17,9 +17,8 @@ const Home: NextPage = () => {
     if (status === "authenticated" && router.query.login === "success") {
       notifications.show({
         color: "indigo",
-        autoClose: 5000,
-        title: "Login",
-        message: "ログインしました。",
+        autoClose: 3000,
+        message: "ログインしました!",
       });
       void router.replace(router.pathname);
     }

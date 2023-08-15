@@ -172,7 +172,7 @@ export function CategoryList() {
                   </Text>
                   <Group position="apart">
                     <Group spacing={4} pt="sm">
-                      <div className="flex space-x-[-20px]">
+                      <div className="flex space-x-1">
                         {CategorizedPosts.length > 0 ? (
                           CategorizedPosts.slice(0, 2).map((post, i) => {
                             const YouTubeVideoId = new URLSearchParams(
@@ -183,9 +183,8 @@ export function CategoryList() {
                                 key={i}
                                 width={64}
                                 height={36}
-                                className={`${classes.image} relative z-${
-                                  20 - i * 10
-                                }`}
+                                className={`${classes.image} } 
+                                relative`}
                                 src={`https://i.ytimg.com/vi/${
                                   YouTubeVideoId || ""
                                 }/maxresdefault.jpg`}
@@ -194,7 +193,7 @@ export function CategoryList() {
                             );
                           })
                         ) : (
-                          <Text size="sm" color="dimmed">
+                          <Text size="sm" color="dimmed" className="py-2">
                             まだ投稿はありません
                           </Text>
                         )}

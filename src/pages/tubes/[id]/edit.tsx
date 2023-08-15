@@ -79,14 +79,14 @@ const EditPost = () => {
     if (postQuery.isSuccess) {
       setInputVideoId(postQuery.data?.videoId ?? "");
     }
-  }, [postQuery.isSuccess, postQuery.data]);
+  }, []);
 
   useEffect(() => {
     if (postQuery.isSuccess) {
       const videoId = extractVideoIdFromUrl(postQuery.data.videoId);
       setYouTubeVideoId(videoId);
     }
-  }, [postQuery.isSuccess, postQuery.data]);
+  }, []);
 
   const handlePreview = () => {
     const youtubeUrlPattern =
@@ -119,16 +119,16 @@ const EditPost = () => {
       title: (value) => {
         if (value.length < 3) {
           return "※タイトルは3文字以上で入力してください";
-        } else if (value.length > 10) {
-          return "※タイトルは最大10文字までです";
+        } else if (value.length > 15) {
+          return "※タイトルは最大15文字までです";
         }
         return null;
       },
       content: (value) => {
         if (value.length < 20) {
           return "※内容は20文字以上で入力してください";
-        } else if (value.length > 100) {
-          return "※内容は最大100文字までです";
+        } else if (value.length > 140) {
+          return "※内容は最大140文字までです";
         }
         return null;
       },
@@ -156,7 +156,7 @@ const EditPost = () => {
         void router.push("/");
       }
     }
-  }, [session, router, postQuery.isSuccess, postQuery.data?.userId]);
+  }, []);
 
   useEffect(() => {
     if (postQuery.isSuccess) {
@@ -169,7 +169,7 @@ const EditPost = () => {
         category: postData.category,
       });
     }
-  }, [postQuery.isSuccess, postQuery.data, form]);
+  }, []);
 
   const { mutate } = api.post.update.useMutation({
     onSuccess: () => {
@@ -180,8 +180,7 @@ const EditPost = () => {
       notifications.show({
         color: "indigo",
         autoClose: 5000,
-        title: "記事を変更",
-        message: "記事を変更しました！",
+        message: "記事を編集しました！",
       });
       form.reset();
     },

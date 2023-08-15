@@ -312,8 +312,9 @@ export const HeaderTabs = () => {
                     <Menu.Item
                       className={`${classes.menu} text-base font-bold `}
                       onClick={() => {
-                        void signOut();
-                        void router.push("/");
+                        void signOut({
+                          callbackUrl: `/`,
+                        });
                       }}
                     >
                       ログアウト
@@ -328,8 +329,7 @@ export const HeaderTabs = () => {
                 variant="filled"
                 size="xs"
                 onClick={() => {
-                  void (sessionData ? signOut() : signIn());
-                  void router.push("/");
+                  void signIn();
                 }}
               >
                 登録/ログイン
@@ -380,8 +380,9 @@ export const HeaderTabs = () => {
                     <Menu.Item
                       className={`${classes.menu} text-base font-bold `}
                       onClick={() => {
-                        void signOut();
-                        void router.push("/");
+                        void signOut({
+                          callbackUrl: `/`,
+                        });
                       }}
                     >
                       ログアウト
@@ -390,11 +391,7 @@ export const HeaderTabs = () => {
                 </Menu>
               </>
             ) : (
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => void router.push("/signin")}
-              >
+              <Button variant="outline" size="xs" onClick={() => void signIn()}>
                 ログイン
               </Button>
             )}
@@ -421,11 +418,6 @@ export const HeaderTabs = () => {
           <Link href="/" className={classes.link}>
             ホーム
           </Link>
-          {sessionData && (
-            <Link href={`/user/${userName}`} className={classes.link}>
-              ユーザーページ
-            </Link>
-          )}
 
           <UnstyledButton className={classes.link} onClick={toggleLinks}>
             <Center inline>
@@ -436,9 +428,15 @@ export const HeaderTabs = () => {
             </Center>
           </UnstyledButton>
           <Collapse in={linksOpened}>{links}</Collapse>
-          <Link href="/privacy" className={classes.link}>
-            プライバシーポリシー
+          <Link href="/about" className={classes.link}>
+            Tubelについて
           </Link>
+          {sessionData && (
+            <Link href={`/user/${userName}`} className={classes.link}>
+              ユーザー設定
+            </Link>
+          )}
+
           <Link
             href="https://docs.google.com/forms/d/e/1FAIpQLSdytwlDnLWjiRZmmdilnyo-j8nrpmUsl5swNDLDfcBkHrlhSA/viewform"
             target="_blank"
@@ -459,8 +457,9 @@ export const HeaderTabs = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  void signOut();
-                  void router.push("/");
+                  void signOut({
+                    callbackUrl: `/`,
+                  });
                 }}
               >
                 ログアウト

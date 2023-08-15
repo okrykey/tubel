@@ -128,11 +128,11 @@ export const Hero = () => {
             >
               <List.Item>
                 <b className="text-lg">Learning from YouTube</b>
-                ：YouTubeのコンテンツはすべてフリー。誰でも楽しめる。
+                ：YouTubeのコンテンツはすべてフリー。誰でもどこでも。
               </List.Item>
               <List.Item>
                 <b className="text-lg">You earn more!</b>
-                ：有益な動画を最短経路で学び活用しよう。
+                ：有益な動画から役立つ情報を吸収しよう。
               </List.Item>
             </List>
 
@@ -145,7 +145,7 @@ export const Hero = () => {
                 sessionData ? setIsOpen(true) : setIsLginOpen(true)
               }
             >
-              学びになる動画を共有
+              学びになる動画を共有する
             </Button>
           </div>
           <Image

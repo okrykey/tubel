@@ -40,7 +40,6 @@ const CommentForm = ({ postId }: { postId: string }) => {
       notifications.show({
         color: "grape",
         autoClose: 5000,
-        title: "Nice!",
         message: "この投稿にコメントしました！",
       });
       void postRoute.all.invalidate({ postId });
@@ -51,7 +50,6 @@ const CommentForm = ({ postId }: { postId: string }) => {
       notifications.show({
         color: "red",
         autoClose: 5000,
-        title: "エラー",
         message: "エラーが発生しました",
       });
     },
@@ -83,7 +81,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
             radius="md"
             color="gray"
           >
-            {getComments.data?.length ?? 0} コメント
+            comments
           </Badge>
         }
       ></Divider>
@@ -106,7 +104,6 @@ const CommentForm = ({ postId }: { postId: string }) => {
             {...form.getInputProps("content")}
             disabled={!session}
             onClick={() => setShowButton(true)}
-            onBlur={() => setShowButton(false)}
           />
         </div>
         {showButton && (

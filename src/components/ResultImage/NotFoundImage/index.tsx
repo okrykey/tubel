@@ -23,7 +23,7 @@ const useStyles = createStyles((theme) => ({
     fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
 
     [theme.fn.smallerThan("sm")]: {
-      fontSize: rem(32),
+      fontSize: rem(28),
     },
   },
 
@@ -56,17 +56,17 @@ export function NotFoundImage() {
         cols={2}
         breakpoints={[{ maxWidth: "sm", cols: 1, spacing: 40 }]}
       >
-        <Image
-          src="images/search-image.png"
-          alt="Search Placeholder"
-          className={classes.mobileImage}
-        />
-        <div className="pt-8">
+        <div>
           <Title className={classes.title}>
             検索キーワードを入力してください
           </Title>
+          <Image
+            src="images/search-image.png"
+            alt="Search Placeholder"
+            className={classes.mobileImage}
+          />
           <Text color="dimmed" size="lg">
-            キーワードに該当するタイトル、本文の記事が表示されます
+            キーワードに該当するタイトル、本文の投稿が表示されます。
           </Text>
           <Button
             variant="subtle"
@@ -78,6 +78,7 @@ export function NotFoundImage() {
             前のページへ戻る
           </Button>
         </div>
+
         <Image
           src="images/search-image.png"
           alt="Search Placeholder"
