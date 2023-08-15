@@ -1,5 +1,5 @@
 import { api } from "~/utils/api";
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import { BiLike, BiSolidLike } from "react-icons/bi";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
@@ -65,9 +65,14 @@ const opts = {
   height: "100%",
 };
 
+type LikeContext = {
+  previousLikesCount: number;
+};
+
 const Postpage = () => {
   const theme = useMantineTheme();
   const [, setIsOpen] = useAtom(LoginModalAtom);
+
   const [opened, { toggle }] = useDisclosure(false);
   const { classes } = useStyles();
   const { data: session } = useSession();
@@ -91,26 +96,59 @@ const Postpage = () => {
     }
   );
 
+  const [isLiked, setIsLiked] = useState(Boolean(post?.likes?.length));
+
   const likePost = api.post.likePost.useMutation({
-    onSuccess: () => {
-      invalidateCurrentPostPage();
+    onMutate: async (): Promise<LikeContext> => {
+      await trpc.post.get.cancel();
+      const previousLikesCount = post?.likesCount || 0;
+      if (post) {
+        post.likesCount += 1;
+      }
+      setIsLiked((prev) => !prev);
       notifications.show({
-        color: "grape",
-        autoClose: 5000,
-        title: "Nice!",
+        color: "indigo",
+        autoClose: 3000,
         message: "この投稿にいいねしました！",
       });
+      return { previousLikesCount };
+    },
+    onError: (error, _, context?: LikeContext) => {
+      if (post && context) {
+        post.likesCount = context.previousLikesCount;
+      }
+      setIsLiked((prev) => !prev);
+    },
+
+    onSuccess: () => {
+      invalidateCurrentPostPage();
     },
   });
 
   const dislikePost = api.post.dislikePost.useMutation({
-    onSuccess: () => {
-      invalidateCurrentPostPage();
+    onMutate: async (): Promise<LikeContext> => {
+      await trpc.post.all.cancel();
+      const previousLikesCount = post?.likesCount || 0;
+      if (post) {
+        post.likesCount -= 1;
+      }
+      setIsLiked((prev) => !prev);
       notifications.show({
         color: "red",
-        autoClose: 5000,
+        autoClose: 3000,
+
         message: "この投稿のいいねを取り消しました。",
       });
+      return { previousLikesCount };
+    },
+    onError: (error, _, context?: LikeContext) => {
+      if (post && context) {
+        post.likesCount = context.previousLikesCount;
+      }
+      setIsLiked((prev) => !prev);
+    },
+    onSuccess: () => {
+      invalidateCurrentPostPage();
     },
   });
 
@@ -159,13 +197,13 @@ const Postpage = () => {
   return (
     <MemoizedMainLayout>
       {getPost.isSuccess && (
-        <div className="fixed bottom-10 z-10 flex w-full items-center justify-center pr-4 md:bottom-5">
+        <div className="fixed  bottom-5 z-10 flex w-full items-center justify-center pr-4">
           <div className="flex w-full max-w-4xl flex-col items-end justify-end">
             <div
               className={` ${classes.likePart} transition-duration-300 flex items-center justify-center space-x-2 rounded-xl border border-gray-400 px-4 py-3 hover:border-gray-400`}
             >
               <Group spacing="0">
-                {post?.likes && post?.likes.length > 0 ? (
+                {isLiked ? (
                   <ActionIcon>
                     <BiSolidLike
                       className="cursor-pointer text-2xl text-blue-500"
@@ -250,14 +288,14 @@ const Postpage = () => {
                   <Link key={id} href={`/tags/${tag}`}>
                     <Badge
                       component="button"
-                      className="cursol mt-2 md:mb-0 md:mt-4 "
+                      className="cursol  mb-2 mt-4 md:mb-0  "
                       color={tagColors[tag.toLowerCase()]}
-                      size="sm"
+                      size="md"
                       variant={
                         theme.colorScheme === "dark" ? "light" : "outline"
                       }
                     >
-                      {tag}
+                      # {tag}
                     </Badge>
                   </Link>
                 ))}
@@ -268,7 +306,7 @@ const Postpage = () => {
                   onClick={toggle}
                   color="gray"
                   radius="sm"
-                  className=" cursol mb-2 md:mb-0 md:mt-4"
+                  className=" cursol mb-2 mt-4 md:mb-0 md:mt-4"
                 >
                   {opened ? (
                     <MdKeyboardArrowUp className="text-2xl" />
@@ -286,12 +324,12 @@ const Postpage = () => {
                     <Link href={`/tags/${tag}`}>
                       <Badge
                         className="cursol  md:mb-0 md:mt-2"
-                        size="sm"
+                        size="md"
                         variant={
                           theme.colorScheme === "dark" ? "light" : "outline"
                         }
                       >
-                        {tag}
+                        # {tag}
                       </Badge>
                     </Link>
                   </Group>
@@ -321,7 +359,7 @@ const Postpage = () => {
               />
             }
           >
-            <Text className="border-l-4 border-gray-400 pl-6">
+            <Text className="whitespace-pre-wrap border-l-4 border-gray-400 pl-6">
               {post?.content}
             </Text>
           </Spoiler>

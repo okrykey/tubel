@@ -17,6 +17,7 @@ import { useSession } from "next-auth/react";
 import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { useState } from "react";
+import { notifications } from "@mantine/notifications";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -49,6 +50,10 @@ export type PostProps =
     videoId: string;
   };
 
+type BookmarkContext = {
+  previousIsBookmarked: boolean;
+};
+
 const Post = ({ searchKeyword, ...post }: PostProps) => {
   const { classes, cx, theme } = useStyles();
   const { data: session } = useSession();
@@ -60,8 +65,23 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
   const trpc = api.useContext();
 
   const bookmarkPost = api.post.bookmarkPost.useMutation({
-    onSuccess: () => {
+    onMutate: async (): Promise<BookmarkContext> => {
+      await trpc.post.all.cancel();
+      const previousIsBookmarked = isBookmarked;
       setIsBookmarked((prev) => !prev);
+      post._count.bookmarks += 1;
+      return { previousIsBookmarked };
+    },
+    onError: (err, _, context?: BookmarkContext) => {
+      if (!context) return;
+      setIsBookmarked(context.previousIsBookmarked);
+    },
+    onSuccess: () => {
+      notifications.show({
+        color: "indigo",
+        autoClose: 2000,
+        message: "この投稿をお気に入りに追加しました。",
+      });
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
@@ -70,14 +90,31 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
       await trpc.post.search.invalidate();
     },
   });
+
   const removeBookmark = api.post.removebookmark.useMutation({
-    onSuccess: () => {
+    onMutate: async (): Promise<BookmarkContext> => {
+      await trpc.post.all.cancel();
+      const previousIsBookmarked = isBookmarked;
       setIsBookmarked((prev) => !prev);
+      post._count.bookmarks -= 1;
+      return { previousIsBookmarked };
+    },
+    onError: (err, _, context?: BookmarkContext) => {
+      if (!context) return;
+      setIsBookmarked(context.previousIsBookmarked);
+    },
+    onSuccess: () => {
+      notifications.show({
+        color: "red",
+        autoClose: 2000,
+        message: "この投稿をお気に入りを削除しました。",
+      });
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
       await trpc.post.getByCategories.invalidate();
       await trpc.post.getByTag.invalidate();
+      await trpc.post.search.invalidate();
     },
   });
 
@@ -140,7 +177,7 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
                 {isBookmarked ? (
                   <CiBookmarkCheck
                     onClick={() => removeBookmark.mutate({ postId: post.id })}
-                    className="cursor-pointer text-3xl "
+                    className="cursor-pointer text-3xl"
                     color={theme.colorScheme === "dark" ? "teal" : "blue"}
                   />
                 ) : (

@@ -38,9 +38,10 @@ const categories = [
 
 const tags = [
   { value: "motivation", label: "motivation" },
-  { value: "computerscience", label: "computerscience" },
+  { value: "entertainment", label: "entertainment" },
   { value: "wired", label: "wired" },
   { value: "ted", label: "ted" },
+  { value: "computerscience", label: "computerscience" },
 ];
 
 const PostFormModal = () => {
@@ -61,16 +62,16 @@ const PostFormModal = () => {
       title: (value) => {
         if (value.length < 3) {
           return "※タイトルは3文字以上で入力してください";
-        } else if (value.length > 10) {
-          return "※タイトルは最大10文字までです";
+        } else if (value.length > 15) {
+          return "※タイトルは最大15文字までです";
         }
         return null;
       },
       content: (value) => {
         if (value.length < 20) {
           return "※内容は20文字以上で入力してください";
-        } else if (value.length > 100) {
-          return "※内容は最大100文字までです";
+        } else if (value.length > 140) {
+          return "※内容は最大140文字までです";
         }
         return null;
       },
@@ -93,14 +94,24 @@ const PostFormModal = () => {
 
   const trpc = api.useContext();
   const { mutate } = api.post.create.useMutation({
+    onMutate: () => {
+      setIsOpen(false);
+    },
     onSuccess: () => {
       notifications.show({
         color: "indigo",
         autoClose: 5000,
         message: "新しい投稿を作成しました！",
       });
-      setIsOpen(false);
       form.reset();
+    },
+    onError: () => {
+      notifications.show({
+        color: "red",
+        autoClose: 5000,
+        message: "エラーが発生しました。もう一度試してください。",
+      });
+      setIsOpen(true);
     },
     onSettled: async () => {
       await trpc.post.all.invalidate();
@@ -113,7 +124,7 @@ const PostFormModal = () => {
     <Modal
       isOpen={isOpen}
       onClose={() => {
-        /* intentionally empty */
+        // Intentionally empty
       }}
     >
       <form
@@ -140,7 +151,10 @@ const PostFormModal = () => {
           className="w-full"
           minRows={3}
           autosize
-        ></Textarea>
+          onChange={(e) => {
+            e.target.value = e.target.value.replace(/\n+$/, "");
+          }}
+        />
 
         <Select
           label="関連するカテゴリ"
@@ -177,9 +191,6 @@ const PostFormModal = () => {
           className="w-full"
         />
         <Group py="sm">
-          <Button type="submit" variant="filled" size="sm" radius="xl">
-            投稿
-          </Button>
           <Button
             variant="outline"
             type="button"
@@ -192,6 +203,9 @@ const PostFormModal = () => {
             }}
           >
             キャンセル
+          </Button>
+          <Button type="submit" variant="filled" size="sm" radius="xl">
+            投稿
           </Button>
         </Group>
       </form>

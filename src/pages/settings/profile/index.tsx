@@ -122,12 +122,20 @@ export default function EditUserProfile() {
   });
 
   const updateAvatar = api.user.uploadAvatar.useMutation({
-    onSuccess: () => {
-      void router.push(`/user/${getUser.data?.username ?? "defaultUsername"}`);
+    onMutate: () => {
+      void router.push(`/user/${getUser.data?.username ?? "/"}`);
+    },
+    onError: () => {
       notifications.show({
-        color: "grape",
-        autoClose: 5000,
-        title: "プロフィールを変更",
+        color: "red",
+        autoClose: 3000,
+        message: "エラーが発生しました。もう一度やり直してください。",
+      });
+    },
+    onSuccess: () => {
+      notifications.show({
+        color: "indigo",
+        autoClose: 3000,
         message: "プロフィールを変更しました！",
       });
       form.reset();
