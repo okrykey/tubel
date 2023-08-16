@@ -21,12 +21,15 @@ type KuromojiTokenizer = {
 };
 
 const getKeywords = (text: string): Promise<string[]> => {
-  const pathToDict = path.join(__dirname, "/public/dict/");
+  console.log("Current working directory:", process.cwd());
+
+  const pathToDict = path.join(process.cwd(), "public/dict/");
   const builder = kuromoji.builder({ dicPath: pathToDict });
+
   return new Promise((resolve, reject) => {
     builder.build((err: Error | null, tokenizer: KuromojiTokenizer) => {
       if (err) {
-        console.error("Error in kuromoji.builder:", err.message); // エラーメッセージの出力
+        console.error("Error in kuromoji.builder:", err.message);
         return reject(err);
       }
       const tokens: KuromojiToken[] = tokenizer.tokenize(text);
