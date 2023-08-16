@@ -20,7 +20,9 @@ type KuromojiTokenizer = {
 };
 
 const getKeywords = (text: string): Promise<string[]> => {
-  const builder = kuromoji.builder({ dicPath: "./dict" });
+  const builder = kuromoji.builder({
+    dicPath: process.cwd() + "/public/dict/",
+  });
   return new Promise((resolve, reject) => {
     builder.build((err: Error | null, tokenizer: KuromojiTokenizer) => {
       if (err) return reject(err);
