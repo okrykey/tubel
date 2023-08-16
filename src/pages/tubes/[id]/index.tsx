@@ -252,7 +252,7 @@ const Postpage = () => {
         <div className="flex w-full max-w-4xl flex-col space-y-4">
           <Paper withBorder radius="sm" className="p-2 md:p-4">
             <div className="flex flex-wrap justify-between pb-2">
-              <h1 className=" py-2 text-sm font-bold sm:text-xl">
+              <h1 className=" py-2 text-lg font-bold sm:text-xl">
                 {post?.title}
               </h1>
               <Group spacing={4} className="md:mt-1">
@@ -288,7 +288,7 @@ const Postpage = () => {
                   <Link key={id} href={`/tags/${tag}`}>
                     <Badge
                       component="button"
-                      className="cursol  mb-2 mt-4 md:mb-0  "
+                      className="cursol mb-2 mt-4 md:mb-0  "
                       color={tagColors[tag.toLowerCase()]}
                       size="md"
                       variant={
@@ -306,7 +306,7 @@ const Postpage = () => {
                   onClick={toggle}
                   color="gray"
                   radius="sm"
-                  className=" cursol mb-2 mt-4 md:mb-0 md:mt-4"
+                  className="cursol mb-2 mt-4 md:mb-0 md:mt-4"
                 >
                   {opened ? (
                     <MdKeyboardArrowUp className="text-2xl" />
@@ -323,7 +323,7 @@ const Postpage = () => {
                   <Group key={id} spacing={0}>
                     <Link href={`/tags/${tag}`}>
                       <Badge
-                        className="cursol  md:mb-0 md:mt-2"
+                        className="cursol mb-2 md:mb-0 md:mt-2"
                         size="md"
                         variant={
                           theme.colorScheme === "dark" ? "light" : "outline"
@@ -348,6 +348,7 @@ const Postpage = () => {
                 size="sm"
                 color="gray"
                 variant="light"
+                radius="md"
               >
                 もっとみる
               </Badge>
@@ -411,6 +412,34 @@ const Postpage = () => {
               </SimpleGrid>
             </div>
           )}
+        </div>
+        <div className="flex items-center justify-center space-x-2">
+          <Text
+            color="dimmed"
+            size="sm"
+            underline
+            className="mt-4 text-sm font-bold md:text-base"
+            transform="uppercase"
+          >
+            {post?.category && (
+              <Link href={`/category/${post.category}`}>{post.category}</Link>
+            )}
+          </Text>
+          <Text
+            color="dimmed"
+            size="sm"
+            className="mt-4 text-sm font-bold md:text-base"
+          >
+            /
+          </Text>
+          <Text
+            color="dimmed"
+            size="sm"
+            underline
+            className="mt-4 text-sm font-bold md:text-base"
+          >
+            <Link href="/">HOME</Link>
+          </Text>
         </div>
       </div>
     </MemoizedMainLayout>

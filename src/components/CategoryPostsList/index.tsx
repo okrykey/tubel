@@ -5,6 +5,7 @@ import {
   SimpleGrid,
   Tabs,
   Text,
+  useMantineTheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconAtom, IconBook, IconMovie } from "@tabler/icons-react";
@@ -21,10 +22,8 @@ type Post = {
   content: string;
 };
 
-const useStyles = createStyles(() => ({}));
-
 export const CategoryPostsList = () => {
-  const { theme } = useStyles();
+  const theme = useMantineTheme();
   const [currentTab, setCurrentTab] = useState<string | null>(null);
   const isMdUp = useMediaQuery("(min-width: 768px)");
 
