@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
-import { Badge, Button, Center, Divider, Text, Textarea } from "@mantine/core";
+import {
+  Badge,
+  Button,
+  Center,
+  Divider,
+  Group,
+  Modal,
+  Text,
+  Textarea,
+} from "@mantine/core";
 import { BiChat } from "react-icons/bi";
 import { CommentCard } from "../CommentCard";
 import { useSession } from "next-auth/react";
@@ -10,6 +19,7 @@ import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 dayjs.extend(relativeTime);
 
 type CommentFormType = { content: string };
@@ -34,6 +44,8 @@ const CommentForm = ({ postId }: { postId: string }) => {
   const { data: session } = useSession();
   const [, setIsOpen] = useAtom(LoginModalAtom);
   const [showButton, setShowButton] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [opened, { open, close }] = useDisclosure(false);
   const postRoute = api.useContext().comment;
   const submitComment = api.comment.create.useMutation({
     onSuccess: () => {
@@ -69,7 +81,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
   return (
     <>
       <Divider
-        className="pb-4"
+        className="pb-6"
         labelPosition="center"
         label={
           <Badge
@@ -85,35 +97,102 @@ const CommentForm = ({ postId }: { postId: string }) => {
           </Badge>
         }
       ></Divider>
-      <form
-        onSubmit={form.onSubmit((data: CommentFormType) => {
-          submitComment.mutate({
-            ...data,
-            postId,
-          });
-        })}
-      >
-        <div className="flex items-center" onClick={handleClick}>
-          <Textarea
-            icon={<BiChat />}
-            variant="filled"
-            placeholder="コメントする"
-            autosize
-            className="mx-2 flex-grow"
-            id="comment"
-            {...form.getInputProps("content")}
-            disabled={!session}
-            onClick={() => setShowButton(true)}
-          />
-        </div>
-        {showButton && (
-          <div className="mx-2 mt-4 flex justify-end">
-            <Button type="submit" variant="outline" size="sm">
-              コメント
+      {isMobile ? (
+        <>
+          <div className="flex justify-end">
+            <Button
+              size="xs"
+              variant="outline"
+              color="gray"
+              radius="md"
+              onClick={open}
+              px="sm"
+            >
+              コメントする
             </Button>
           </div>
-        )}
-      </form>
+          <Modal opened={opened} onClose={close} title="コメント" centered>
+            <form
+              onSubmit={form.onSubmit((data: CommentFormType) => {
+                submitComment.mutate({
+                  ...data,
+                  postId,
+                });
+              })}
+            >
+              <div className="flex items-center" onClick={handleClick}>
+                <Textarea
+                  icon={<BiChat />}
+                  variant="filled"
+                  placeholder="Send a message..."
+                  autosize
+                  className="mx-1 my-4 flex-grow"
+                  {...form.getInputProps("content")}
+                />
+              </div>
+              {showButton && (
+                <div className="mx-1 mt-4 flex justify-end space-x-2">
+                  <Button
+                    type="submit"
+                    radius="xl"
+                    variant="filled"
+                    size="xs"
+                    onClick={close}
+                  >
+                    コメント
+                  </Button>
+                  <Button
+                    size="xs"
+                    color="red"
+                    radius="xl"
+                    variant="outline"
+                    onClick={close}
+                  >
+                    キャンセル
+                  </Button>
+                </div>
+              )}
+            </form>
+          </Modal>
+        </>
+      ) : (
+        <form
+          onSubmit={form.onSubmit((data: CommentFormType) => {
+            submitComment.mutate({
+              ...data,
+              postId,
+            });
+          })}
+        >
+          <div className="flex items-center" onClick={handleClick}>
+            <Textarea
+              icon={<BiChat />}
+              variant="filled"
+              placeholder="Send a message..."
+              autosize
+              className="mx-2 flex-grow"
+              id="comment"
+              {...form.getInputProps("content")}
+              disabled={!session}
+              onClick={() => setShowButton(true)}
+            />
+          </div>
+          {showButton && (
+            <div className="mx-2 mt-4 flex justify-end">
+              <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                color="gray"
+                radius="md"
+                px="sm"
+              >
+                コメントする
+              </Button>
+            </div>
+          )}
+        </form>
+      )}
 
       {getComments.data && getComments.data?.length > 0 ? (
         getComments.data?.map((comment) => (
@@ -132,7 +211,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
         ))
       ) : (
         <Center>
-          <Text className="mt-8" color="dimmed">
+          <Text className="mt-8 text-sm md:text-base" color="dimmed">
             まだコメントはありません
           </Text>
         </Center>
