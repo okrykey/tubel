@@ -8,6 +8,7 @@ import { createPostInput, updatePostInput } from "~/server/types";
 import slugify from "slugify";
 import { v4 as uuidv4 } from "uuid";
 import * as kuromoji from "kuromoji";
+import path from "path";
 
 type KuromojiToken = {
   surface_form: string;
@@ -20,12 +21,14 @@ type KuromojiTokenizer = {
 };
 
 const getKeywords = (text: string): Promise<string[]> => {
-  const builder = kuromoji.builder({
-    dicPath: process.cwd() + "/public/dict/",
-  });
+  const pathToDict = path.join(__dirname, "/public/dict/");
+  const builder = kuromoji.builder({ dicPath: pathToDict });
   return new Promise((resolve, reject) => {
     builder.build((err: Error | null, tokenizer: KuromojiTokenizer) => {
-      if (err) return reject(err);
+      if (err) {
+        console.error("Error in kuromoji.builder:", err.message); // エラーメッセージの出力
+        return reject(err);
+      }
       const tokens: KuromojiToken[] = tokenizer.tokenize(text);
       const keywords = tokens
         .filter((token) => token.pos === "名詞" && token.word_type === "KNOWN")
