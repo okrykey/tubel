@@ -21,8 +21,6 @@ type KuromojiTokenizer = {
 };
 
 const getKeywords = (text: string): Promise<string[]> => {
-  console.log("Current working directory:", process.cwd());
-
   const pathToDict = path.join(process.cwd(), "public/dict/");
   const builder = kuromoji.builder({ dicPath: pathToDict });
 
