@@ -1,3 +1,4 @@
+import { createServerSideHelpers } from "@trpc/react-query/server";
 import { api } from "~/utils/api";
 import React, { memo, useCallback, useState } from "react";
 import { useRouter } from "next/router";
@@ -22,6 +23,7 @@ import {
 } from "@mantine/core";
 import MainLayout from "~/layouts/Mainlayout";
 import YouTube from "react-youtube";
+import superjson from "superjson";
 import CommentForm from "~/components/CommentForm";
 import Link from "next/link";
 import { LoginModalAtom } from "~/state/Atoms";
@@ -30,6 +32,14 @@ import { useSession } from "next-auth/react";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
 import { BookmarkPost } from "~/components/BookmarkPost";
+import type {
+  GetStaticPaths,
+  GetStaticPropsContext,
+  InferGetStaticPropsType,
+} from "next";
+
+import { appRouter } from "~/server/api/root";
+import { prisma } from "~/server/db";
 
 const MemoizedMainLayout = memo(MainLayout);
 
@@ -69,7 +79,51 @@ type LikeContext = {
   previousLikesCount: number;
 };
 
-const Postpage = () => {
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
+  const helpers = createServerSideHelpers({
+    router: appRouter,
+    ctx: {
+      session: null,
+      prisma: prisma,
+    },
+    transformer: superjson,
+  });
+  const id = context.params?.id as string;
+
+  await helpers.post.get.prefetch(id);
+
+  return {
+    props: {
+      trpcState: helpers.dehydrate(),
+      id,
+    },
+  };
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await prisma.post.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return {
+    paths: posts.map((post) => ({
+      params: {
+        id: post.id,
+      },
+    })),
+
+    fallback: "blocking",
+  };
+};
+
+const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const { id } = props;
+  const getPost = api.post.get.useQuery(id);
+  const post = getPost.data;
+
   const theme = useMantineTheme();
   const [, setIsOpen] = useAtom(LoginModalAtom);
 
@@ -82,10 +136,6 @@ const Postpage = () => {
   const invalidateCurrentPostPage = useCallback(() => {
     void trpc.post.get.invalidate(router.query.id as string);
   }, [trpc.post.get, router.query.id]);
-
-  const getPost = api.post.get.useQuery(router.query.id as string);
-
-  const post = getPost.data;
 
   const recommendPost = api.post.recommendByContent.useQuery(
     {
@@ -414,17 +464,20 @@ const Postpage = () => {
           )}
         </div>
         <div className="flex items-center justify-center space-x-2">
-          <Text
-            color="dimmed"
-            size="sm"
-            underline
-            className="mt-4 text-sm font-bold md:text-base"
-            transform="uppercase"
-          >
-            {post?.category && (
-              <Link href={`/category/${post.category}`}>{post.category}</Link>
-            )}
-          </Text>
+          {post?.category && (
+            <Link href={`/category/${post.category}`}>
+              <Text
+                color="dimmed"
+                size="sm"
+                underline
+                className="mt-4 text-sm font-bold md:text-base"
+                transform="uppercase"
+              >
+                {post.category}
+              </Text>
+            </Link>
+          )}
+
           <Text
             color="dimmed"
             size="sm"
@@ -432,14 +485,16 @@ const Postpage = () => {
           >
             /
           </Text>
-          <Text
-            color="dimmed"
-            size="sm"
-            underline
-            className="mt-4 text-sm font-bold md:text-base"
-          >
-            <Link href="/">HOME</Link>
-          </Text>
+          <Link href="/">
+            <Text
+              color="dimmed"
+              size="sm"
+              underline
+              className="mt-4 text-sm font-bold md:text-base"
+            >
+              HOME
+            </Text>
+          </Link>
         </div>
       </div>
     </MemoizedMainLayout>
