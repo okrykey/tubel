@@ -1,25 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
 import {
+  ActionIcon,
   Badge,
   Button,
+  Card,
   Center,
   Divider,
-  Group,
-  Modal,
   Text,
   Textarea,
 } from "@mantine/core";
 import { BiChat } from "react-icons/bi";
+import { VscSend } from "react-icons/vsc";
 import { CommentCard } from "../CommentCard";
 import { useSession } from "next-auth/react";
 import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
-import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { useMediaQuery } from "@mantine/hooks";
 dayjs.extend(relativeTime);
 
 type CommentFormType = { content: string };
@@ -44,8 +45,8 @@ const CommentForm = ({ postId }: { postId: string }) => {
   const { data: session } = useSession();
   const [, setIsOpen] = useAtom(LoginModalAtom);
   const [showButton, setShowButton] = useState(false);
+  const [showInputForm, setShowInputForm] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const [opened, { open, close }] = useDisclosure(false);
   const postRoute = api.useContext().comment;
   const submitComment = api.comment.create.useMutation({
     onSuccess: () => {
@@ -78,10 +79,34 @@ const CommentForm = ({ postId }: { postId: string }) => {
     }
   };
 
+  const handleButtonClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    if (!session) {
+      event.preventDefault();
+      void setIsOpen(true);
+    } else {
+      setShowInputForm(true);
+    }
+  };
+
+  const formRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        setShowInputForm(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
       <Divider
-        className="pb-6"
+        className="md:pb-6"
         labelPosition="center"
         label={
           <Badge
@@ -99,61 +124,56 @@ const CommentForm = ({ postId }: { postId: string }) => {
       ></Divider>
       {isMobile ? (
         <>
-          <div className="flex justify-end">
-            <Button
-              size="xs"
-              variant="outline"
-              color="gray"
-              radius="md"
-              onClick={open}
-              px="sm"
-            >
-              コメントする
-            </Button>
-          </div>
-          <Modal opened={opened} onClose={close} title="コメント" centered>
+          {showInputForm ? (
             <form
               onSubmit={form.onSubmit((data: CommentFormType) => {
                 submitComment.mutate({
                   ...data,
                   postId,
                 });
+                setShowInputForm(false);
               })}
             >
-              <div className="flex items-center" onClick={handleClick}>
+              <Card
+                ref={formRef}
+                className="fixed bottom-0 z-20 flex w-full items-center border-t border-gray-300  p-4"
+              >
                 <Textarea
                   icon={<BiChat />}
                   variant="filled"
                   placeholder="Send a message..."
                   autosize
-                  className="mx-1 my-4 flex-grow"
+                  className="mr-2 flex-1"
+                  id="comment"
                   {...form.getInputProps("content")}
                 />
-              </div>
-              {showButton && (
-                <div className="mx-1 mt-4 flex justify-end space-x-2">
-                  <Button
-                    type="submit"
-                    radius="xl"
-                    variant="filled"
-                    size="xs"
-                    onClick={close}
-                  >
-                    コメント
-                  </Button>
-                  <Button
-                    size="xs"
-                    color="red"
-                    radius="xl"
-                    variant="outline"
-                    onClick={close}
-                  >
-                    キャンセル
-                  </Button>
-                </div>
-              )}
+                <ActionIcon
+                  component="button"
+                  variant="transparent"
+                  type="submit"
+                  color="blue"
+                  mr="xs"
+                  disabled={form.values.content.length < 3}
+                >
+                  <VscSend size="1.5rem" />
+                </ActionIcon>
+              </Card>
             </form>
-          </Modal>
+          ) : (
+            <div className="flex justify-end" onClick={handleButtonClick}>
+              <Button
+                type="button"
+                variant="outline"
+                size="xs"
+                color="gray"
+                radius="md"
+                px="sm"
+                className="mt-4 md:mt-0"
+              >
+                コメントする
+              </Button>
+            </div>
+          )}
         </>
       ) : (
         <form
@@ -211,7 +231,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
         ))
       ) : (
         <Center>
-          <Text className="mt-8 text-sm md:text-base" color="dimmed">
+          <Text className="my-4 text-sm md:text-base" color="dimmed">
             まだコメントはありません
           </Text>
         </Center>
