@@ -14,11 +14,14 @@ import { debounce } from "lodash";
 import Post from "~/components/Post";
 import { NotFoundImage } from "../ResultImage/NotFoundImage";
 import { NotFoundResult } from "../ResultImage/NotFoundResult";
+import { useResponsive } from "~/utils/useResponsive";
+import { BookmarkPost } from "../BookmarkPost";
 
 export const SearchBar = (props: TextInputProps) => {
   const theme = useMantineTheme();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
+  const isMobile = useResponsive();
 
   const searchResult = api.post.search.useQuery(
     {
@@ -82,25 +85,44 @@ export const SearchBar = (props: TextInputProps) => {
                 </>
               }
             />
-            <SimpleGrid
-              cols={3}
-              spacing="xl"
-              verticalSpacing="xl"
-              mt={24}
-              breakpoints={[
-                { maxWidth: "sm", cols: 1 },
-                { maxWidth: "md", cols: 2 },
-              ]}
-            >
-              {searchResult?.data?.SearchedPosts?.map((post) => (
-                <Post
-                  category={null}
-                  {...post}
-                  searchKeyword={debouncedQuery}
-                  key={post?.id}
-                />
-              ))}
-            </SimpleGrid>
+            {isMobile ? (
+              <SimpleGrid
+                cols={3}
+                spacing="xl"
+                verticalSpacing="xl"
+                mt={24}
+                breakpoints={[{ maxWidth: "sm", cols: 1 }]}
+              >
+                {searchResult?.data?.SearchedPosts?.map((post) => (
+                  <BookmarkPost
+                    key={post?.id}
+                    post={{
+                      ...post,
+                      category: post.category ? post.category.name : "",
+                    }}
+                  />
+                ))}
+              </SimpleGrid>
+            ) : (
+              <SimpleGrid
+                cols={3}
+                spacing="xl"
+                verticalSpacing="xl"
+                mt={24}
+                breakpoints={[
+                  { maxWidth: "sm", cols: 1 },
+                  { maxWidth: "md", cols: 2 },
+                ]}
+              >
+                {searchResult?.data?.SearchedPosts?.map((post) => (
+                  <Post
+                    key={post?.id}
+                    searchKeyword={debouncedQuery}
+                    {...post}
+                  />
+                ))}
+              </SimpleGrid>
+            )}
           </>
         ) : (
           <>
