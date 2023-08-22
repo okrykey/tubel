@@ -31,7 +31,12 @@ export const SearchBar = (props: TextInputProps) => {
 
   useEffect(() => {
     const debounced = debounce(() => {
-      setDebouncedQuery(query.replace(/\s{2,}/g, " ").trim());
+      setDebouncedQuery(
+        query
+          .toLowerCase()
+          .replace(/\s{2,}/g, " ")
+          .trim()
+      );
     }, 500);
     debounced();
     return () => {
@@ -88,7 +93,12 @@ export const SearchBar = (props: TextInputProps) => {
               ]}
             >
               {searchResult?.data?.SearchedPosts?.map((post) => (
-                <Post {...post} searchKeyword={debouncedQuery} key={post?.id} />
+                <Post
+                  category={null}
+                  {...post}
+                  searchKeyword={debouncedQuery}
+                  key={post?.id}
+                />
               ))}
             </SimpleGrid>
           </>
