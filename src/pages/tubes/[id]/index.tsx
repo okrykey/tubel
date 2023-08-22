@@ -93,6 +93,10 @@ export async function getStaticProps(
   const id = context.params?.id as string;
 
   await helpers.post.get.prefetch(id);
+  await helpers.comment.all.prefetch({ postId: id });
+  await helpers.post.recommendByContent.prefetch({
+    postId: id,
+  });
 
   return {
     props: {
@@ -120,8 +124,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { id } = props;
-  const getPost = api.post.get.useQuery(id);
+  const getPost = api.post.get.useQuery(props.id);
   const post = getPost.data;
 
   const theme = useMantineTheme();
@@ -139,10 +142,10 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
   const recommendPost = api.post.recommendByContent.useQuery(
     {
-      postId: router.query.id as string,
+      postId: props.id,
     },
     {
-      enabled: Boolean(router.query.id),
+      enabled: Boolean(props.id),
     }
   );
 
@@ -416,7 +419,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           </Spoiler>
 
           <div className="pt-4">
-            {getPost.data?.id && <CommentForm postId={getPost.data?.id} />}
+            {getPost.data?.id && <CommentForm postId={props.id} />}
           </div>
           {recommendPost.isSuccess && (
             <div>
