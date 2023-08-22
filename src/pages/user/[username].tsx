@@ -184,14 +184,11 @@ export function UserProfilePage() {
             {getBookmarkList.isSuccess ? (
               getBookmarkList.data && getBookmarkList.data.length > 0 ? (
                 <SimpleGrid
-                  cols={3}
+                  cols={2}
                   spacing="xl"
                   verticalSpacing="xl"
                   mt={24}
-                  breakpoints={[
-                    { maxWidth: "sm", cols: 1 },
-                    { maxWidth: "md", cols: 2 },
-                  ]}
+                  breakpoints={[{ maxWidth: "sm", cols: 1 }]}
                 >
                   {getBookmarkList.data.map((postData) => (
                     <BookmarkPost

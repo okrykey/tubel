@@ -302,7 +302,7 @@ export const HeaderTabs = () => {
                       <Menu.Item
                         className={`${classes.menu} text-base font-bold `}
                       >
-                        設定
+                        投稿の管理 / 設定
                       </Menu.Item>
                     </Link>
 
@@ -370,7 +370,7 @@ export const HeaderTabs = () => {
                       <Menu.Item
                         className={`${classes.menu} text-base font-bold `}
                       >
-                        設定
+                        投稿の管理/設定
                       </Menu.Item>
                     </Link>
 

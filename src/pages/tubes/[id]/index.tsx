@@ -308,27 +308,28 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
               <h1 className=" py-2 text-lg font-bold sm:text-xl">
                 {post?.title}
               </h1>
-              <Group spacing={4} className="md:mt-1">
+              <div className="flex flex-col items-end">
                 <Link
                   href={`/category/${
                     post?.category?.toLowerCase() ?? "default"
                   }`}
                 >
-                  <Badge
-                    color={theme.colorScheme === "dark" ? "gray" : "dark"}
-                    radius="sm"
+                  <Text
+                    component="a"
+                    tt="uppercase"
+                    size="xs"
+                    weight={700}
+                    color="dimmed"
+                    className="cursor-pointer hover:underline"
                   >
                     {post?.category}
-                  </Badge>
+                  </Text>
                 </Link>
-                <Text
-                  size="xs"
-                  color={theme.colorScheme === "dark" ? "dimmed" : "dark"}
-                  className="pt-1"
-                >
+
+                <Text size="xs" weight={700} color="dimmed">
                   {post?.createdAt.toLocaleDateString()}
                 </Text>
-              </Group>
+              </div>
             </div>
 
             <AspectRatio ratio={16 / 9}>
@@ -413,7 +414,10 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
               />
             }
           >
-            <Text className="whitespace-pre-wrap border-l-4 border-gray-400 pl-6">
+            <Text
+              lineClamp={4}
+              className="whitespace-pre-wrap border-l-4 border-gray-400 pl-6"
+            >
               {post?.content}
             </Text>
           </Spoiler>
@@ -424,7 +428,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           {recommendPost.isSuccess && (
             <div>
               <Divider
-                my="sm"
+                className="pb-2 pt-3"
                 labelPosition="center"
                 label={
                   <Badge
@@ -442,14 +446,11 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
               />
 
               <SimpleGrid
-                cols={3}
+                cols={2}
                 spacing="xl"
                 verticalSpacing="xl"
                 mt={24}
-                breakpoints={[
-                  { maxWidth: "sm", cols: 1 },
-                  { maxWidth: "md", cols: 2 },
-                ]}
+                breakpoints={[{ maxWidth: "sm", cols: 1 }]}
               >
                 {recommendPost.data.recommendedPosts.map((postData) => (
                   <BookmarkPost
@@ -466,14 +467,14 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
             </div>
           )}
         </div>
-        <div className="flex items-center justify-center space-x-2">
+        <div className="mt-8 flex items-center justify-center space-x-2">
           {post?.category && (
             <Link href={`/category/${post.category}`}>
               <Text
                 color="dimmed"
                 size="sm"
                 underline
-                className="mt-4 text-sm font-bold md:text-base"
+                className="text-sm font-bold md:text-base"
                 transform="uppercase"
               >
                 {post.category}
@@ -484,7 +485,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           <Text
             color="dimmed"
             size="sm"
-            className="mt-4 text-sm font-bold md:text-base"
+            className="text-sm font-bold md:text-base"
           >
             /
           </Text>
@@ -493,7 +494,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
               color="dimmed"
               size="sm"
               underline
-              className="mt-4 text-sm font-bold md:text-base"
+              className="text-sm font-bold md:text-base"
             >
               HOME
             </Text>
