@@ -75,19 +75,6 @@ const EditPost = () => {
     string | null | undefined
   >("");
 
-  useEffect(() => {
-    if (postQuery.isSuccess) {
-      setInputVideoId(postQuery.data?.videoId ?? "");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (postQuery.isSuccess) {
-      const videoId = extractVideoIdFromUrl(postQuery.data.videoId);
-      setYouTubeVideoId(videoId);
-    }
-  }, []);
-
   const handlePreview = () => {
     const youtubeUrlPattern =
       /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
@@ -109,11 +96,11 @@ const EditPost = () => {
 
   const form = useForm<PostFormType>({
     initialValues: {
-      title: "",
-      content: "",
-      videoId: "",
-      tags: [""],
-      category: "",
+      title: postQuery.data?.title ?? "",
+      content: postQuery.data?.content ?? "",
+      videoId: postQuery.data?.videoId ?? "",
+      tags: postQuery.data?.tags ?? [],
+      category: postQuery.data?.category ?? "",
     },
     validate: {
       title: (value) => {
@@ -152,15 +139,17 @@ const EditPost = () => {
 
   useEffect(() => {
     if (postQuery.isSuccess) {
-      if (postQuery.data.userId !== session?.user?.id) {
-        void router.push("/");
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (postQuery.isSuccess) {
       const postData = postQuery.data;
+
+      if (postData.userId !== session?.user?.id) {
+        void router.push("/");
+        return;
+      }
+
+      setInputVideoId(postData.videoId);
+      const videoId = extractVideoIdFromUrl(postData.videoId);
+      setYouTubeVideoId(videoId);
+
       form.setValues({
         title: postData.title,
         content: postData.content,
@@ -169,7 +158,7 @@ const EditPost = () => {
         category: postData.category,
       });
     }
-  }, []);
+  }, [postQuery.isSuccess]);
 
   const { mutate } = api.post.update.useMutation({
     onSuccess: () => {
