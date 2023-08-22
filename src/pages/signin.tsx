@@ -1,16 +1,9 @@
 import type { InferGetServerSidePropsType } from "next";
 import { getProviders, signIn } from "next-auth/react";
-import { Paper, Title, Text, Container, Button, Image } from "@mantine/core";
+import { Paper, Title, Text, Container, Button } from "@mantine/core";
 import { AiOutlineGoogle } from "react-icons/ai";
 import Link from "next/link";
-
-export async function getServerSideProps() {
-  const providers = await getProviders();
-
-  return {
-    props: { providers: providers ?? [] },
-  };
-}
+import Image from "next/image";
 
 export default function SignIn({
   providers,
@@ -33,9 +26,8 @@ export default function SignIn({
               <Link href="/">トップページに戻る</Link>
             </Text>
             <Image
-              maw={240}
-              mx="auto"
-              radius="md"
+              width={240}
+              height={240}
               src="/images/signin-icon.png"
               alt="Random image"
             />
@@ -64,4 +56,12 @@ export default function SignIn({
       </Container>
     </>
   );
+}
+
+export async function getServerSideProps() {
+  const providers = await getProviders();
+
+  return {
+    props: { providers: providers ?? [] },
+  };
 }

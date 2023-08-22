@@ -20,7 +20,7 @@ import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
-import { useMediaQuery } from "@mantine/hooks";
+import { useResponsive } from "~/utils/useResponsive";
 dayjs.extend(relativeTime);
 
 type CommentFormType = { content: string };
@@ -46,7 +46,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
   const [, setIsOpen] = useAtom(LoginModalAtom);
   const [showButton, setShowButton] = useState(false);
   const [showInputForm, setShowInputForm] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useResponsive();
   const postRoute = api.useContext().comment;
   const submitComment = api.comment.create.useMutation({
     onSuccess: () => {
@@ -106,7 +106,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
   return (
     <>
       <Divider
-        className="md:pb-6"
+        className="md:pb-8"
         labelPosition="center"
         label={
           <Badge
@@ -160,7 +160,11 @@ const CommentForm = ({ postId }: { postId: string }) => {
               </Card>
             </form>
           ) : (
-            <div className="flex justify-end" onClick={handleButtonClick}>
+            <div
+              className="flex justify-end"
+              onClick={handleButtonClick}
+              ref={formRef}
+            >
               <Button
                 type="button"
                 variant="outline"
