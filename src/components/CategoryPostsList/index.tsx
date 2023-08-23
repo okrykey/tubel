@@ -6,7 +6,6 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import { IconAtom, IconBook, IconMovie } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -14,23 +13,52 @@ import { BsThreeDots } from "react-icons/bs";
 import { api } from "~/utils/api";
 import { CategoryList } from "../CategoryList";
 import Post from "../Post";
+import type { PostProps } from "../Post";
+import { useResponsive } from "~/utils/useResponsive";
 
-type Post = {
-  id: string;
-  title: string;
-  content: string;
+type InitialDataAllPostsProps = {
+  posts: PostProps[];
+};
+type InitialDataByCategoriesProps = {
+  CategorizedPosts: PostProps[];
 };
 
-export const CategoryPostsList = () => {
+export const CategoryPostsList = ({
+  initialDataAllPosts,
+  initialDataByCategories,
+}: {
+  initialDataAllPosts: InitialDataAllPostsProps;
+  initialDataByCategories: InitialDataByCategoriesProps;
+}) => {
   const theme = useMantineTheme();
   const [currentTab, setCurrentTab] = useState<string | null>(null);
-  const isMdUp = useMediaQuery("(min-width: 768px)");
+  const isMobile = useResponsive();
 
-  const postGetAll = api.post.all.useInfiniteQuery({});
+  const postGetAll = api.post.all.useInfiniteQuery(
+    {
+      initialData: {
+        pages: [initialDataAllPosts],
+        pageParams: [{ cursor: null }],
+      },
+    },
+    { refetchOnMount: false, refetchOnWindowFocus: false }
+  );
   const getPostsByCategories = (categoryNames: string[]) => {
-    return api.post.getByCategories.useInfiniteQuery({
-      categoryNames,
-    });
+    return api.post.getByCategories.useInfiniteQuery(
+      {
+        categoryNames,
+      },
+      {
+        ...{
+          initialData: {
+            pages: [initialDataByCategories],
+            pageParams: [{ cursor: null }],
+          },
+        },
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+      }
+    );
   };
 
   const allPostsQuery = getPostsByCategories(["movie", "english", "science"]);
@@ -59,18 +87,18 @@ export const CategoryPostsList = () => {
       <Tabs color="teal" value={currentTab} onTabChange={setCurrentTab}>
         <Tabs.List grow>
           <Tabs.Tab value="1" color="green" icon={<IconMovie size="1rem" />}>
-            Movie
+            MOVIE
           </Tabs.Tab>
 
           <Tabs.Tab value="2" color="yellow" icon={<IconBook size="1rem" />}>
-            English
+            ENGLISH
           </Tabs.Tab>
 
           <Tabs.Tab value="3" color="blue" icon={<IconAtom size="1rem" />}>
-            Science
+            SCIENCE
           </Tabs.Tab>
           <Tabs.Tab ml="auto" value="4" color="black">
-            {isMdUp ? "All" : <BsThreeDots />}
+            {isMobile ? <BsThreeDots /> : "All"}
           </Tabs.Tab>
         </Tabs.List>
 

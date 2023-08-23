@@ -1,21 +1,27 @@
 import { Container } from "@mantine/core";
-import type { NextPage } from "next";
+import type { InferGetStaticPropsType, NextPage } from "next";
 import { Hero } from "~/components/Hero";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-
 import MainLayout from "~/layouts/Mainlayout";
 import { CategoryPostsList } from "~/components/CategoryPostsList";
 import { notifications } from "@mantine/notifications";
+import { AiOutlineCheckCircle } from "react-icons/ai";
+import { createServerSideHelpers } from "@trpc/react-query/server";
+import { appRouter } from "~/server/api/root";
+import { prisma } from "~/server/db";
 
-const Home: NextPage = () => {
+type HomeProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+const Home: NextPage<HomeProps> = (props) => {
   const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
     if (status === "authenticated" && router.query.login === "success") {
       notifications.show({
+        icon: <AiOutlineCheckCircle />,
         color: "indigo",
         autoClose: 3000,
         message: "ログインしました!",
@@ -29,7 +35,10 @@ const Home: NextPage = () => {
       <MainLayout>
         <Container size="lg" p="md">
           <Hero />
-          <CategoryPostsList />
+          <CategoryPostsList
+            initialDataAllPosts={props.initialDataAllPosts}
+            initialDataByCategories={props.initialDataByCategories}
+          />
         </Container>
       </MainLayout>
     </>
@@ -37,3 +46,26 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export async function getStaticProps() {
+  const helpers = createServerSideHelpers({
+    router: appRouter,
+    ctx: {
+      session: null,
+      prisma: prisma,
+    },
+  });
+
+  const initialDataAllPosts = await helpers.post.all.fetch({});
+  const initialDataByCategories = await helpers.post.getByCategories.fetch({
+    categoryNames: ["movie", "english", "science"],
+  });
+
+  return {
+    props: {
+      trpcState: helpers.dehydrate(),
+      initialDataAllPosts,
+      initialDataByCategories,
+    },
+  };
+}
