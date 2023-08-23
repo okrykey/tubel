@@ -459,6 +459,7 @@ export const postRouter = createTRPCRouter({
               slug: true,
             },
           },
+          category: { select: { name: true } },
         },
       });
 
