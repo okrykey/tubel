@@ -1,7 +1,6 @@
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { api } from "~/utils/api";
-import React, { memo, useCallback, useState } from "react";
-import { useRouter } from "next/router";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { BiLike, BiSolidLike } from "react-icons/bi";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import {
@@ -37,7 +36,6 @@ import type {
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
-
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 
@@ -76,7 +74,8 @@ const opts = {
 };
 
 type LikeContext = {
-  previousLikesCount: number;
+  previousIsLiked: boolean;
+  previousLikeCount: number;
 };
 
 export async function getStaticProps(
@@ -129,16 +128,19 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
   const theme = useMantineTheme();
   const [, setIsOpen] = useAtom(LoginModalAtom);
-
+  const [isLiked, setIsLiked] = useState(false);
   const [opened, { toggle }] = useDisclosure(false);
   const { classes } = useStyles();
   const { data: session } = useSession();
   const trpc = api.useContext();
-  const router = useRouter();
 
-  const invalidateCurrentPostPage = useCallback(() => {
-    void trpc.post.get.invalidate(router.query.id as string);
-  }, [trpc.post.get, router.query.id]);
+  let YouTubeVideoId: string | undefined;
+  if (getPost.data?.videoId) {
+    const videoId = new URLSearchParams(
+      new URL(getPost.data.videoId).search
+    ).get("v");
+    YouTubeVideoId = videoId !== null ? videoId : undefined;
+  }
 
   const recommendPost = api.post.recommendByContent.useQuery(
     {
@@ -149,59 +151,87 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     }
   );
 
-  const [isLiked, setIsLiked] = useState(Boolean(post?.likes?.length));
+  useEffect(() => {
+    setIsLiked(Boolean(post?.likes?.length));
+  }, [post]);
 
   const likePost = api.post.likePost.useMutation({
     onMutate: async (): Promise<LikeContext> => {
       await trpc.post.get.cancel();
-      const previousLikesCount = post?.likesCount || 0;
+      if (!post)
+        return {
+          previousIsLiked: false,
+          previousLikeCount: 0,
+        };
+
+      const previousIsLiked = isLiked;
+      const previousLikeCount = post.likesCount;
       if (post) {
+        setIsLiked((prev) => !prev);
         post.likesCount += 1;
       }
-      setIsLiked((prev) => !prev);
-      notifications.show({
-        color: "indigo",
-        autoClose: 3000,
-        message: "この投稿にいいねしました！",
-      });
-      return { previousLikesCount };
-    },
-    onError: (error, _, context?: LikeContext) => {
-      if (post && context) {
-        post.likesCount = context.previousLikesCount;
-      }
-      setIsLiked((prev) => !prev);
+      return { previousIsLiked, previousLikeCount };
     },
 
+    onError: (error, _, context?: LikeContext) => {
+      notifications.show({
+        color: "red",
+        autoClose: 2000,
+        message: "エラーが発生しました。もう一度試して下さい。",
+      });
+      if (!context || !post) return;
+      setIsLiked(context.previousIsLiked);
+      post.likesCount = context.previousLikeCount;
+    },
     onSuccess: () => {
-      invalidateCurrentPostPage();
+      notifications.show({
+        color: "blue",
+        autoClose: 2000,
+        message: "この投稿にいいねしました。",
+      });
+    },
+    onSettled: async () => {
+      await trpc.post.get.invalidate();
     },
   });
 
   const dislikePost = api.post.dislikePost.useMutation({
     onMutate: async (): Promise<LikeContext> => {
-      await trpc.post.all.cancel();
-      const previousLikesCount = post?.likesCount || 0;
+      await trpc.post.get.cancel();
+      if (!post)
+        return {
+          previousIsLiked: false,
+          previousLikeCount: 0,
+        };
+
+      const previousIsLiked = isLiked;
+      const previousLikeCount = post.likesCount;
       if (post) {
+        setIsLiked((prev) => !prev);
         post.likesCount -= 1;
       }
-      setIsLiked((prev) => !prev);
+      return { previousIsLiked, previousLikeCount };
+    },
+
+    onError: (error, _, context?: LikeContext) => {
       notifications.show({
         color: "red",
-        autoClose: 3000,
-
-        message: "この投稿のいいねを取り消しました。",
+        autoClose: 2000,
+        message: "エラーが発生しました。もう一度試して下さい。",
       });
-      return { previousLikesCount };
-    },
-    onError: (error, _, context?: LikeContext) => {
-      if (post && context) {
-        post.likesCount = context.previousLikesCount;
-      }
-      setIsLiked((prev) => !prev);
+      if (!context || !post) return;
+      setIsLiked(context.previousIsLiked);
+      post.likesCount = context.previousLikeCount;
     },
     onSuccess: () => {
-      invalidateCurrentPostPage();
+      notifications.show({
+        color: "blue",
+        autoClose: 2000,
+        message: "この投稿にいいねしました。",
+      });
+    },
+    onSettled: async () => {
+      await trpc.post.get.invalidate();
     },
   });
 
@@ -224,14 +254,6 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       setIsOpen(true);
     }
   }, [session, post, setIsOpen, dislikePost]);
-
-  let YouTubeVideoId: string | undefined;
-  if (getPost.data?.videoId) {
-    const videoId = new URLSearchParams(
-      new URL(getPost.data.videoId).search
-    ).get("v");
-    YouTubeVideoId = videoId !== null ? videoId : undefined;
-  }
 
   if (getPost.isLoading) {
     return (
@@ -315,7 +337,6 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   }`}
                 >
                   <Text
-                    component="a"
                     tt="uppercase"
                     size="xs"
                     weight={700}
@@ -342,7 +363,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   <Link key={id} href={`/tags/${tag}`}>
                     <Badge
                       component="button"
-                      className="cursol mb-2 mt-4 md:mb-0  "
+                      className="mb-2 mt-4 cursor-pointer md:mb-0  "
                       color={tagColors[tag.toLowerCase()]}
                       size="md"
                       variant={
@@ -360,7 +381,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   onClick={toggle}
                   color="gray"
                   radius="sm"
-                  className="cursol mb-2 mt-4 md:mb-0 md:mt-4"
+                  className="mb-2 mt-4 cursor-pointer md:mb-0 md:mt-4"
                 >
                   {opened ? (
                     <MdKeyboardArrowUp className="text-2xl" />
@@ -377,7 +398,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   <Group key={id} spacing={0}>
                     <Link href={`/tags/${tag}`}>
                       <Badge
-                        className="cursol mb-2 md:mb-0 md:mt-2"
+                        className="mb-2 cursor-pointer md:mb-0 md:mt-2"
                         size="md"
                         variant={
                           theme.colorScheme === "dark" ? "light" : "outline"
