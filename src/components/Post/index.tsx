@@ -13,6 +13,7 @@ import {
   ActionIcon,
 } from "@mantine/core";
 import { CiBookmarkCheck, CiBookmarkPlus } from "react-icons/ci";
+import { PiChatsThin } from "react-icons/pi";
 import { useSession } from "next-auth/react";
 import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
@@ -52,6 +53,7 @@ export type PostProps =
 
 type BookmarkContext = {
   previousIsBookmarked: boolean;
+  previousBookmarksCount: number;
 };
 
 const Post = ({ searchKeyword, ...post }: PostProps) => {
@@ -71,13 +73,20 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
       await trpc.post.getByTag.cancel();
       await trpc.post.search.cancel();
       const previousIsBookmarked = isBookmarked;
+      const previousBookmarksCount = post._count.bookmarks;
       setIsBookmarked((prev) => !prev);
       post._count.bookmarks += 1;
-      return { previousIsBookmarked };
+      return { previousIsBookmarked, previousBookmarksCount };
     },
-    onError: (err, _, context?: BookmarkContext) => {
+    onError: (error, _, context?: BookmarkContext) => {
+      notifications.show({
+        color: "red",
+        autoClose: 2000,
+        message: "エラーが発生しました。もう一度試して下さい。",
+      });
       if (!context) return;
       setIsBookmarked(context.previousIsBookmarked);
+      post._count.bookmarks = context.previousBookmarksCount;
     },
     onSuccess: () => {
       notifications.show({
@@ -101,13 +110,20 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
       await trpc.post.getByTag.cancel();
       await trpc.post.search.cancel();
       const previousIsBookmarked = isBookmarked;
+      const previousBookmarksCount = post._count.bookmarks;
       setIsBookmarked((prev) => !prev);
       post._count.bookmarks -= 1;
-      return { previousIsBookmarked };
+      return { previousIsBookmarked, previousBookmarksCount };
     },
-    onError: (err, _, context?: BookmarkContext) => {
+    onError: (error, _, context?: BookmarkContext) => {
+      notifications.show({
+        color: "red",
+        autoClose: 2000,
+        message: "エラーが発生しました。もう一度試して下さい。",
+      });
       if (!context) return;
       setIsBookmarked(context.previousIsBookmarked);
+      post._count.bookmarks = context.previousBookmarksCount;
     },
     onSuccess: () => {
       notifications.show({
@@ -172,39 +188,61 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
 
           <Group position="apart" className={classes.footer}>
             <Center>
-              <Avatar src={post.user.image} size={24} radius="xl" mr="xs" />
+              <Avatar src={post.user.image} size={24} radius="sm" mr="xs" />
 
-              <Text fz="xs" inline color="dimmed">
+              <Text fz="sm" inline color="dimmed" weight={500}>
                 {post.user.name}
               </Text>
-            </Center>
-            <Group spacing="0">
-              <ActionIcon title="お気に入り追加">
-                {isBookmarked ? (
-                  <CiBookmarkCheck
-                    onClick={() => removeBookmark.mutate({ postId: post.id })}
-                    className="cursor-pointer text-3xl"
-                    color={theme.colorScheme === "dark" ? "teal" : "blue"}
-                  />
-                ) : (
-                  <CiBookmarkPlus
-                    className="cursor-pointer text-3xl"
-                    onClick={() => {
-                      if (!session) {
-                        setIsOpen(true);
-                        return;
-                      }
-                      bookmarkPost.mutate({
-                        postId: post.id,
-                      });
-                    }}
-                  />
-                )}
-              </ActionIcon>
-
-              <Text className="ml-1 w-[10px] " color="dimmed" inline>
-                {post._count.bookmarks}
+              <Text size="xs" color="dimmed" pt={3}>
+                ・{post.createdAt.toLocaleDateString()}
               </Text>
+            </Center>
+
+            <Group>
+              <Group spacing="0">
+                <ActionIcon title="お気に入り追加">
+                  {isBookmarked ? (
+                    <CiBookmarkCheck
+                      onClick={() => removeBookmark.mutate({ postId: post.id })}
+                      className="cursor-pointer text-3xl"
+                      color={theme.colorScheme === "dark" ? "teal" : "blue"}
+                    />
+                  ) : (
+                    <CiBookmarkPlus
+                      className="cursor-pointer text-3xl"
+                      onClick={() => {
+                        if (!session) {
+                          setIsOpen(true);
+                          return;
+                        }
+                        bookmarkPost.mutate({
+                          postId: post.id,
+                        });
+                      }}
+                    />
+                  )}
+                </ActionIcon>
+
+                <Text
+                  className="ml-1 w-[10px] "
+                  color="dimmed"
+                  weight={400}
+                  inline
+                >
+                  {post._count.bookmarks}
+                </Text>
+              </Group>
+              <Group spacing="0">
+                <PiChatsThin size="1.7rem" className="text-gray-500" />
+                <Text
+                  className="ml-2 w-[10px] "
+                  color="gray"
+                  weight={400}
+                  inline
+                >
+                  {post._count.comment}
+                </Text>
+              </Group>
             </Group>
           </Group>
         </Card>
