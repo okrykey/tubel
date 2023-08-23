@@ -11,7 +11,6 @@ import Link from "next/link";
 import {
   IconAtom,
   IconBook,
-  IconCode,
   IconGlobe,
   IconUsers,
   IconBrush,
@@ -116,14 +115,6 @@ const categoryData = [
   },
   {
     id: 7,
-    icon: IconCode,
-    title: "プログラミング",
-    value: "programming",
-    description: "分からない疑問を解決。サクッと動画で分かりやすく学ぼう",
-  },
-
-  {
-    id: 8,
     icon: IconShirt,
     title: "ファッション",
     value: "fashion",

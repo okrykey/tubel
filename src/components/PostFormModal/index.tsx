@@ -32,7 +32,6 @@ const categories = [
   { value: "culture", label: "Culture" },
   { value: "society", label: "Society" },
   { value: "art", label: "Art" },
-  { value: "programming", label: "Programming" },
   { value: "fashion", label: "Fashion" },
 ];
 

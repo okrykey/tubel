@@ -40,14 +40,15 @@ const categories = [
   { value: "culture", label: "Culture" },
   { value: "society", label: "Society" },
   { value: "art", label: "Art" },
-  { value: "programming", label: "Programming" },
   { value: "fashion", label: "Fashion" },
 ];
 
 const tags = [
   { value: "motivation", label: "motivation" },
+  { value: "entertainment", label: "entertainment" },
   { value: "wired", label: "wired" },
   { value: "ted", label: "ted" },
+  { value: "computerscience", label: "computerscience" },
 ];
 
 const opts = {
