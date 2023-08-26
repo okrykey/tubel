@@ -115,7 +115,6 @@ const PostFormModal = () => {
     onSettled: async () => {
       await trpc.post.all.invalidate();
       await trpc.post.getByCategories.invalidate();
-      await trpc.post.getCategorizedPosts.invalidate();
     },
   });
 
