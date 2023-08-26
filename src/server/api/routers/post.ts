@@ -378,33 +378,6 @@ export const postRouter = createTRPCRouter({
       return { CategorizedPosts };
     }),
 
-  getCategorizedPosts: publicProcedure
-    .input(
-      z.object({
-        categoryNames: z.array(z.string()),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const CategorizedPosts = await ctx.prisma.post.findMany({
-        where: {
-          category: {
-            name: { in: input.categoryNames },
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 4,
-        select: {
-          title: true,
-          videoId: true,
-          category: { select: { name: true } },
-        },
-      });
-
-      return { CategorizedPosts };
-    }),
-
   getByTag: publicProcedure
     .input(
       z.object({
