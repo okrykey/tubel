@@ -93,11 +93,11 @@ export function Features() {
   const items = howtoData.map((item) => <Feature {...item} key={item.title} />);
 
   return (
-    <Container mt={30} mb={30} size="lg">
+    <Container className="md:my-7">
       <SimpleGrid
         cols={3}
         breakpoints={[{ maxWidth: "sm", cols: 1 }]}
-        spacing={50}
+        className="gap-6 md:gap-14"
       >
         {items}
       </SimpleGrid>

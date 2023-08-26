@@ -190,7 +190,7 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
             <Center>
               <Avatar src={post.user.image} size={24} radius="sm" mr="xs" />
 
-              <Text fz="sm" inline color="dimmed" weight={500}>
+              <Text size="sm" inline color="dimmed" weight={500}>
                 {post.user.name}
               </Text>
               <Text size="xs" color="dimmed" pt={3}>

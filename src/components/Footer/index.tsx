@@ -48,7 +48,7 @@ export function Footer({ links }: FooterProps) {
   return (
     <div className={classes.footer}>
       <Container className={classes.inner}>
-        <Text size="sm">© @Tubel2023 All Rights Reserved.</Text>
+        <Text size="sm">© @Tubel 2023 All Rights Reserved.</Text>
         <Group className={classes.links}>{items}</Group>
       </Container>
     </div>

@@ -38,6 +38,7 @@ import type {
 } from "next";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
+import { useRouter } from "next/router";
 
 const MemoizedMainLayout = memo(MainLayout);
 
@@ -133,6 +134,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { classes } = useStyles();
   const { data: session } = useSession();
   const trpc = api.useContext();
+  const router = useRouter();
 
   let YouTubeVideoId: string | undefined;
   if (getPost.data?.videoId) {
@@ -225,9 +227,9 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     },
     onSuccess: () => {
       notifications.show({
-        color: "blue",
+        color: "red",
         autoClose: 2000,
-        message: "この投稿にいいねしました。",
+        message: "この投稿のいいねを取り消しました。",
       });
     },
     onSettled: async () => {
@@ -322,32 +324,34 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
       <div
         key={post?.id}
-        className="flex h-full w-full flex-col items-center justify-center px-4 py-10 md:py-16"
+        className="flex  h-full w-full flex-col items-center justify-between px-4 py-10 md:py-16"
       >
         <div className="flex w-full max-w-4xl flex-col space-y-4">
           <Paper withBorder radius="sm" className="p-2 md:p-4">
-            <div className="flex flex-wrap justify-between pb-2">
-              <h1 className=" py-2 text-lg font-bold sm:text-xl">
+            <div className="flex items-end justify-between pb-2">
+              <h1 className="py-2 text-lg font-bold sm:text-xl">
                 {post?.title}
               </h1>
               <div className="flex flex-col items-end">
-                <Link
-                  href={`/category/${
-                    post?.category?.toLowerCase() ?? "default"
-                  }`}
+                <Text
+                  tt="uppercase"
+                  weight={700}
+                  className="cursor-pointer text-xs hover:underline md:text-sm"
                 >
-                  <Text
-                    tt="uppercase"
-                    size="xs"
-                    weight={700}
-                    color="dimmed"
-                    className="cursor-pointer hover:underline"
+                  <Link
+                    href={`/category/${
+                      post?.category?.toLowerCase() ?? "default"
+                    }`}
                   >
                     {post?.category}
-                  </Text>
-                </Link>
+                  </Link>
+                </Text>
 
-                <Text size="xs" weight={700} color="dimmed">
+                <Text
+                  className="text-xs md:text-sm"
+                  weight={700}
+                  color="dimmed"
+                >
                   {post?.createdAt.toLocaleDateString()}
                 </Text>
               </div>
@@ -360,19 +364,17 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
             <Group position="apart">
               <Group spacing={8}>
                 {post?.tags.slice(0, 2).map((tag, id) => (
-                  <Link key={id} href={`/tags/${tag}`}>
-                    <Badge
-                      component="button"
-                      className="mb-2 mt-4 cursor-pointer md:mb-0  "
-                      color={tagColors[tag.toLowerCase()]}
-                      size="md"
-                      variant={
-                        theme.colorScheme === "dark" ? "light" : "outline"
-                      }
-                    >
-                      # {tag}
-                    </Badge>
-                  </Link>
+                  <Badge
+                    key={id}
+                    component="button"
+                    className="mb-2 mt-4 cursor-pointer md:mb-0  "
+                    color={tagColors[tag.toLowerCase()]}
+                    size="md"
+                    variant={theme.colorScheme === "dark" ? "light" : "outline"}
+                    onClick={() => void router.push(`/tags/${tag}`)}
+                  >
+                    # {tag}
+                  </Badge>
                 ))}
               </Group>
               {post?.tags && post?.tags.length > 2 && (
@@ -489,19 +491,17 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           )}
         </div>
         <div className="mt-8 flex items-center justify-center space-x-2">
-          {post?.category && (
-            <Link href={`/category/${post.category}`}>
-              <Text
-                color="dimmed"
-                size="sm"
-                underline
-                className="text-sm font-bold md:text-base"
-                transform="uppercase"
-              >
-                {post.category}
-              </Text>
-            </Link>
-          )}
+          <Text
+            color="dimmed"
+            size="sm"
+            underline
+            className="text-sm font-bold md:text-base"
+            transform="uppercase"
+          >
+            {post?.category && (
+              <Link href={`/category/${post.category}`}>{post.category}</Link>
+            )}
+          </Text>
 
           <Text
             color="dimmed"
@@ -510,16 +510,14 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           >
             /
           </Text>
-          <Link href="/">
-            <Text
-              color="dimmed"
-              size="sm"
-              underline
-              className="text-sm font-bold md:text-base"
-            >
-              HOME
-            </Text>
-          </Link>
+          <Text
+            color="dimmed"
+            size="sm"
+            underline
+            className="text-sm font-bold md:text-base"
+          >
+            <Link href="/">HOME</Link>
+          </Text>
         </div>
       </div>
     </MemoizedMainLayout>

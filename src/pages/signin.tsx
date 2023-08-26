@@ -10,8 +10,8 @@ export default function SignIn({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
-      <Container size={420} my={60}>
-        <Paper withBorder shadow="md" p={30} mt={120} radius="md">
+      <Container className="my-40 h-full w-full" size={420}>
+        <Paper withBorder shadow="md" p={40} radius="md">
           <div className="mx-auto max-w-3xl">
             <Title
               align="center"
@@ -22,7 +22,13 @@ export default function SignIn({
             >
               LOGIN / SIGNIN
             </Title>
-            <Text color="dimmed" size="sm" align="center" my={8}>
+            <Text
+              className="hover:underline"
+              color="dimmed"
+              size="sm"
+              align="center"
+              my={8}
+            >
               <Link href="/">トップページに戻る</Link>
             </Text>
             <Image
@@ -30,6 +36,7 @@ export default function SignIn({
               height={240}
               src="/images/signin-icon.png"
               alt="Random image"
+              className="mx-auto"
             />
             {Object.values(providers).map((provider) => (
               <div key={provider.name}>

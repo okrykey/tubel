@@ -160,11 +160,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
               </Card>
             </form>
           ) : (
-            <div
-              className="flex justify-end"
-              onClick={handleButtonClick}
-              ref={formRef}
-            >
+            <div className="flex justify-end" onClick={handleButtonClick}>
               <Button
                 type="button"
                 variant="outline"

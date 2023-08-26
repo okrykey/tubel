@@ -27,17 +27,15 @@ const useStyles = createStyles((theme) => ({
 
   title: {
     fontWeight: 800,
-    fontSize: rem(50),
+    fontSize: rem(80),
     letterSpacing: rem(-1),
     paddingLeft: theme.spacing.md,
     paddingRight: theme.spacing.md,
-    color: theme.colorScheme === "dark" ? theme.white : theme.black,
-    marginBottom: theme.spacing.xs,
     textAlign: "center",
     fontFamily: `Greycliff CF, ${theme.fontFamily || "sans-serif"}`,
 
     [theme.fn.smallerThan("xs")]: {
-      fontSize: rem(28),
+      fontSize: rem(40),
       textAlign: "left",
     },
   },
@@ -79,18 +77,15 @@ export default function About() {
   return (
     <MainLayout>
       <div className={classes.wrapper}>
-        <Title className={classes.title}>
-          YouTubeでつながる
-          <Text
-            component="span"
-            inherit
-            color={theme.colorScheme === "dark" ? "teal" : "indigo"}
-          >
-            W.L.S.
-          </Text>
+        <Title
+          color={theme.colorScheme === "dark" ? "teal" : "indigo"}
+          className={classes.title}
+        >
+          Watch, Learn, Share !
         </Title>
+        <Divider mt="sm" />
 
-        <Container py="lg" className="space-y-16">
+        <Container py="lg" className="space-y-6 md:space-y-16">
           <Text size="lg" className={classes.description}>
             本サイトはYouTube上の有益な動画があつまるプラットフォームを目指しています。他の人にも有益になる動画を共有しよう。
           </Text>
