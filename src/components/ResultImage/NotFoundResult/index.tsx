@@ -8,6 +8,7 @@ import {
   Image,
 } from "@mantine/core";
 import { useAtom } from "jotai";
+import { useSession } from "next-auth/react";
 import { modalOpenAtom } from "~/state/Atoms";
 
 const useStyles = createStyles((theme) => ({
@@ -43,6 +44,7 @@ const useStyles = createStyles((theme) => ({
 export function NotFoundResult() {
   const { classes } = useStyles();
   const [, setIsOpen] = useAtom(modalOpenAtom);
+  const { data: session } = useSession();
 
   return (
     <Container className={`${classes.root} flex flex-col items-center`}>
@@ -62,7 +64,17 @@ export function NotFoundResult() {
         現在、このキーワードに関連する記事はありません。
       </Text>
       <Group position="center">
-        <Button variant="subtle" size="md" onClick={() => setIsOpen(true)}>
+        <Button
+          variant="subtle"
+          size="md"
+          onClick={() => {
+            if (!session) {
+              setIsOpen(true);
+              return;
+            }
+            setIsOpen(true);
+          }}
+        >
           関連する記事を投稿する
         </Button>
       </Group>
