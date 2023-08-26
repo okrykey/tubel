@@ -1,7 +1,6 @@
 import {
   Badge,
   Center,
-  Loader,
   SimpleGrid,
   Tabs,
   Text,
@@ -183,11 +182,6 @@ export const CategoryPosts = ({
           </SimpleGrid>
         </Tabs.Panel>
       </Tabs>
-      {currentTab === null && postGetAll.isLoading && (
-        <Center className="mt-10">
-          <Loader />
-        </Center>
-      )}
       {currentTab === null && postGetAll.isSuccess && (
         <SimpleGrid
           cols={3}

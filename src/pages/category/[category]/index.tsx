@@ -3,7 +3,6 @@ import {
   Center,
   Container,
   Divider,
-  Loader,
   SimpleGrid,
   Text,
   useMantineTheme,
@@ -146,14 +145,6 @@ const CategoryPostPage = (
   const categoryPostsQuery = getPostsByCategory([category]);
 
   const renderPosts = () => {
-    if (categoryPostsQuery.isLoading) {
-      return (
-        <Center>
-          <Loader />
-        </Center>
-      );
-    }
-
     if (categoryPostsQuery.isError) {
       return <p>記事の取得に失敗しました。</p>;
     }

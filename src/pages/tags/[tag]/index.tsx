@@ -1,7 +1,6 @@
 import {
   Badge,
   Container,
-  Loader,
   SimpleGrid,
   Center,
   useMantineTheme,
@@ -107,14 +106,10 @@ export default function TagPage(
           </>
         )}
 
-        {tagPostsQuery.isLoading ? (
-          <Center>
-            <Loader />
-          </Center>
-        ) : tagPostsQuery.isSuccess &&
-          tagPostsQuery.data?.pages.some(
-            (page) => page.TaggedPosts?.length > 0
-          ) ? (
+        {tagPostsQuery.isSuccess &&
+        tagPostsQuery.data?.pages.some(
+          (page) => page.TaggedPosts?.length > 0
+        ) ? (
           <SimpleGrid
             cols={3}
             spacing="xl"
