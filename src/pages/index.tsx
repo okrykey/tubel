@@ -33,7 +33,7 @@ const Home: NextPage<HomeProps> = (props) => {
   return (
     <>
       <MainLayout>
-        <Container size="lg" p="md">
+        <Container size="lg" p="md" className="flex h-full w-full flex-col">
           <Hero />
           <CategoryPosts
             initialDataAllPosts={props.initialDataAllPosts}
