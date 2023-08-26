@@ -13,7 +13,9 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { CategoryList } from "~/components/CategoryList";
+import type { PostPickProps } from "~/components/CategoryList";
 import MainLayout from "~/layouts/Mainlayout";
+import { api } from "~/utils/api";
 import { modalOpenAtom } from "../../state/Atoms";
 
 const useStyles = createStyles((theme) => ({
@@ -38,6 +40,16 @@ export default function CategoriesPage() {
       void router.push("/signin");
     }
   };
+
+  const postGetAll = api.post.all.useInfiniteQuery({});
+  const extractedPosts: PostPickProps[] =
+    postGetAll.data?.pages
+      .flatMap((page) => page.posts)
+      .map((post) => ({
+        title: post.title,
+        videoId: post.videoId,
+        category: post.category,
+      })) || [];
 
   return (
     <MainLayout>
@@ -72,7 +84,7 @@ export default function CategoriesPage() {
               { maxWidth: "md", cols: 2 },
             ]}
           >
-            <CategoryList />
+            <CategoryList posts={extractedPosts} />
           </SimpleGrid>
           <div className="flex flex-col  space-y-4 pb-8">
             <Center>
