@@ -6,6 +6,7 @@ import {
   useMantineTheme,
   Text,
   Divider,
+  Loader,
 } from "@mantine/core";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { type GetStaticPaths, type GetStaticPropsContext } from "next";
@@ -106,10 +107,14 @@ export default function TagPage(
           </>
         )}
 
-        {tagPostsQuery.isSuccess &&
-        tagPostsQuery.data?.pages.some(
-          (page) => page.TaggedPosts?.length > 0
-        ) ? (
+        {tagPostsQuery.isLoading ? (
+          <Center>
+            <Loader />
+          </Center>
+        ) : tagPostsQuery.isSuccess &&
+          tagPostsQuery.data?.pages.some(
+            (page) => page.TaggedPosts?.length > 0
+          ) ? (
           <SimpleGrid
             cols={3}
             spacing="xl"

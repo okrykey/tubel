@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { IconAtom, IconBook, IconMovie } from "@tabler/icons-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { api } from "~/utils/api";
 import { CategoryList } from "../CategoryList";
@@ -54,7 +54,16 @@ export const CategoryPosts = ({
 }) => {
   const theme = useMantineTheme();
   const [currentTab, setCurrentTab] = useState<string | null>(null);
+  const [isInitialRender, setIsInitialRender] = useState(false);
   const isMobile = useResponsive();
+
+  useEffect(() => {
+    setIsInitialRender(true);
+
+    return () => {
+      setIsInitialRender(false);
+    };
+  }, []);
 
   const postGetAll = api.post.all.useInfiniteQuery(
     {
@@ -182,7 +191,7 @@ export const CategoryPosts = ({
           </SimpleGrid>
         </Tabs.Panel>
       </Tabs>
-      {currentTab === null && postGetAll.isSuccess && (
+      {currentTab === null && (
         <SimpleGrid
           cols={3}
           spacing="xl"
@@ -195,8 +204,17 @@ export const CategoryPosts = ({
         >
           {postGetAll.data?.pages
             .flatMap((page) => page.posts)
-            .map((post) => (
-              <Post {...post} key={post.id} />
+            .map((post, index) => (
+              <div
+                className={
+                  isInitialRender
+                    ? `animate-slideFromTop  delay-${index * 100}`
+                    : ""
+                }
+                key={post.id}
+              >
+                <Post {...post} />
+              </div>
             ))}
         </SimpleGrid>
       )}
