@@ -79,7 +79,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
     }
   };
 
-  const handleButtonClick = (event: React.MouseEvent<HTMLInputElement>) => {
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!session) {
       event.preventDefault();
       void setIsOpen(true);
@@ -94,6 +94,27 @@ const CommentForm = ({ postId }: { postId: string }) => {
     function handleClickOutside(event: MouseEvent) {
       if (formRef.current && !formRef.current.contains(event.target as Node)) {
         setShowInputForm(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node) &&
+        textareaRef.current &&
+        !textareaRef.current.contains(event.target as Node)
+      ) {
+        setShowButton(false);
       }
     }
 
@@ -160,7 +181,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
               </Card>
             </form>
           ) : (
-            <div className="flex justify-end" onClick={handleButtonClick}>
+            <div className="flex justify-end">
               <Button
                 type="button"
                 variant="outline"
@@ -169,6 +190,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
                 radius="md"
                 px="sm"
                 className="mt-4 md:mt-0"
+                onClick={handleButtonClick}
               >
                 コメントする
               </Button>
@@ -188,6 +210,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
             <Textarea
               icon={<BiChat />}
               variant="filled"
+              ref={textareaRef}
               placeholder="Send a message..."
               autosize
               className="mx-2 flex-grow"
@@ -200,6 +223,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
           {showButton && (
             <div className="mx-2 mt-4 flex justify-end">
               <Button
+                ref={buttonRef}
                 type="submit"
                 variant="outline"
                 size="sm"
