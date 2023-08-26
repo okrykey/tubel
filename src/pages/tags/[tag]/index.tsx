@@ -8,9 +8,13 @@ import {
   Text,
   Divider,
 } from "@mantine/core";
-import { useRouter } from "next/router";
+import { createServerSideHelpers } from "@trpc/react-query/server";
+import { type GetStaticPaths, type GetStaticPropsContext } from "next";
+import type { InferGetStaticPropsType } from "next";
 import Post from "~/components/Post";
 import MainLayout from "~/layouts/Mainlayout";
+import { appRouter } from "~/server/api/root";
+import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 
 const tagColors: Record<string, string> = {
@@ -19,12 +23,43 @@ const tagColors: Record<string, string> = {
   cs: "cyan",
 };
 
-export default function TagPage() {
-  const theme = useMantineTheme();
-  const router = useRouter();
-  let { tag } = router.query;
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ tag: string }>
+) {
+  const helpers = createServerSideHelpers({
+    router: appRouter,
+    ctx: {
+      session: null,
+      prisma: prisma,
+    },
+  });
+  const tag = context.params?.tag as string;
 
-  tag = typeof tag === "string" ? tag : "";
+  await helpers.post.getByTag.prefetch({ tagName: tag });
+
+  return {
+    props: {
+      trpcState: helpers.dehydrate(),
+      tag,
+    },
+  };
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const tags = await prisma.tag.findMany({ select: { name: true } });
+  const paths = tags.map((tag) => ({ params: { tag: tag.name } }));
+
+  return {
+    paths,
+    fallback: "blocking",
+  };
+};
+
+export default function TagPage(
+  props: InferGetStaticPropsType<typeof getStaticProps>
+) {
+  const theme = useMantineTheme();
+  const { tag } = props;
 
   const getPostsByTag = (tagName: string) => {
     return api.post.getByTag.useInfiniteQuery({
