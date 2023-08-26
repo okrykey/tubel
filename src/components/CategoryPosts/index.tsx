@@ -1,6 +1,7 @@
 import {
   Badge,
   Center,
+  Loader,
   SimpleGrid,
   Tabs,
   Text,
@@ -13,6 +14,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { api } from "~/utils/api";
 import { CategoryList } from "../CategoryList";
 import Post from "../Post";
+import type { PostPickProps } from "../CategoryList";
 import type { PostProps } from "../Post";
 import { useResponsive } from "~/utils/useResponsive";
 
@@ -23,7 +25,28 @@ type InitialDataByCategoriesProps = {
   CategorizedPosts: PostProps[];
 };
 
-export const CategoryPostsList = ({
+const CATEGORIES = [
+  {
+    value: "1",
+    color: "green",
+    icon: <IconMovie size="1rem" />,
+    name: "movie",
+  },
+  {
+    value: "2",
+    color: "yellow",
+    icon: <IconBook size="1rem" />,
+    name: "english",
+  },
+  {
+    value: "3",
+    color: "blue",
+    icon: <IconAtom size="1rem" />,
+    name: "science",
+  },
+];
+
+export const CategoryPosts = ({
   initialDataAllPosts,
   initialDataByCategories,
 }: {
@@ -43,17 +66,16 @@ export const CategoryPostsList = ({
     },
     { refetchOnMount: false, refetchOnWindowFocus: false }
   );
+
   const getPostsByCategories = (categoryNames: string[]) => {
     return api.post.getByCategories.useInfiniteQuery(
       {
         categoryNames,
       },
       {
-        ...{
-          initialData: {
-            pages: [initialDataByCategories],
-            pageParams: [{ cursor: null }],
-          },
+        initialData: {
+          pages: [initialDataByCategories],
+          pageParams: [{ cursor: null }],
         },
         refetchOnMount: false,
         refetchOnWindowFocus: false,
@@ -64,87 +86,75 @@ export const CategoryPostsList = ({
   const allPostsQuery = getPostsByCategories(["movie", "english", "science"]);
 
   const renderPosts = (categoryName: string) => {
-    const categoryPosts = allPostsQuery.data?.pages.flatMap((page) =>
-      page.CategorizedPosts
-        ? page.CategorizedPosts.filter(
-            (post) => post.category && post.category.name === categoryName
-          )
-        : []
-    );
+    const categoryPosts = (allPostsQuery.data?.pages || [])
+      .flatMap((page) => page.CategorizedPosts || [])
+      .filter((post) => post.category?.name === categoryName);
 
-    if (Array.isArray(categoryPosts) && categoryPosts.length > 0) {
-      return categoryPosts.map((post) => <Post {...post} key={post.id} />);
+    if (categoryPosts.length === 0) {
+      return (
+        <Text color="dimmed" className="text-center">
+          現在このカテゴリの記事は存在しません。
+        </Text>
+      );
     }
 
+    return categoryPosts.map((post) => <Post {...post} key={post.id} />);
+  };
+
+  const PostGrid = ({ category }: { category: string }) => {
     return (
-      <Text color="dimmed" className="text-center">
-        現在このカテゴリの記事は存在しません。
-      </Text>
+      <SimpleGrid
+        cols={3}
+        spacing="xl"
+        verticalSpacing="xl"
+        mt={24}
+        breakpoints={[
+          { maxWidth: "sm", cols: 1 },
+          { maxWidth: "md", cols: 2 },
+        ]}
+      >
+        {renderPosts(category)}
+      </SimpleGrid>
     );
   };
+
+  const extractedPosts: PostPickProps[] =
+    postGetAll.data?.pages
+      .flatMap((page) => page.posts)
+      .map((post) => ({
+        title: post.title,
+        videoId: post.videoId,
+        category: post.category,
+      })) || [];
+
   return (
     <>
       <Tabs color="teal" value={currentTab} onTabChange={setCurrentTab}>
         <Tabs.List grow>
-          <Tabs.Tab value="1" color="green" icon={<IconMovie size="1rem" />}>
-            MOVIE
-          </Tabs.Tab>
-
-          <Tabs.Tab value="2" color="yellow" icon={<IconBook size="1rem" />}>
-            ENGLISH
-          </Tabs.Tab>
-
-          <Tabs.Tab value="3" color="blue" icon={<IconAtom size="1rem" />}>
-            SCIENCE
-          </Tabs.Tab>
+          {CATEGORIES.map((category) => (
+            <Tabs.Tab
+              key={category.value}
+              value={category.value}
+              color={category.color}
+              icon={category.icon}
+            >
+              {category.name.toUpperCase()}
+            </Tabs.Tab>
+          ))}
           <Tabs.Tab ml="auto" value="4" color="black">
             {isMobile ? <BsThreeDots /> : "All"}
           </Tabs.Tab>
         </Tabs.List>
-
-        <Tabs.Panel value="1" pt="md" className="max-w-5xl">
-          <SimpleGrid
-            cols={3}
-            spacing="xl"
-            verticalSpacing="xl"
-            mt={24}
-            breakpoints={[
-              { maxWidth: "sm", cols: 1 },
-              { maxWidth: "md", cols: 2 },
-            ]}
+        {CATEGORIES.map((category) => (
+          <Tabs.Panel
+            key={category.value}
+            value={category.value}
+            pt="md"
+            className="max-w-5xl"
           >
-            {renderPosts("movie")}
-          </SimpleGrid>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="2" pt="md" className="max-w-5xl">
-          <SimpleGrid
-            cols={3}
-            spacing="xl"
-            verticalSpacing="xl"
-            mt={24}
-            breakpoints={[
-              { maxWidth: "sm", cols: 1 },
-              { maxWidth: "md", cols: 2 },
-            ]}
-          >
-            {renderPosts("english")}
-          </SimpleGrid>
-        </Tabs.Panel>
-        <Tabs.Panel value="3" pt="md" className="max-w-5xl">
-          <SimpleGrid
-            cols={3}
-            spacing="xl"
-            verticalSpacing="xl"
-            mt={24}
-            breakpoints={[
-              { maxWidth: "sm", cols: 1 },
-              { maxWidth: "md", cols: 2 },
-            ]}
-          >
-            {renderPosts("science")}
-          </SimpleGrid>
-        </Tabs.Panel>
+            <PostGrid category={category.name} />
+          </Tabs.Panel>
+        ))}
         <Tabs.Panel value="4" className="max-w-5xl pt-10">
           <Center>
             <Link href="/category">
@@ -169,11 +179,16 @@ export const CategoryPostsList = ({
               { maxWidth: "md", cols: 2 },
             ]}
           >
-            <CategoryList></CategoryList>
+            <CategoryList posts={extractedPosts} />
           </SimpleGrid>
         </Tabs.Panel>
       </Tabs>
-      {currentTab === null && (
+      {currentTab === null && postGetAll.isLoading && (
+        <Center className="mt-10">
+          <Loader />
+        </Center>
+      )}
+      {currentTab === null && postGetAll.isSuccess && (
         <SimpleGrid
           cols={3}
           spacing="xl"
@@ -184,10 +199,11 @@ export const CategoryPostsList = ({
             { maxWidth: "md", cols: 2 },
           ]}
         >
-          {postGetAll.isSuccess &&
-            postGetAll.data?.pages
-              .flatMap((page) => page.posts)
-              .map((post) => <Post {...post} key={post.id} />)}
+          {postGetAll.data?.pages
+            .flatMap((page) => page.posts)
+            .map((post) => (
+              <Post {...post} key={post.id} />
+            ))}
         </SimpleGrid>
       )}
     </>

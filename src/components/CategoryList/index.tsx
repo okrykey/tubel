@@ -18,16 +18,12 @@ import {
   IconShirt,
   IconChevronRight,
 } from "@tabler/icons-react";
-import { api } from "~/utils/api";
+import type { PostProps } from "../Post";
 
-type PostData = {
-  CategorizedPosts: {
-    videoId: string;
-    title: string;
-    category?: {
-      name: string;
-    };
-  }[];
+export type PostPickProps = Pick<PostProps, "videoId" | "title" | "category">;
+
+type CategoryPostProps = {
+  posts: PostPickProps[];
 };
 
 const useStyles = createStyles((theme) => ({
@@ -123,26 +119,15 @@ const categoryData = [
   },
 ];
 
-export function CategoryList() {
+export function CategoryList({ posts }: CategoryPostProps) {
   const { classes, theme } = useStyles();
-
-  const categoryNames = categoryData.map((item) => item.value);
-  const { data: allPostsData } = api.post.getCategorizedPosts.useQuery(
-    {
-      categoryNames,
-    },
-    {
-      enabled: true,
-    }
-  ) as { data: PostData };
 
   return (
     <>
       {categoryData.map((item) => {
-        const CategorizedPosts =
-          allPostsData?.CategorizedPosts.filter(
-            (post) => post.category && post.category.name === item.value
-          ) ?? [];
+        const CategorizedPosts = posts.filter(
+          (post) => post.category?.name === item.value
+        );
 
         return (
           <Link href={`/category/${item.value}`} key={item.id}>

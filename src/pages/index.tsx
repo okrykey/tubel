@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import MainLayout from "~/layouts/Mainlayout";
-import { CategoryPostsList } from "~/components/CategoryPostsList";
+import { CategoryPosts } from "~/components/CategoryPosts";
 import { notifications } from "@mantine/notifications";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { createServerSideHelpers } from "@trpc/react-query/server";
@@ -35,7 +35,7 @@ const Home: NextPage<HomeProps> = (props) => {
       <MainLayout>
         <Container size="lg" p="md">
           <Hero />
-          <CategoryPostsList
+          <CategoryPosts
             initialDataAllPosts={props.initialDataAllPosts}
             initialDataByCategories={props.initialDataByCategories}
           />
