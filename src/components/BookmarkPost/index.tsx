@@ -1,6 +1,7 @@
 import { Group, Text, Image, createStyles, Card, Avatar } from "@mantine/core";
 
 import Link from "next/link";
+import { formatDateToTokyoTimezone } from "~/utils/timezoneUtils";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -88,7 +89,7 @@ export function BookmarkPost({ post }: BookmarkPostProps) {
               </Group>
 
               <Text size="xs" color="dimmed" pt={1}>
-                {post.createdAt.toLocaleDateString()}
+                {formatDateToTokyoTimezone(post.createdAt)}
               </Text>
             </Group>
           </div>

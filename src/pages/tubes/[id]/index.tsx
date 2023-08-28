@@ -39,6 +39,7 @@ import type {
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { useRouter } from "next/router";
+import { formatDateToTokyoTimezone } from "~/utils/timezoneUtils";
 
 const MemoizedMainLayout = memo(MainLayout);
 
@@ -240,7 +241,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const handleClickLike = useCallback(() => {
     if (session && post?.id) {
       likePost.mutate({
-        postId: post.id,
+        postId: post?.id,
       });
     } else {
       setIsOpen(true);
@@ -250,7 +251,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const handleClickdisLike = useCallback(() => {
     if (session && post?.id) {
       dislikePost.mutate({
-        postId: post.id,
+        postId: post?.id,
       });
     } else {
       setIsOpen(true);
@@ -273,7 +274,7 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
   return (
     <MemoizedMainLayout>
-      {getPost.isSuccess && (
+      {getPost.isSuccess && post && (
         <div className="fixed  bottom-5 z-10 flex w-full items-center justify-center pr-4">
           <div className="flex w-full max-w-4xl flex-col items-end justify-end">
             <div
@@ -314,212 +315,217 @@ const Postpage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   }
                   className="ml-1 w-[10px]"
                 >
-                  {post?.likesCount}
+                  {post.likesCount}
                 </Text>
               </Group>
             </div>
           </div>
         </div>
       )}
-
-      <div
-        key={post?.id}
-        className="flex  h-full w-full flex-col items-center justify-between px-4 py-10 md:py-16"
-      >
-        <div className="flex w-full max-w-4xl flex-col space-y-4">
-          <Paper withBorder radius="sm" className="p-2 md:p-4">
-            <div className="flex items-end justify-between pb-2">
-              <h1 className="py-2 text-lg font-bold sm:text-xl">
-                {post?.title}
-              </h1>
-              <div className="flex flex-col items-end">
-                <Text
-                  tt="uppercase"
-                  weight={700}
-                  className="cursor-pointer text-xs hover:underline md:text-sm"
-                >
-                  <Link
-                    href={`/category/${
-                      post?.category?.toLowerCase() ?? "default"
-                    }`}
+      {post ? (
+        <div
+          key={post.id}
+          className="flex  h-full w-full flex-col items-center justify-between px-4 py-10 md:py-16"
+        >
+          <div className="flex w-full max-w-4xl flex-col space-y-4">
+            <Paper withBorder radius="sm" className="p-2 md:p-4">
+              <div className="flex items-end justify-between pb-2">
+                <h1 className="py-2 text-lg font-bold sm:text-xl">
+                  {post.title}
+                </h1>
+                <div className="flex flex-col items-end">
+                  <Text
+                    tt="uppercase"
+                    weight={700}
+                    className="cursor-pointer text-xs hover:underline md:text-sm"
                   >
-                    {post?.category}
-                  </Link>
-                </Text>
-
-                <Text
-                  className="text-xs md:text-sm"
-                  weight={700}
-                  color="dimmed"
-                >
-                  {post?.createdAt.toLocaleDateString()}
-                </Text>
-              </div>
-            </div>
-
-            <AspectRatio ratio={16 / 9}>
-              <YouTube videoId={YouTubeVideoId || ""} opts={opts}></YouTube>
-            </AspectRatio>
-
-            <Group position="apart">
-              <Group spacing={8}>
-                {post?.tags.slice(0, 2).map((tag, id) => (
-                  <Badge
-                    key={id}
-                    component="button"
-                    className="mb-2 mt-4 cursor-pointer md:mb-0  "
-                    color={tagColors[tag.toLowerCase()]}
-                    size="md"
-                    variant={theme.colorScheme === "dark" ? "light" : "outline"}
-                    onClick={() => void router.push(`/tags/${tag}`)}
-                  >
-                    # {tag}
-                  </Badge>
-                ))}
-              </Group>
-              {post?.tags && post?.tags.length > 2 && (
-                <ActionIcon
-                  component="button"
-                  onClick={toggle}
-                  color="gray"
-                  radius="sm"
-                  className="mb-2 mt-4 cursor-pointer md:mb-0 md:mt-4"
-                >
-                  {opened ? (
-                    <MdKeyboardArrowUp className="text-2xl" />
-                  ) : (
-                    <MdKeyboardArrowDown className="text-2xl" />
-                  )}
-                </ActionIcon>
-              )}
-            </Group>
-
-            <Collapse in={opened}>
-              <Group spacing={8}>
-                {post?.tags.slice(2).map((tag, id) => (
-                  <Group key={id} spacing={0}>
-                    <Link href={`/tags/${tag}`}>
-                      <Badge
-                        className="mb-2 cursor-pointer md:mb-0 md:mt-2"
-                        size="md"
-                        variant={
-                          theme.colorScheme === "dark" ? "light" : "outline"
-                        }
-                      >
-                        # {tag}
-                      </Badge>
+                    <Link
+                      href={`/category/${
+                        post.category?.toLowerCase() ?? "default"
+                      }`}
+                    >
+                      {post.category}
                     </Link>
-                  </Group>
-                ))}
-              </Group>
-            </Collapse>
-          </Paper>
-          <Spoiler
-            className="pt-4"
-            maxHeight={120}
-            transitionDuration={200}
-            showLabel={
-              <Badge
-                component="a"
-                className="ml-[17.5rem] mt-3 md:ml-[45rem] md:mt-4 lg:ml-[51rem]"
-                size="sm"
-                color="gray"
-                variant="light"
-                radius="md"
-              >
-                もっとみる
-              </Badge>
-            }
-            hideLabel={
-              <MdKeyboardArrowUp
-                className="mx-[20rem] mt-1 text-2xl md:ml-[47.5rem] lg:ml-[53rem]"
-                color="gray"
-              />
-            }
-          >
-            <Text
-              lineClamp={4}
-              className="whitespace-pre-wrap border-l-4 border-gray-400 pl-6"
-            >
-              {post?.content}
-            </Text>
-          </Spoiler>
+                  </Text>
 
-          <div className="pt-4">
-            {getPost.data?.id && <CommentForm postId={props.id} />}
-          </div>
-          {recommendPost.isSuccess && (
-            <div>
-              <Divider
-                className="pb-2 pt-3"
-                labelPosition="center"
-                label={
-                  <Badge
-                    component="p"
-                    variant="light"
-                    size="lg"
-                    radius="md"
-                    color="gray"
-                    px={0}
-                    className="w-[112px]"
+                  <Text
+                    className="text-xs md:text-sm"
+                    weight={700}
+                    color="dimmed"
                   >
-                    recommend
-                  </Badge>
-                }
-              />
+                    {formatDateToTokyoTimezone(post.createdAt)}
+                  </Text>
+                </div>
+              </div>
 
-              <SimpleGrid
-                cols={2}
-                spacing="xl"
-                verticalSpacing="xl"
-                mt={24}
-                breakpoints={[{ maxWidth: "sm", cols: 1 }]}
+              <AspectRatio ratio={16 / 9}>
+                <YouTube videoId={YouTubeVideoId || ""} opts={opts}></YouTube>
+              </AspectRatio>
+
+              <Group position="apart">
+                <Group spacing={8}>
+                  {post.tags.slice(0, 2).map((tag, id) => (
+                    <Badge
+                      key={id}
+                      component="button"
+                      className="mb-2 mt-4 cursor-pointer md:mb-0  "
+                      color={tagColors[tag.toLowerCase()]}
+                      size="md"
+                      variant={
+                        theme.colorScheme === "dark" ? "light" : "outline"
+                      }
+                      onClick={() => void router.push(`/tags/${tag}`)}
+                    >
+                      # {tag}
+                    </Badge>
+                  ))}
+                </Group>
+                {post.tags && post.tags.length > 2 && (
+                  <ActionIcon
+                    component="button"
+                    onClick={toggle}
+                    color="gray"
+                    radius="sm"
+                    className="mb-2 mt-4 cursor-pointer md:mb-0 md:mt-4"
+                  >
+                    {opened ? (
+                      <MdKeyboardArrowUp className="text-2xl" />
+                    ) : (
+                      <MdKeyboardArrowDown className="text-2xl" />
+                    )}
+                  </ActionIcon>
+                )}
+              </Group>
+
+              <Collapse in={opened}>
+                <Group spacing={8}>
+                  {post.tags.slice(2).map((tag, id) => (
+                    <Group key={id} spacing={0}>
+                      <Link href={`/tags/${tag}`}>
+                        <Badge
+                          className="mb-2 cursor-pointer md:mb-0 md:mt-2"
+                          size="md"
+                          variant={
+                            theme.colorScheme === "dark" ? "light" : "outline"
+                          }
+                        >
+                          # {tag}
+                        </Badge>
+                      </Link>
+                    </Group>
+                  ))}
+                </Group>
+              </Collapse>
+            </Paper>
+            <Spoiler
+              className="pt-4"
+              maxHeight={120}
+              transitionDuration={200}
+              showLabel={
+                <Badge
+                  component="a"
+                  className="ml-[17.5rem] mt-3 md:ml-[45rem] md:mt-4 lg:ml-[51rem]"
+                  size="sm"
+                  color="gray"
+                  variant="light"
+                  radius="md"
+                >
+                  もっとみる
+                </Badge>
+              }
+              hideLabel={
+                <MdKeyboardArrowUp
+                  className="mx-[20rem] mt-1 text-2xl md:ml-[47.5rem] lg:ml-[53rem]"
+                  color="gray"
+                />
+              }
+            >
+              <Text
+                lineClamp={4}
+                className="whitespace-pre-wrap border-l-4 border-gray-400 pl-6"
               >
-                {recommendPost.data.recommendedPosts.map((postData) => (
-                  <BookmarkPost
-                    key={postData.id}
-                    post={{
-                      ...postData,
-                      category: postData.category?.name
-                        ? postData.category.name
-                        : "",
-                    }}
-                  />
-                ))}
-              </SimpleGrid>
-            </div>
-          )}
-        </div>
-        <div className="mt-8 flex items-center justify-center space-x-2">
-          <Text
-            color="dimmed"
-            size="sm"
-            underline
-            className="text-sm font-bold md:text-base"
-            transform="uppercase"
-          >
-            {post?.category && (
-              <Link href={`/category/${post.category}`}>{post.category}</Link>
-            )}
-          </Text>
+                {post.content}
+              </Text>
+            </Spoiler>
 
-          <Text
-            color="dimmed"
-            size="sm"
-            className="text-sm font-bold md:text-base"
-          >
-            /
-          </Text>
-          <Text
-            color="dimmed"
-            size="sm"
-            underline
-            className="text-sm font-bold md:text-base"
-          >
-            <Link href="/">HOME</Link>
-          </Text>
+            <div className="pt-4">
+              {getPost.data?.id && <CommentForm postId={props.id} />}
+            </div>
+            {recommendPost.isSuccess && (
+              <div>
+                <Divider
+                  className="pb-2 pt-3"
+                  labelPosition="center"
+                  label={
+                    <Badge
+                      component="p"
+                      variant="light"
+                      size="lg"
+                      radius="md"
+                      color="gray"
+                      px={0}
+                      className="w-[112px]"
+                    >
+                      recommend
+                    </Badge>
+                  }
+                />
+
+                <SimpleGrid
+                  cols={2}
+                  spacing="xl"
+                  verticalSpacing="xl"
+                  mt={24}
+                  breakpoints={[{ maxWidth: "sm", cols: 1 }]}
+                >
+                  {recommendPost.data.recommendedPosts.map((postData) => (
+                    <BookmarkPost
+                      key={postData.id}
+                      post={{
+                        ...postData,
+                        category: postData.category?.name
+                          ? postData.category.name
+                          : "",
+                      }}
+                    />
+                  ))}
+                </SimpleGrid>
+              </div>
+            )}
+          </div>
+          <div className="mt-8 flex items-center justify-center space-x-2">
+            <Text
+              color="dimmed"
+              size="sm"
+              underline
+              className="text-sm font-bold md:text-base"
+              transform="uppercase"
+            >
+              {post.category && (
+                <Link href={`/category/${post.category}`}>{post.category}</Link>
+              )}
+            </Text>
+
+            <Text
+              color="dimmed"
+              size="sm"
+              className="text-sm font-bold md:text-base"
+            >
+              /
+            </Text>
+            <Text
+              color="dimmed"
+              size="sm"
+              underline
+              className="text-sm font-bold md:text-base"
+            >
+              <Link href="/">HOME</Link>
+            </Text>
+          </div>
         </div>
-      </div>
+      ) : (
+        <p>投稿が存在しません。</p>
+      )}
     </MemoizedMainLayout>
   );
 };

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { api } from "~/utils/api";
+import { formatDateToTokyoTimezone } from "~/utils/timezoneUtils";
 
 type Post = {
   id: string;
@@ -71,7 +72,7 @@ const PostRow: React.FC<{ post: Post }> = ({ post }) => {
         </td>
         <td className="hidden sm:table-cell">
           <Text size="sm" color="dimmed">
-            {post.createdAt.toLocaleDateString()}
+            {formatDateToTokyoTimezone(post?.createdAt)}
           </Text>
         </td>
         <td>

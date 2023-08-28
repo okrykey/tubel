@@ -19,6 +19,7 @@ import { LoginModalAtom } from "~/state/Atoms";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { notifications } from "@mantine/notifications";
+import { formatDateToTokyoTimezone } from "~/utils/timezoneUtils";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -194,7 +195,7 @@ const Post = ({ searchKeyword, ...post }: PostProps) => {
                 {post.user.name}
               </Text>
               <Text size="xs" color="dimmed" pt={3}>
-                ・{post.createdAt.toLocaleDateString()}
+                ・ {formatDateToTokyoTimezone(post?.createdAt)}
               </Text>
             </Center>
 
