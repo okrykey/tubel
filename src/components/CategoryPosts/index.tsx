@@ -59,6 +59,7 @@ export const CategoryPosts = ({
 }) => {
   const theme = useMantineTheme();
   const [currentTab, setCurrentTab] = useState<string | null>(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
   const isMobile = useResponsive();
 
   const postGetAll = api.post.all.useInfiniteQuery(
@@ -234,7 +235,10 @@ export const CategoryPosts = ({
             .flatMap((page) => page.posts)
             .map((post, index) => (
               <div
-                className={`animate-slideFromTop  delay-${index * 100}`}
+                className={
+                  hasAnimated ? "" : `animate-slideFromTop delay-${index * 100}`
+                }
+                onAnimationEnd={() => setHasAnimated(true)}
                 key={post.id}
               >
                 <Post {...post} />

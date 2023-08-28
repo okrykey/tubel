@@ -68,7 +68,6 @@ export default function TagPage(
         tagName: tagName,
       },
       {
-        refetchOnMount: false,
         refetchOnWindowFocus: false,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       }

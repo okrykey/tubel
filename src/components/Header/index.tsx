@@ -165,7 +165,10 @@ export const HeaderTabs = () => {
     <UnstyledButton
       className={classes.subLink}
       key={item.label}
-      onClick={() => void router.push(`/category/${item.label}`)}
+      onClick={() => {
+        void closeDrawer();
+        void router.push(`/category/${item.label}`);
+      }}
     >
       <Group noWrap align="flex-start">
         <ThemeIcon size={34} variant="default" radius="md">

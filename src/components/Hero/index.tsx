@@ -14,6 +14,7 @@ import { IconCheck } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import { LoginModalAtom, modalOpenAtom } from "~/state/Atoms";
 import { useSession } from "next-auth/react";
+import { useResponsive } from "~/utils/useResponsive";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -40,12 +41,12 @@ const useStyles = createStyles((theme) => ({
     lineHeight: 1.1,
 
     [theme.fn.smallerThan("sm")]: {
-      fontSize: rem(40),
-      lineHeight: 1.2,
+      fontSize: rem(50),
+      lineHeight: 1.3,
     },
 
     [theme.fn.smallerThan("xs")]: {
-      fontSize: rem(36),
+      fontSize: rem(42),
       lineHeight: 1.3,
     },
   },
@@ -55,6 +56,7 @@ const useStyles = createStyles((theme) => ({
 
     [theme.fn.smallerThan("sm")]: {
       width: "100%",
+      marginTop: "16px",
     },
   },
 
@@ -82,6 +84,7 @@ export const Hero = () => {
   const [, setIsOpen] = useAtom(modalOpenAtom);
   const [, setIsLginOpen] = useAtom(LoginModalAtom);
   const { data: sessionData } = useSession();
+  const isMobile = useResponsive();
 
   return (
     <div>
@@ -117,23 +120,38 @@ export const Hero = () => {
             </Text>
 
             <List
-              mt={30}
+              className="mt-4 md:mt-7"
               spacing="sm"
               size="sm"
               icon={
-                <ThemeIcon size={15} radius="md">
+                <ThemeIcon
+                  size={18}
+                  radius="md"
+                  variant="outline"
+                  className="mt-2 md:mt-1.5"
+                >
                   <IconCheck size={rem(12)} stroke={1.5} />
                 </ThemeIcon>
               }
             >
-              <List.Item>
-                <b className="text-lg">Learning from YouTube</b>
-                ：YouTubeのコンテンツはすべてフリー。誰でもどこでも。
-              </List.Item>
-              <List.Item>
-                <b className="text-lg">You earn more!</b>
-                ：有益な動画から役立つ情報を吸収しよう。
-              </List.Item>
+              {isMobile ? (
+                <List.Item>
+                  <b className="text-2xl">
+                    Learning from YouTube, You earn more!
+                  </b>
+                </List.Item>
+              ) : (
+                <>
+                  <List.Item>
+                    <b className="text-xl">Learning from YouTube</b>
+                    ：YouTubeのコンテンツはすべてフリー。誰でもどこでも。
+                  </List.Item>
+                  <List.Item>
+                    <b className="text-xl"> You earn more!</b>
+                    ：有益な動画から役立つ情報を吸収しよう。
+                  </List.Item>
+                </>
+              )}
             </List>
 
             <Button
