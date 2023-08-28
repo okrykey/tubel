@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Center,
   SimpleGrid,
   Tabs,
@@ -8,7 +9,7 @@ import {
 } from "@mantine/core";
 import { IconAtom, IconBook, IconMovie } from "@tabler/icons-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { api } from "~/utils/api";
 import { CategoryList } from "../CategoryList";
@@ -16,13 +17,17 @@ import Post from "../Post";
 import type { PostPickProps } from "../CategoryList";
 import type { PostProps } from "../Post";
 import { useResponsive } from "~/utils/useResponsive";
+import type { InfiniteData } from "@tanstack/react-query";
 
-type InitialDataAllPostsProps = {
+type InitialDataAllPostsProps = InfiniteData<{
   posts: PostProps[];
-};
-type InitialDataByCategoriesProps = {
+  nextCursor: string | undefined;
+}>;
+
+type InitialDataByCategoriesProps = InfiniteData<{
   CategorizedPosts: PostProps[];
-};
+  nextCursor: string | undefined;
+}>;
 
 const CATEGORIES = [
   {
@@ -54,39 +59,37 @@ export const CategoryPosts = ({
 }) => {
   const theme = useMantineTheme();
   const [currentTab, setCurrentTab] = useState<string | null>(null);
-  const [isInitialRender, setIsInitialRender] = useState(false);
   const isMobile = useResponsive();
-
-  useEffect(() => {
-    setIsInitialRender(true);
-
-    return () => {
-      setIsInitialRender(false);
-    };
-  }, []);
 
   const postGetAll = api.post.all.useInfiniteQuery(
     {
-      initialData: {
-        pages: [initialDataAllPosts],
-        pageParams: [{ cursor: null }],
-      },
+      limit: 10,
     },
-    { refetchOnMount: false, refetchOnWindowFocus: false }
+    {
+      initialData: {
+        pages: initialDataAllPosts.pages,
+        pageParams: initialDataAllPosts.pageParams,
+      },
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
   );
 
   const getPostsByCategories = (categoryNames: string[]) => {
     return api.post.getByCategories.useInfiniteQuery(
       {
         categoryNames,
+        limit: 10,
       },
       {
         initialData: {
-          pages: [initialDataByCategories],
-          pageParams: [{ cursor: null }],
+          pages: initialDataByCategories.pages,
+          pageParams: initialDataByCategories.pageParams,
         },
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
       }
     );
   };
@@ -106,23 +109,48 @@ export const CategoryPosts = ({
       );
     }
 
-    return categoryPosts.map((post) => <Post {...post} key={post.id} />);
+    return (
+      <>
+        {categoryPosts.map((post) => (
+          <Post {...post} key={post.id} />
+        ))}
+      </>
+    );
   };
 
   const PostGrid = ({ category }: { category: string }) => {
     return (
-      <SimpleGrid
-        cols={3}
-        spacing="xl"
-        verticalSpacing="xl"
-        mt={24}
-        breakpoints={[
-          { maxWidth: "sm", cols: 1 },
-          { maxWidth: "md", cols: 2 },
-        ]}
-      >
-        {renderPosts(category)}
-      </SimpleGrid>
+      <>
+        <SimpleGrid
+          cols={3}
+          spacing="xl"
+          verticalSpacing="xl"
+          mt={24}
+          breakpoints={[
+            { maxWidth: "sm", cols: 1 },
+            { maxWidth: "md", cols: 2 },
+          ]}
+        >
+          {renderPosts(category)}
+        </SimpleGrid>
+        {allPostsQuery.hasNextPage && (
+          <Center>
+            <Button
+              onClick={() => {
+                void postGetAll.fetchNextPage();
+              }}
+              disabled={allPostsQuery.isFetchingNextPage}
+              size="xs"
+              mt="md"
+              radius="md"
+            >
+              {allPostsQuery.isFetchingNextPage
+                ? "Loading more..."
+                : "Load More"}
+            </Button>
+          </Center>
+        )}
+      </>
     );
   };
 
@@ -158,12 +186,12 @@ export const CategoryPosts = ({
             key={category.value}
             value={category.value}
             pt="md"
-            className="max-w-5xl"
+            className="w-full"
           >
             <PostGrid category={category.name} />
           </Tabs.Panel>
         ))}
-        <Tabs.Panel value="4" className="max-w-5xl pt-10">
+        <Tabs.Panel value="4" className="w-full pt-10">
           <Center>
             <Link href="/category">
               <Badge
@@ -206,17 +234,29 @@ export const CategoryPosts = ({
             .flatMap((page) => page.posts)
             .map((post, index) => (
               <div
-                className={
-                  isInitialRender
-                    ? `animate-slideFromTop  delay-${index * 100}`
-                    : ""
-                }
+                className={`animate-slideFromTop  delay-${index * 100}`}
                 key={post.id}
               >
                 <Post {...post} />
               </div>
             ))}
         </SimpleGrid>
+      )}
+
+      {postGetAll.hasNextPage && (
+        <Center>
+          <Button
+            onClick={() => {
+              void postGetAll.fetchNextPage();
+            }}
+            disabled={postGetAll.isFetchingNextPage}
+            size="xs"
+            mt="md"
+            radius="md"
+          >
+            {postGetAll.isFetchingNextPage ? "Loading more..." : "Load More"}
+          </Button>
+        </Center>
       )}
     </>
   );

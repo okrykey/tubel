@@ -14,10 +14,14 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         cursor: z.string().nullish(),
+        limit: z.number().min(1).max(100).nullish(),
       })
     )
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 10;
       const posts = await ctx.prisma.post.findMany({
+        take: limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
         orderBy: {
           createdAt: "desc",
         },
@@ -60,7 +64,17 @@ export const postRouter = createTRPCRouter({
         },
       });
 
-      return { posts };
+      let nextCursor: string | undefined = undefined;
+      if (posts.length > limit) {
+        const nextPost = posts.pop();
+        if (nextPost) {
+          nextCursor = nextPost.id;
+        } else {
+          throw new Error("Expected nextPost to be defined but it was not.");
+        }
+      }
+
+      return { posts, nextCursor };
     }),
 
   get: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -323,11 +337,15 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         cursor: z.string().nullish(),
+        limit: z.number().min(1).max(100).nullish(),
         categoryNames: z.array(z.string()),
       })
     )
     .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 10;
       const CategorizedPosts = await ctx.prisma.post.findMany({
+        take: limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
         where: {
           category: {
             name: { in: input.categoryNames },
@@ -374,19 +392,32 @@ export const postRouter = createTRPCRouter({
           },
         },
       });
+      let nextCursor: string | undefined = undefined;
+      if (CategorizedPosts.length > limit) {
+        const nextPost = CategorizedPosts.pop();
+        if (nextPost) {
+          nextCursor = nextPost.id;
+        } else {
+          throw new Error("Expected nextPost to be defined but it was not.");
+        }
+      }
 
-      return { CategorizedPosts };
+      return { CategorizedPosts, nextCursor };
     }),
 
   getByTag: publicProcedure
     .input(
       z.object({
         cursor: z.string().nullish(),
+        limit: z.number().min(1).max(100).nullish(),
         tagName: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 10;
       const TaggedPosts = await ctx.prisma.post.findMany({
+        take: limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
         where: {
           tags: {
             some: {
@@ -435,8 +466,17 @@ export const postRouter = createTRPCRouter({
           category: { select: { name: true } },
         },
       });
+      let nextCursor: string | undefined = undefined;
+      if (TaggedPosts.length > limit) {
+        const nextPost = TaggedPosts.pop();
+        if (nextPost) {
+          nextCursor = nextPost.id;
+        } else {
+          throw new Error("Expected nextPost to be defined but it was not.");
+        }
+      }
 
-      return { TaggedPosts };
+      return { TaggedPosts, nextCursor };
     }),
 
   search: publicProcedure
