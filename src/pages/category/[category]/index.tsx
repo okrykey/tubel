@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Center,
   Container,
   Divider,
@@ -95,7 +96,9 @@ export async function getStaticProps(
   });
   const category = context.params?.category as string;
 
-  await helpers.post.getByCategories.prefetch({ categoryNames: [category] });
+  await helpers.post.getByCategories.prefetchInfinite({
+    categoryNames: [category],
+  });
 
   return {
     props: {
@@ -124,9 +127,16 @@ const CategoryPostPage = (
   const { category } = props;
 
   const getPostsByCategory = (categoryNames: string[]) => {
-    return api.post.getByCategories.useInfiniteQuery({
-      categoryNames: categoryNames,
-    });
+    return api.post.getByCategories.useInfiniteQuery(
+      {
+        categoryNames: categoryNames,
+      },
+      {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }
+    );
   };
 
   const getCategoryDetails = (categoryValue: string | undefined) => {
@@ -165,22 +175,40 @@ const CategoryPostPage = (
       )
     ) {
       return (
-        <SimpleGrid
-          cols={3}
-          spacing="xl"
-          verticalSpacing="xl"
-          mt={40}
-          breakpoints={[
-            { maxWidth: "sm", cols: 1 },
-            { maxWidth: "md", cols: 2 },
-          ]}
-        >
-          {categoryPostsQuery.data?.pages.flatMap((page) =>
-            page.CategorizedPosts?.map((post) => (
-              <Post {...post} key={post.id} />
-            ))
+        <>
+          <SimpleGrid
+            cols={3}
+            spacing="xl"
+            verticalSpacing="xl"
+            mt={40}
+            breakpoints={[
+              { maxWidth: "sm", cols: 1 },
+              { maxWidth: "md", cols: 2 },
+            ]}
+          >
+            {categoryPostsQuery.data?.pages.flatMap((page) =>
+              page.CategorizedPosts?.map((post) => (
+                <Post {...post} key={post.id} />
+              ))
+            )}
+          </SimpleGrid>
+
+          {categoryPostsQuery.hasNextPage && (
+            <Center mt={20}>
+              <Button
+                onClick={() => void categoryPostsQuery.fetchNextPage()}
+                disabled={categoryPostsQuery.isFetchingNextPage}
+                size="xs"
+                mt="md"
+                radius="md"
+              >
+                {categoryPostsQuery.isFetchingNextPage
+                  ? "Loading more..."
+                  : "Load More"}
+              </Button>
+            </Center>
           )}
-        </SimpleGrid>
+        </>
       );
     }
 

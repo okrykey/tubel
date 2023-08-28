@@ -7,6 +7,7 @@ import {
   Text,
   Divider,
   Loader,
+  Button,
 } from "@mantine/core";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { type GetStaticPaths, type GetStaticPropsContext } from "next";
@@ -35,7 +36,7 @@ export async function getStaticProps(
   });
   const tag = context.params?.tag as string;
 
-  await helpers.post.getByTag.prefetch({ tagName: tag });
+  await helpers.post.getByTag.prefetchInfinite({ tagName: tag });
 
   return {
     props: {
@@ -62,9 +63,16 @@ export default function TagPage(
   const { tag } = props;
 
   const getPostsByTag = (tagName: string) => {
-    return api.post.getByTag.useInfiniteQuery({
-      tagName: tagName,
-    });
+    return api.post.getByTag.useInfiniteQuery(
+      {
+        tagName: tagName,
+      },
+      {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }
+    );
   };
 
   const tagPostsQuery = getPostsByTag(tag);
@@ -132,6 +140,22 @@ export default function TagPage(
             <Text className="pt-8 text-center">
               現在このタグの記事は存在しません。
             </Text>
+          </Center>
+        )}
+
+        {tagPostsQuery.hasNextPage && (
+          <Center>
+            <Button
+              onClick={() => void tagPostsQuery.fetchNextPage()}
+              disabled={tagPostsQuery.isFetchingNextPage}
+              size="xs"
+              mt="md"
+              radius="md"
+            >
+              {tagPostsQuery.isFetchingNextPage
+                ? "Loading more..."
+                : "Load More"}
+            </Button>
           </Center>
         )}
       </Container>
