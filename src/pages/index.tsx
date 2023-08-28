@@ -56,10 +56,11 @@ export async function getStaticProps() {
     },
   });
 
-  const initialDataAllPosts = await helpers.post.all.fetch({});
-  const initialDataByCategories = await helpers.post.getByCategories.fetch({
-    categoryNames: ["movie", "english", "science"],
-  });
+  const initialDataAllPosts = await helpers.post.all.fetchInfinite({});
+  const initialDataByCategories =
+    await helpers.post.getByCategories.fetchInfinite({
+      categoryNames: ["movie", "english", "science"],
+    });
 
   return {
     props: {
