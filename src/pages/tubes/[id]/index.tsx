@@ -22,6 +22,7 @@ import {
 } from "@mantine/core";
 import MainLayout from "~/layouts/Mainlayout";
 import YouTube from "react-youtube";
+import type { YouTubeProps } from "react-youtube";
 import superjson from "superjson";
 import CommentForm from "~/components/CommentForm";
 import Link from "next/link";
@@ -70,7 +71,7 @@ const tagColors: Record<string, string> = {
   ted: "red",
 };
 
-const opts = {
+const opts: YouTubeProps["opts"] = {
   width: "100%",
   height: "100%",
 };

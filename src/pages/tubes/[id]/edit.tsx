@@ -22,6 +22,7 @@ import { useRouter } from "next/router";
 import { notifications } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
 import YouTube from "react-youtube";
+import type { YouTubeProps } from "react-youtube";
 
 type PostFormType = {
   title: string;
@@ -51,7 +52,7 @@ const tags = [
   { value: "computerscience", label: "computerscience" },
 ];
 
-const opts = {
+const opts: YouTubeProps["opts"] = {
   width: "90%",
   height: "90%",
 };
