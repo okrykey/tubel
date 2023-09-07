@@ -6,8 +6,6 @@ import {
   Divider,
   Box,
   Text,
-  Loader,
-  Center,
 } from "@mantine/core";
 import type { TextInputProps } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
@@ -71,11 +69,7 @@ export const SearchBar = (props: TextInputProps) => {
         </Text>
       )}
 
-      {debouncedQuery && searchResult.isLoading ? (
-        <Center>
-          <Loader />
-        </Center>
-      ) : debouncedQuery ? (
+      {debouncedQuery ? (
         (searchResult?.data?.SearchedPosts?.length ?? 0) > 0 ? (
           <>
             <Divider
