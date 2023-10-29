@@ -149,9 +149,6 @@ const PostFormModal = () => {
           className="w-full"
           minRows={3}
           autosize
-          onChange={(e) => {
-            e.target.value = e.target.value.replace(/\n+$/, "");
-          }}
         />
 
         <Select
