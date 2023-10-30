@@ -68,5 +68,6 @@ export async function getStaticProps() {
       initialDataAllPosts,
       initialDataByCategories,
     },
+    revalidate: 1,
   };
 }
